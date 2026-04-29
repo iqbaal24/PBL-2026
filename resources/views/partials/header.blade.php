@@ -2,7 +2,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-20">
             <div class="flex items-center gap-3">
-                <span class="font-bold text-2xl tracking-tight text-[#2C3E50]">Digital Print Pro</span>
+                <span class="font-bold text-2xl tracking-tight text-[#2C3E50]">Harapan Jaya Printing</span>
             </div>
             <div class="hidden lg:flex items-center gap-10">
                 <a href="{{ url('/') }}" class="text-[#2C3E50] font-medium text-sm">Beranda</a>
