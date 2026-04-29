@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Checkout - {{ $product->nama }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <style>
+         body { font-family: 'Inter', sans-serif; background-color: #F8F9FA; color: #2C3E50; }
+    </style>
+</head>
+<body class="antialiased py-12 px-4">
+    <div class="max-w-2xl mx-auto">
+        <div class="text-center mb-10">
+            <h1 class="text-3xl font-bold text-[#2C3E50] mb-2">Formulir Pemesanan</h1>
+            <p class="text-[#2C3E50]/70">Lengkapi data untuk pesanan produk <span class="font-semibold">{{ $product->nama }}</span></p>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-[#2C3E50]/10 p-8">
+            <div class="mb-8 pb-8 border-b border-[#2C3E50]/10 flex flex-col md:flex-row gap-6">
+                <div class="w-full md:w-1/3 aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=500&auto=format&fit=crop&q=60" alt="Product" class="w-full h-full object-cover">
+                </div>
+                <div class="w-full md:w-2/3 flex flex-col justify-center">
+                    <h2 class="text-2xl font-bold text-[#2C3E50] mb-2">{{ $product->nama }}</h2>
+                    <p class="text-xl font-medium text-[#3498DB] mb-4">Rp {{ number_format($product->harga, 0, ',', '.') }} <span class="text-sm text-[#2C3E50]/50 font-normal">/ satuan</span></p>
+                    <p class="text-sm text-[#2C3E50]/70 leading-relaxed">{{ $product->deskripsi }}</p>
+                </div>
+            </div>
+
+            @if($errors->any())
+                <div class="mb-6 p-4 bg-red-50 text-red-600 rounded-lg border border-red-200 text-sm">
+                    <ul class="list-disc list-inside">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <form action="{{ route('checkout.store', $product->id) }}" method="POST" class="space-y-6">
+                @csrf
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Nama Lengkap</label>
+                        <input type="text" name="customer_name" required class="w-full px-4 py-3 rounded-lg bg-[#F8F9FA] border border-[#2C3E50]/20 focus:outline-none focus:border-[#3498DB] focus:ring-1 focus:ring-[#3498DB] transition-all" placeholder="John Doe">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Nomor WhatsApp</label>
+                        <input type="text" name="customer_phone" required class="w-full px-4 py-3 rounded-lg bg-[#F8F9FA] border border-[#2C3E50]/20 focus:outline-none focus:border-[#3498DB] focus:ring-1 focus:ring-[#3498DB] transition-all" placeholder="08123456789">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold mb-2">Alamat Pengiriman</label>
+                    <textarea name="customer_address" required rows="3" class="w-full px-4 py-3 rounded-lg bg-[#F8F9FA] border border-[#2C3E50]/20 focus:outline-none focus:border-[#3498DB] focus:ring-1 focus:ring-[#3498DB] transition-all" placeholder="Alamat lengkap..."></textarea>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Jumlah / Kuantitas</label>
+                        <input type="number" name="quantity" min="1" value="1" required class="w-full px-4 py-3 rounded-lg bg-[#F8F9FA] border border-[#2C3E50]/20 focus:outline-none focus:border-[#3498DB] focus:ring-1 focus:ring-[#3498DB] transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Catatan Khusus (Opsional)</label>
+                        <input type="text" name="notes" class="w-full px-4 py-3 rounded-lg bg-[#F8F9FA] border border-[#2C3E50]/20 focus:outline-none focus:border-[#3498DB] focus:ring-1 focus:ring-[#3498DB] transition-all" placeholder="Contoh: Ukuran 3x4 meter">
+                    </div>
+                </div>
+
+                <div class="pt-6 border-t border-[#2C3E50]/10 flex flex-col md:flex-row items-center justify-between">
+                    <a href="{{ url('/') }}" class="text-[#2C3E50]/60 hover:text-[#3498DB] text-sm font-medium mb-4 md:mb-0 transition-colors">
+                        Batal & Kembali
+                    </a>
+                    <button type="submit" class="w-full md:w-auto px-8 py-3 rounded-full bg-[#3498DB] hover:bg-[#2980B9] text-white font-bold text-base transition-colors shadow-sm">
+                        Proses Pesanan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
