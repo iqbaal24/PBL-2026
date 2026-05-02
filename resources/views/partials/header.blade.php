@@ -2,7 +2,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-20">
             <div class="flex items-center gap-3">
-                <span class="font-bold text-2xl tracking-tight text-[#2C3E50]">Digital Print Pro</span>
+                <span class="font-bold text-2xl tracking-tight text-[#2C3E50]">Harapan Jaya Printing</span>
             </div>
             <div class="hidden lg:flex items-center gap-10">
                 <a href="{{ url('/') }}" class="text-[#2C3E50] font-medium text-sm">Beranda</a>
@@ -13,10 +13,17 @@
             <div class="hidden lg:flex items-center gap-4">
                 <div class="relative">
                     @php
-                        $searchProducts = array_map(
-                            fn($product) => ['name' => $product['nama'], 'slug' => $product['slug']],
-                            \App\Services\ProductService::all()
-                        );
+                        $searchProducts = [];
+
+                        try {
+                            $searchProducts = \App\Models\Product::query()
+                                ->orderBy('name')
+                                ->get(['name', 'slug'])
+                                ->map(fn($product) => ['name' => $product->name, 'slug' => $product->slug])
+                                ->all();
+                        } catch (\Throwable $exception) {
+                            $searchProducts = [];
+                        }
                     @endphp
                     <input type="text" data-header-search-input placeholder="Cari produk..." class="h-11 w-72 rounded-full border border-[#2C3E50]/10 bg-white px-12 text-sm text-[#2C3E50] outline-none focus:border-[#3498DB] focus:ring-2 focus:ring-[#3498DB]/15" />
                     <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[#2C3E50]/60">

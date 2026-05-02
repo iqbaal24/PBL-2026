@@ -21,7 +21,7 @@ Route::get('/keranjang', function () {
 })->name('keranjang');
 
 Route::get('/katalog', [CatalogController::class, 'index'])->name('katalog.index');
-Route::get('/katalog/{slug}', [CatalogController::class, 'show'])->name('katalog.show');
+Route::get('/katalog/{product}', [CatalogController::class, 'show'])->name('katalog.show');
 
 Route::get('/checkout/form/{product}', [CheckoutController::class, 'form'])->name('checkout.form');
 Route::post('/checkout/store/{product}', [CheckoutController::class, 'store'])->name('checkout.store');

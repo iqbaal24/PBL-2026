@@ -24,7 +24,10 @@ class ProductForm
                 Textarea::make('description')
                     ->columnSpanFull(),
                 FileUpload::make('image_path')
-                    ->image(),
+                    ->image()
+                    ->disk('public')
+                    ->directory('products')
+                    ->visibility('public'),
             ]);
     }
 }

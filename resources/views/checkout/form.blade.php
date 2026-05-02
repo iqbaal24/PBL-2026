@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Checkout - {{ $product->nama }}</title>
+    <title>Checkout - {{ $product->name }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
     <style>
@@ -14,18 +14,18 @@
     <div class="max-w-2xl mx-auto">
         <div class="text-center mb-10">
             <h1 class="text-3xl font-bold text-[#2C3E50] mb-2">Formulir Pemesanan</h1>
-            <p class="text-[#2C3E50]/70">Lengkapi data untuk pesanan produk <span class="font-semibold">{{ $product->nama }}</span></p>
+            <p class="text-[#2C3E50]/70">Lengkapi data untuk pesanan produk <span class="font-semibold">{{ $product->name }}</span></p>
         </div>
 
         <div class="bg-white rounded-xl shadow-sm border border-[#2C3E50]/10 p-8">
             <div class="mb-8 pb-8 border-b border-[#2C3E50]/10 flex flex-col md:flex-row gap-6">
                 <div class="w-full md:w-1/3 aspect-square bg-gray-100 rounded-lg overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=500&auto=format&fit=crop&q=60" alt="Product" class="w-full h-full object-cover">
+                    <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
                 </div>
                 <div class="w-full md:w-2/3 flex flex-col justify-center">
-                    <h2 class="text-2xl font-bold text-[#2C3E50] mb-2">{{ $product->nama }}</h2>
-                    <p class="text-xl font-medium text-[#3498DB] mb-4">Rp {{ number_format($product->harga, 0, ',', '.') }} <span class="text-sm text-[#2C3E50]/50 font-normal">/ satuan</span></p>
-                    <p class="text-sm text-[#2C3E50]/70 leading-relaxed">{{ $product->deskripsi }}</p>
+                    <h2 class="text-2xl font-bold text-[#2C3E50] mb-2">{{ $product->name }}</h2>
+                    <p class="text-xl font-medium text-[#3498DB] mb-4">Rp {{ number_format($product->starting_price ?? 0, 0, ',', '.') }} <span class="text-sm text-[#2C3E50]/50 font-normal">/ satuan</span></p>
+                    <p class="text-sm text-[#2C3E50]/70 leading-relaxed">{{ $product->description }}</p>
                 </div>
             </div>
 
@@ -39,7 +39,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('checkout.store', $product->id) }}" method="POST" class="space-y-6">
+            <form action="{{ route('checkout.store', $product) }}" method="POST" class="space-y-6">
                 @csrf
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">

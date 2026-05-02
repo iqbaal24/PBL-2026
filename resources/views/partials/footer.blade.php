@@ -2,7 +2,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid gap-10 lg:grid-cols-4">
             <div>
-                <span class="font-bold text-2xl tracking-tight text-[#3498DB]">Digital Print Pro</span>
+                <span class="font-bold text-2xl tracking-tight text-[#3498DB]">Harapan Jaya Printing</span>
                 <p class="mt-5 text-sm text-white/70 max-w-sm">Solusi cetak digital terpercaya untuk kebutuhan bisnis dan pribadi Anda.</p>
             </div>
             <div>
@@ -17,9 +17,9 @@
             <div>
                 <h3 class="font-semibold mb-5">Kontak</h3>
                 <ul class="space-y-4 text-sm text-white/70">
-                    <li>Jl. Printing No. 123, Jakarta Selatan</li>
-                    <li>081234567890</li>
-                    <li>info@digitalprint.id</li>
+                    <li>Jl. Semanggi Barat 5C Jatimulyo, Lowokrawu, Malang</li>
+                    <li>082142117750</li>
+                    <li>harapanjaya366@gmail.com</li>
                 </ul>
             </div>
             <div>
@@ -32,7 +32,7 @@
             </div>
         </div>
         <div class="mt-16 border-t border-white/10 pt-8 text-center text-sm text-white/50">
-            &copy; 2026 Digital Print Pro. All rights reserved.
+            &copy; 2026 Harapan Jaya Print. All rights reserved.
         </div>
     </div>
 </footer>
