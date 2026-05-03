@@ -20,13 +20,13 @@
 
     <section class="relative flex h-[50vh] items-center justify-center overflow-hidden">
         <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1503694978374-8a2fa686963a?q=80&w=1738&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')] bg-cover bg-center"></div>
-        <div class="absolute inset-0 bg-[#2C3E50]/85"></div>
+        <div class="absolute inset-0 bg-black/65"></div>
         <div class="absolute inset-38 px-4 sm:px-6 lg:px-8">
             <div class="mx-auto w-full text-center">
                 <h1 class="text-5xl md:text-6xl font-bold tracking-tight text-white leading-tight">Digital Printing Berkualitas Tinggi</h1>
                 <p class="mt-6 text-lg md:text-xl text-white/80">Solusi cetak digital profesional untuk kebutuhan bisnis dan pribadi Anda dengan harga terjangkau.</p>
                 <div class="mt-10 flex flex-col sm:flex-row justify-center gap-4">
-                    <a href="{{ route('katalog.index') }}" class="inline-flex items-center justify-center rounded-full bg-[#3498DB] px-8 py-4 text-base font-bold text-white transition-colors hover:bg-[#2980B9]">Lihat Katalog</a>
+                    <a href="{{ route('katalog.index') }}" class="inline-flex items-center justify-center rounded-full bg-[#2471A3] px-8 py-4 text-base font-bold text-white transition-colors hover:bg-[#1F618D]">Lihat Katalog</a>
                     <a href="{{ route('hubungi-kami') }}" class="inline-flex items-center justify-center rounded-full bg-white/10 border border-white/20 px-8 py-4 text-base font-semibold text-white transition-colors hover:bg-white/20">Hubungi Kami</a>
                 </div>
             </div>

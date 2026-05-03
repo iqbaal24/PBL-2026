@@ -19,7 +19,7 @@
 
     <main class="pt-28 pb-24">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-white rounded-2xl border border-[#2C3E50]/10 p-8 shadow-sm mb-10">
+            <div class="bg-white rounded-xl border border-[#2C3E50]/10 p-8 shadow-sm mb-10">
                 <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
                     <div class="max-w-2xl">
                         <h2 class="text-2xl md:text-3xl font-bold text-[#2C3E50] mb-3">Katalog Produk</h2>
@@ -35,9 +35,9 @@
                         <label class="block text-sm font-semibold text-[#2C3E50] mb-3">Cari Produk</label>
                         <input data-search-input type="text" placeholder="Cari nama produk..." class="w-full rounded-xl border border-[#2C3E50]/10 bg-white px-4 py-3 text-sm text-[#2C3E50] outline-none focus:border-[#3498DB] focus:ring-2 focus:ring-[#3498DB]/15 transition" />
                     </div>
-                    <form method="GET" class="rounded-3xl border border-[#2C3E50]/10 bg-[#F8F9FA] p-5">
+                    <form method="GET" class="rounded-xl border border-[#2C3E50]/10 bg-[#F8F9FA] p-5">
                         <label class="block text-sm font-semibold text-[#2C3E50] mb-3">Kategori</label>
-                        <select name="kategori" onchange="this.form.submit()" class="w-full rounded-2xl border border-[#2C3E50]/10 bg-white px-4 py-3 text-sm text-[#2C3E50] outline-none focus:border-[#3498DB] focus:ring-2 focus:ring-[#3498DB]/15 transition">
+                        <select name="kategori" onchange="this.form.submit()" class="w-full rounded-xl border border-[#2C3E50]/10 bg-white px-4 py-3 text-sm text-[#2C3E50] outline-none focus:border-[#3498DB] focus:ring-2 focus:ring-[#3498DB]/15 transition">
                             <option value="">Semua Kategori</option>
                             @foreach ($categories as $category)
                                 <option value="{{ $category->slug }}" @selected($selectedCategory === $category->slug)>{{ $category->name }}</option>
@@ -49,8 +49,8 @@
 
             <div class="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
                 @forelse ($products as $product)
-                    <article data-product-card data-product-name="{{ strtolower($product->name) }}" data-product-category="{{ $product->category->name }}" class="group rounded-[2rem] border border-[#2C3E50]/10 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
-                        <div class="overflow-hidden rounded-[1.75rem] bg-gray-100 mb-5">
+                    <article data-product-card data-product-name="{{ strtolower($product->name) }}" data-product-category="{{ $product->category->name }}" class="group rounded-xl border border-[#2C3E50]/10 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+                        <div class="overflow-hidden rounded-xl bg-gray-100 mb-5">
                             <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="h-52 w-full object-cover transition duration-500 group-hover:scale-105" />
                         </div>
                         <div class="flex items-center justify-between gap-4 mb-4">
@@ -75,7 +75,7 @@
                         <a href="{{ route('katalog.show', $product) }}" class="inline-flex w-full items-center justify-center rounded-full bg-[#0f172a] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#2c3e50]">Pesan Sekarang</a>
                     </article>
                 @empty
-                    <div class="sm:col-span-2 xl:col-span-3 rounded-[2rem] border border-dashed border-[#2C3E50]/20 bg-white p-10 text-center text-[#2C3E50]/70">
+                    <div class="sm:col-span-2 xl:col-span-3 rounded-xl border border-dashed border-[#2C3E50]/20 bg-white p-10 text-center text-[#2C3E50]/70">
                         Produk untuk kategori ini belum tersedia.
                     </div>
                 @endforelse

@@ -19,7 +19,7 @@
 
     <main class="pt-28 pb-24">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-white rounded-[2rem] border border-[#2C3E50]/10 p-8 shadow-sm mb-16">
+            <div class="bg-white rounded-xl border border-[#2C3E50]/10 p-8 shadow-sm mb-16">
                 <div>
                     <h1 class="text-2xl md:text-3xl font-bold text-[#2C3E50] mb-3">Panduan Pemesanan</h1>
                     <p class="text-lg text-[#2C3E50]/70">Ikuti panduan lengkap untuk memudahkan pemesanan digital printing dengan mudah</p>
@@ -28,7 +28,7 @@
 
             <div class="space-y-12">
                 <!-- Format File yang Diterima -->
-                <section class="bg-white rounded-[2rem] border border-[#2C3E50]/10 p-8 shadow-sm">
+                <section class="bg-white rounded-xl border border-[#2C3E50]/10 p-8 shadow-sm">
                     <div class="flex items-center gap-4 mb-6">
                         <div class="flex h-12 w-12 items-center justify-center rounded-full bg-[#3498DB]/10 text-[#3498DB]">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
@@ -44,7 +44,7 @@
 
                 <!-- Format File dan Cara Upload -->
                 <div class="grid gap-8 lg:grid-cols-2">
-                    <section class="bg-white rounded-[2rem] border border-[#2C3E50]/10 p-8 shadow-sm">
+                    <section class="bg-white rounded-xl border border-[#2C3E50]/10 p-8 shadow-sm">
                         <div class="flex items-center gap-4 mb-6">
                             <div class="flex h-12 w-12 items-center justify-center rounded-full bg-[#3498DB]/10 text-[#3498DB]">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
@@ -71,7 +71,7 @@
                         </ul>
                     </section>
 
-                    <section class="bg-white rounded-[2rem] border border-[#2C3E50]/10 p-8 shadow-sm">
+                    <section class="bg-white rounded-xl border border-[#2C3E50]/10 p-8 shadow-sm">
                         <div class="flex items-center gap-4 mb-6">
                             <div class="flex h-12 w-12 items-center justify-center rounded-full bg-[#3498DB]/10 text-[#3498DB]">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
@@ -101,7 +101,7 @@
 
                 <!-- Pemesanan dan Proses Produksi -->
                 <div class="grid gap-8 lg:grid-cols-2">
-                    <section class="bg-white rounded-[2rem] border border-[#2C3E50]/10 p-8 shadow-sm">
+                    <section class="bg-white rounded-xl border border-[#2C3E50]/10 p-8 shadow-sm">
                         <div class="flex items-center gap-4 mb-6">
                             <div class="flex h-12 w-12 items-center justify-center rounded-full bg-[#3498DB]/10 text-[#3498DB]">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -128,7 +128,7 @@
                         </ul>
                     </section>
 
-                    <section class="bg-white rounded-[2rem] border border-[#2C3E50]/10 p-8 shadow-sm">
+                    <section class="bg-white rounded-xl border border-[#2C3E50]/10 p-8 shadow-sm">
                         <div class="flex items-center gap-4 mb-6">
                             <div class="flex h-12 w-12 items-center justify-center rounded-full bg-[#3498DB]/10 text-[#3498DB]">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
@@ -157,7 +157,7 @@
                 </div>
 
                 <!-- Perhatian untuk Pemesanan -->
-                <section class="bg-amber-50 rounded-[2rem] border border-amber-200 p-8">
+                <section class="bg-amber-50 rounded-xl border border-amber-200 p-8">
                     <div class="flex items-start gap-4 mb-4">
                         <div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-amber-200 text-amber-700">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -189,7 +189,7 @@
                 </section>
 
                 <!-- Istilah dan Ketentuan -->
-                <section class="bg-white rounded-[2rem] border border-[#2C3E50]/10 p-8 shadow-sm">
+                <section class="bg-white rounded-xl border border-[#2C3E50]/10 p-8 shadow-sm">
                     <h2 class="text-2xl font-bold text-[#2C3E50] mb-8">Istilah dan Ketentuan</h2>
                     <div class="space-y-8">
                         <div class="pb-8 border-b border-[#2C3E50]/10 last:border-b-0 last:pb-0">
