@@ -25,7 +25,9 @@
                         <h2 class="text-2xl md:text-3xl font-bold text-[#2C3E50] mb-3">Katalog Produk</h2>
                         <p class="text-lg text-[#2C3E50]/70">Jelajahi berbagai produk digital printing berkualitas tinggi dengan harga kompetitif</p>
                     </div>
-                    <div class="text-sm text-[#2C3E50]/70">Menampilkan 1-{{ count($products) }} dari {{ count($products) }} produk</div>
+                    <div class="text-sm text-[#2C3E50]/70">
+                        Menampilkan {{ $products->firstItem() ?? 0 }}-{{ $products->lastItem() ?? 0 }} dari {{ $products->total() }} produk
+                    </div>
                 </div>
 
                 <div class="mt-8 grid gap-4 xl:grid-cols-[1.6fr_1fr]">
@@ -33,39 +35,57 @@
                         <label class="block text-sm font-semibold text-[#2C3E50] mb-3">Cari Produk</label>
                         <input data-search-input type="text" placeholder="Cari nama produk..." class="w-full rounded-xl border border-[#2C3E50]/10 bg-white px-4 py-3 text-sm text-[#2C3E50] outline-none focus:border-[#3498DB] focus:ring-2 focus:ring-[#3498DB]/15 transition" />
                     </div>
-                    <div class="rounded-xl border border-[#2C3E50]/10 bg-[#F8F9FA] p-5">
+                    <form method="GET" class="rounded-3xl border border-[#2C3E50]/10 bg-[#F8F9FA] p-5">
                         <label class="block text-sm font-semibold text-[#2C3E50] mb-3">Kategori</label>
-                        <select data-category-select class="w-full rounded-xl border border-[#2C3E50]/10 bg-white px-4 py-3 text-sm text-[#2C3E50] outline-none focus:border-[#3498DB] focus:ring-2 focus:ring-[#3498DB]/15 transition">
-                            <option value="all">Semua Kategori</option>
-                            <option value="Outdoor">Outdoor</option>
-                            <option value="Indoor">Indoor</option>
-                            <option value="Percetakan">Percetakan</option>
+                        <select name="kategori" onchange="this.form.submit()" class="w-full rounded-2xl border border-[#2C3E50]/10 bg-white px-4 py-3 text-sm text-[#2C3E50] outline-none focus:border-[#3498DB] focus:ring-2 focus:ring-[#3498DB]/15 transition">
+                            <option value="">Semua Kategori</option>
+                            @foreach ($categories as $category)
+                                <option value="{{ $category->slug }}" @selected($selectedCategory === $category->slug)>{{ $category->name }}</option>
+                            @endforeach
                         </select>
-                    </div>
+                    </form>
                 </div>
             </div>
 
             <div class="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-                @foreach ($products as $product)
-                    <article data-product-card data-product-name="{{ strtolower($product['nama']) }}" data-product-category="{{ $product['kategori'] }}" class="group rounded-2xl border border-[#2C3E50]/10 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
-                        <div class="overflow-hidden rounded-xl bg-gray-100 mb-5">
-                            <img src="{{ $product['image'] }}" alt="{{ $product['nama'] }}" class="h-52 w-full object-cover transition duration-500 group-hover:scale-105" />
+                @forelse ($products as $product)
+                    <article data-product-card data-product-name="{{ strtolower($product->name) }}" data-product-category="{{ $product->category->name }}" class="group rounded-[2rem] border border-[#2C3E50]/10 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+                        <div class="overflow-hidden rounded-[1.75rem] bg-gray-100 mb-5">
+                            <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="h-52 w-full object-cover transition duration-500 group-hover:scale-105" />
                         </div>
                         <div class="flex items-center justify-between gap-4 mb-4">
-                            <span class="rounded-full bg-[#F1F7FF] px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-[#3498DB]">{{ $product['kategori'] }}</span>
-                            <span class="text-sm text-[#2C3E50]/70">Rp {{ number_format($product['harga'], 0, ',', '.') }}</span>
+                            <span class="rounded-full bg-[#F1F7FF] px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-[#3498DB]">{{ $product->category->name }}</span>
+                            <span class="text-sm text-[#2C3E50]/70">
+                                @if ($product->starting_price !== null)
+                                    Rp {{ number_format($product->starting_price, 0, ',', '.') }}
+                                @else
+                                    Harga belum tersedia
+                                @endif
+                            </span>
                         </div>
-                        <h2 class="text-xl font-semibold text-[#2C3E50] mb-3">{{ $product['nama'] }}</h2>
-                        <p class="text-sm text-[#2C3E50]/70 mb-6 leading-relaxed">{{ $product['deskripsi'] }}</p>
+                        <h2 class="text-xl font-semibold text-[#2C3E50] mb-3">{{ $product->name }}</h2>
+                        <p class="text-sm text-[#2C3E50]/70 mb-6 leading-relaxed">{{ $product->description }}</p>
                         <div class="flex flex-wrap gap-2 mb-6 text-xs text-[#2C3E50]/70">
-                            @foreach ($product['bahan'] as $bahan)
-                                <span class="rounded-full border border-[#2C3E50]/10 bg-[#F8F9FA] px-3 py-1">{{ $bahan }}</span>
-                            @endforeach
+                            @forelse ($product->activeVariants as $variant)
+                                <span class="rounded-full border border-[#2C3E50]/10 bg-[#F8F9FA] px-3 py-1">{{ $variant->variant_name }}</span>
+                            @empty
+                                <span class="rounded-full border border-[#2C3E50]/10 bg-[#F8F9FA] px-3 py-1">Belum ada varian aktif</span>
+                            @endforelse
                         </div>
-                        <a href="{{ route('katalog.show', $product['slug']) }}" class="inline-flex w-full items-center justify-center rounded-full bg-[#0f172a] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#2c3e50]">Pesan Sekarang</a>
+                        <a href="{{ route('katalog.show', $product) }}" class="inline-flex w-full items-center justify-center rounded-full bg-[#0f172a] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#2c3e50]">Pesan Sekarang</a>
                     </article>
-                @endforeach
+                @empty
+                    <div class="sm:col-span-2 xl:col-span-3 rounded-[2rem] border border-dashed border-[#2C3E50]/20 bg-white p-10 text-center text-[#2C3E50]/70">
+                        Produk untuk kategori ini belum tersedia.
+                    </div>
+                @endforelse
             </div>
+
+            @if ($products->hasPages())
+                <div class="mt-10">
+                    {{ $products->links() }}
+                </div>
+            @endif
         </div>
     </main>
 

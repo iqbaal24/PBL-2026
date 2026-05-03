@@ -2,30 +2,30 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
-use App\Services\ProductService;
 
 class CheckoutController extends Controller
 {
-    public function form(int $product)
+    public function form(Product $product)
     {
-        $product = ProductService::findById($product);
+        $product->load([
+            'activeVariants:id,product_id,variant_name,price,weight,stock_status',
+        ]);
 
-        if (! $product) {
-            abort(404);
-        }
+        abort_if($product->activeVariants->isEmpty(), 404);
 
-        return view('checkout.form', ['product' => (object) $product]);
+        return view('checkout.form', compact('product'));
     }
 
-    public function store(Request $request, int $product)
+    public function store(Request $request, Product $product)
     {
-        $product = ProductService::findById($product);
+        $product->load([
+            'activeVariants:id,product_id,variant_name,price,weight,stock_status',
+        ]);
 
-        if (! $product) {
-            abort(404);
-        }
+        abort_if($product->activeVariants->isEmpty(), 404);
 
         $data = $request->validate([
             'customer_name' => 'required|string|max:255',
@@ -35,15 +35,24 @@ class CheckoutController extends Controller
             'notes' => 'nullable|string|max:500',
         ]);
 
+        $unitPrice = $product->starting_price ?? 0;
+
         $order = (object) [
             'id' => rand(1000, 9999),
-            'product' => (object) $product,
+            'product' => (object) [
+                'id' => $product->id,
+                'name' => $product->name,
+                'slug' => $product->slug,
+                'description' => $product->description,
+                'image_url' => $product->image_url,
+                'starting_price' => $unitPrice,
+            ],
             'customer_name' => $data['customer_name'],
             'customer_phone' => $data['customer_phone'],
             'customer_address' => $data['customer_address'],
             'quantity' => $data['quantity'],
             'notes' => $data['notes'] ?? null,
-            'total_price' => $product['harga'] * $data['quantity'],
+            'total_price' => $unitPrice * $data['quantity'],
         ];
 
         Session::put('checkout_order', $order);
