@@ -28,7 +28,7 @@
                 <!-- Left Section -->
                 <div class="space-y-8">
                     <!-- Lokasi Toko -->
-                    <div class="bg-white rounded-[2rem] border border-[#2C3E50]/10 p-8 shadow-sm">
+                    <div class="bg-white rounded-xl border border-[#2C3E50]/10 p-8 shadow-sm">
                         <div class="flex items-center gap-3 mb-6">
                             <div class="flex h-10 w-10 items-center justify-center rounded-full bg-[#3498DB]/10 text-[#3498DB]">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
@@ -47,7 +47,7 @@
                     </div>
 
                     <!-- Jam Operasional -->
-                    <div class="bg-white rounded-[2rem] border border-[#2C3E50]/10 p-8 shadow-sm">
+                    <div class="bg-white rounded-xl border border-[#2C3E50]/10 p-8 shadow-sm">
                         <div class="flex items-center gap-3 mb-6">
                             <div class="flex h-10 w-10 items-center justify-center rounded-full bg-[#3498DB]/10 text-[#3498DB]">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -71,7 +71,7 @@
                     </div>
 
                     <!-- Kontak -->
-                    <div class="bg-white rounded-[2rem] border border-[#2C3E50]/10 p-8 shadow-sm">
+                    <div class="bg-white rounded-xl border border-[#2C3E50]/10 p-8 shadow-sm">
                         <div class="flex items-center gap-3 mb-6">
                             <div class="flex h-10 w-10 items-center justify-center rounded-full bg-[#3498DB]/10 text-[#3498DB]">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
@@ -100,13 +100,13 @@
                 <!-- Right Section -->
                 <div class="space-y-8">
                     <!-- Image -->
-                    <div class="rounded-[2rem] overflow-hidden border border-[#2C3E50]/10 shadow-sm">
+                    <div class="rounded-xl overflow-hidden border border-[#2C3E50]/10 shadow-sm">
                         <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=800&q=80" alt="Office Space" class="h-80 w-full object-cover" />
                     </div>
                     <p class="text-sm text-[#2C3E50]/70">Kunjungi toko kami untuk konsultasi langsung dan lihat sample hasil cetak kami</p>
 
                     <!-- Butuh Bantuan? -->
-                    <div class="bg-[#E8F4FF] rounded-[2rem] border border-[#3498DB]/20 p-8">
+                    <div class="bg-[#E8F4FF] rounded-xl border border-[#3498DB]/20 p-8">
                         <h3 class="text-xl font-bold text-[#2C3E50] mb-6">Butuh Bantuan?</h3>
                         <div class="space-y-4">
                             <div>

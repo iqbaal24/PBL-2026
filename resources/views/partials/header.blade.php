@@ -29,7 +29,7 @@
                     <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[#2C3E50]/60">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1010.5 18.5a7.5 7.5 0 006.15-3.85z"></path></svg>
                     </span>
-                    <div data-search-dropdown class="absolute left-0 right-0 top-full mt-2 hidden overflow-hidden rounded-3xl border border-[#2C3E50]/10 bg-white shadow-lg z-50">
+                    <div data-search-dropdown class="absolute left-0 right-0 top-full mt-2 hidden overflow-hidden rounded-xl border border-[#2C3E50]/10 bg-white shadow-lg z-50">
                         <ul data-search-results class="divide-y divide-slate-200 max-h-72 overflow-auto"></ul>
                     </div>
                     <script type="application/json" id="product-search-data">@json($searchProducts)</script>

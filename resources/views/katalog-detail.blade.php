@@ -36,7 +36,7 @@
                         <h1 class="text-3xl font-bold text-[#2C3E50]">{{ $product->name }}</h1>
                         <p class="text-[#2C3E50]/70 leading-relaxed">{{ $product->description }}</p>
                         <div class="grid gap-3 sm:grid-cols-2">
-                            <div class="rounded-3xl border border-[#2C3E50]/10 bg-[#F8F9FA] p-5">
+                            <div class="rounded-xl border border-[#2C3E50]/10 bg-[#F8F9FA] p-5">
                                 <p class="text-sm text-[#2C3E50]/70">Harga mulai dari</p>
                                 <p class="text-2xl font-bold text-[#2C3E50]">
                                     @if ($product->starting_price !== null)
@@ -60,7 +60,7 @@
                     </div>
                 </section>
 
-                <aside class="rounded-[2rem] border border-[#2C3E50]/10 bg-white p-8 shadow-sm">
+                <aside class="rounded-2xl border border-[#2C3E50]/10 bg-white p-8 shadow-sm">
                     <h2 class="text-2xl font-bold text-[#2C3E50] mb-4">Spesifikasi Pesanan</h2>
                     <div class="space-y-4 text-sm text-[#2C3E50]/80">
                         <div>
@@ -75,7 +75,7 @@
                         </div>
                         <div>
                             <label class="mb-2 block font-semibold text-[#2C3E50]">Pilih Ukuran</label>
-                            <select class="w-full rounded-2xl border border-[#2C3E50]/10 bg-[#F8F9FA] px-4 py-3 outline-none focus:border-[#3498DB] focus:ring-2 focus:ring-[#3498DB]/15 transition">
+                            <select class="w-full rounded-xl border border-[#2C3E50]/10 bg-[#F8F9FA] px-4 py-3 outline-none focus:border-[#3498DB] focus:ring-2 focus:ring-[#3498DB]/15 transition">
                                 <option>Small</option>
                                 <option>Medium</option>
                                 <option>Large</option>
@@ -84,7 +84,7 @@
                         </div>
                         <div>
                             <label class="mb-2 block font-semibold text-[#2C3E50]">Pilih Finishing</label>
-                            <select class="w-full rounded-2xl border border-[#2C3E50]/10 bg-[#F8F9FA] px-4 py-3 outline-none focus:border-[#3498DB] focus:ring-2 focus:ring-[#3498DB]/15 transition">
+                            <select class="w-full rounded-xl border border-[#2C3E50]/10 bg-[#F8F9FA] px-4 py-3 outline-none focus:border-[#3498DB] focus:ring-2 focus:ring-[#3498DB]/15 transition">
                                 <option>Matte</option>
                                 <option>Glossy</option>
                                 <option>UV Coating</option>
@@ -93,9 +93,9 @@
                         </div>
                         <div>
                             <label class="mb-2 block font-semibold text-[#2C3E50]">Jumlah</label>
-                            <input type="number" value="1" min="1" class="w-full rounded-2xl border border-[#2C3E50]/10 bg-[#F8F9FA] px-4 py-3 outline-none focus:border-[#3498DB] focus:ring-2 focus:ring-[#3498DB]/15 transition" />
+                            <input type="number" value="1" min="1" class="w-full rounded-xl border border-[#2C3E50]/10 bg-[#F8F9FA] px-4 py-3 outline-none focus:border-[#3498DB] focus:ring-2 focus:ring-[#3498DB]/15 transition" />
                         </div>
-                        <div class="rounded-3xl border border-[#2C3E50]/10 bg-[#F8F9FA] p-5">
+                        <div class="rounded-xl border border-[#2C3E50]/10 bg-[#F8F9FA] p-5">
                             <p class="text-sm text-[#2C3E50]/70">Total Harga</p>
                             <p class="mt-2 text-3xl font-bold text-[#2C3E50]">
                                 @if ($product->starting_price !== null)
