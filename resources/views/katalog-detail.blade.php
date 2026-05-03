@@ -27,8 +27,8 @@
             </div>
 
             <div class="grid gap-8 lg:grid-cols-[1.4fr_0.9fr]">
-                <section class="rounded-[2rem] border border-[#2C3E50]/10 bg-white p-8 shadow-sm">
-                    <div class="rounded-[2rem] overflow-hidden bg-gray-100 mb-8">
+                <section class="rounded-2xl border border-[#2C3E50]/10 bg-white p-8 shadow-sm">
+                    <div class="rounded-2xl overflow-hidden bg-gray-100 mb-8">
                         <img src="{{ $product['image'] }}" alt="{{ $product['nama'] }}" class="h-[420px] w-full object-cover" />
                     </div>
                     <div class="space-y-4">
@@ -36,11 +36,11 @@
                         <h1 class="text-3xl font-bold text-[#2C3E50]">{{ $product['nama'] }}</h1>
                         <p class="text-[#2C3E50]/70 leading-relaxed">{{ $product['deskripsi'] }}</p>
                         <div class="grid gap-3 sm:grid-cols-2">
-                            <div class="rounded-3xl border border-[#2C3E50]/10 bg-[#F8F9FA] p-5">
+                            <div class="rounded-xl border border-[#2C3E50]/10 bg-[#F8F9FA] p-5">
                                 <p class="text-sm text-[#2C3E50]/70">Harga mulai dari</p>
                                 <p class="text-2xl font-bold text-[#2C3E50]">Rp {{ number_format($product['harga'], 0, ',', '.') }}</p>
                             </div>
-                            <div class="rounded-3xl border border-[#2C3E50]/10 bg-[#F8F9FA] p-5">
+                            <div class="rounded-xl border border-[#2C3E50]/10 bg-[#F8F9FA] p-5">
                                 <p class="text-sm text-[#2C3E50]/70">Pilihan bahan</p>
                                 <div class="mt-3 flex flex-wrap gap-2 text-xs text-[#2C3E50]/70">
                                     @foreach ($product['bahan'] as $bahan)
@@ -52,12 +52,12 @@
                     </div>
                 </section>
 
-                <aside class="rounded-[2rem] border border-[#2C3E50]/10 bg-white p-8 shadow-sm">
+                <aside class="rounded-2xl border border-[#2C3E50]/10 bg-white p-8 shadow-sm">
                     <h2 class="text-2xl font-bold text-[#2C3E50] mb-4">Spesifikasi Pesanan</h2>
                     <div class="space-y-4 text-sm text-[#2C3E50]/80">
                         <div>
                             <label class="mb-2 block font-semibold text-[#2C3E50]">Pilih Bahan</label>
-                            <select class="w-full rounded-2xl border border-[#2C3E50]/10 bg-[#F8F9FA] px-4 py-3 outline-none focus:border-[#3498DB] focus:ring-2 focus:ring-[#3498DB]/15 transition">
+                            <select class="w-full rounded-xl border border-[#2C3E50]/10 bg-[#F8F9FA] px-4 py-3 outline-none focus:border-[#3498DB] focus:ring-2 focus:ring-[#3498DB]/15 transition">
                                 @foreach ($product['bahan'] as $bahan)
                                     <option>{{ $bahan }}</option>
                                 @endforeach
@@ -65,7 +65,7 @@
                         </div>
                         <div>
                             <label class="mb-2 block font-semibold text-[#2C3E50]">Pilih Ukuran</label>
-                            <select class="w-full rounded-2xl border border-[#2C3E50]/10 bg-[#F8F9FA] px-4 py-3 outline-none focus:border-[#3498DB] focus:ring-2 focus:ring-[#3498DB]/15 transition">
+                            <select class="w-full rounded-xl border border-[#2C3E50]/10 bg-[#F8F9FA] px-4 py-3 outline-none focus:border-[#3498DB] focus:ring-2 focus:ring-[#3498DB]/15 transition">
                                 <option>Small</option>
                                 <option>Medium</option>
                                 <option>Large</option>
@@ -74,7 +74,7 @@
                         </div>
                         <div>
                             <label class="mb-2 block font-semibold text-[#2C3E50]">Pilih Finishing</label>
-                            <select class="w-full rounded-2xl border border-[#2C3E50]/10 bg-[#F8F9FA] px-4 py-3 outline-none focus:border-[#3498DB] focus:ring-2 focus:ring-[#3498DB]/15 transition">
+                            <select class="w-full rounded-xl border border-[#2C3E50]/10 bg-[#F8F9FA] px-4 py-3 outline-none focus:border-[#3498DB] focus:ring-2 focus:ring-[#3498DB]/15 transition">
                                 <option>Matte</option>
                                 <option>Glossy</option>
                                 <option>UV Coating</option>
@@ -83,9 +83,9 @@
                         </div>
                         <div>
                             <label class="mb-2 block font-semibold text-[#2C3E50]">Jumlah</label>
-                            <input type="number" value="1" min="1" class="w-full rounded-2xl border border-[#2C3E50]/10 bg-[#F8F9FA] px-4 py-3 outline-none focus:border-[#3498DB] focus:ring-2 focus:ring-[#3498DB]/15 transition" />
+                            <input type="number" value="1" min="1" class="w-full rounded-xl border border-[#2C3E50]/10 bg-[#F8F9FA] px-4 py-3 outline-none focus:border-[#3498DB] focus:ring-2 focus:ring-[#3498DB]/15 transition" />
                         </div>
-                        <div class="rounded-3xl border border-[#2C3E50]/10 bg-[#F8F9FA] p-5">
+                        <div class="rounded-xl border border-[#2C3E50]/10 bg-[#F8F9FA] p-5">
                             <p class="text-sm text-[#2C3E50]/70">Total Harga</p>
                             <p class="mt-2 text-3xl font-bold text-[#2C3E50]">Rp {{ number_format($product['harga'], 0, ',', '.') }}</p>
                         </div>

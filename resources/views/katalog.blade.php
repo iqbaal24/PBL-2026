@@ -19,7 +19,7 @@
 
     <main class="pt-28 pb-24">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-white rounded-[2rem] border border-[#2C3E50]/10 p-8 shadow-sm mb-10">
+            <div class="bg-white rounded-2xl border border-[#2C3E50]/10 p-8 shadow-sm mb-10">
                 <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
                     <div class="max-w-2xl">
                         <h2 class="text-2xl md:text-3xl font-bold text-[#2C3E50] mb-3">Katalog Produk</h2>
@@ -29,13 +29,13 @@
                 </div>
 
                 <div class="mt-8 grid gap-4 xl:grid-cols-[1.6fr_1fr]">
-                    <div class="rounded-3xl border border-[#2C3E50]/10 bg-[#F8F9FA] p-5">
+                    <div class="rounded-xl border border-[#2C3E50]/10 bg-[#F8F9FA] p-5">
                         <label class="block text-sm font-semibold text-[#2C3E50] mb-3">Cari Produk</label>
-                        <input data-search-input type="text" placeholder="Cari nama produk..." class="w-full rounded-2xl border border-[#2C3E50]/10 bg-white px-4 py-3 text-sm text-[#2C3E50] outline-none focus:border-[#3498DB] focus:ring-2 focus:ring-[#3498DB]/15 transition" />
+                        <input data-search-input type="text" placeholder="Cari nama produk..." class="w-full rounded-xl border border-[#2C3E50]/10 bg-white px-4 py-3 text-sm text-[#2C3E50] outline-none focus:border-[#3498DB] focus:ring-2 focus:ring-[#3498DB]/15 transition" />
                     </div>
-                    <div class="rounded-3xl border border-[#2C3E50]/10 bg-[#F8F9FA] p-5">
+                    <div class="rounded-xl border border-[#2C3E50]/10 bg-[#F8F9FA] p-5">
                         <label class="block text-sm font-semibold text-[#2C3E50] mb-3">Kategori</label>
-                        <select data-category-select class="w-full rounded-2xl border border-[#2C3E50]/10 bg-white px-4 py-3 text-sm text-[#2C3E50] outline-none focus:border-[#3498DB] focus:ring-2 focus:ring-[#3498DB]/15 transition">
+                        <select data-category-select class="w-full rounded-xl border border-[#2C3E50]/10 bg-white px-4 py-3 text-sm text-[#2C3E50] outline-none focus:border-[#3498DB] focus:ring-2 focus:ring-[#3498DB]/15 transition">
                             <option value="all">Semua Kategori</option>
                             <option value="Outdoor">Outdoor</option>
                             <option value="Indoor">Indoor</option>
@@ -47,8 +47,8 @@
 
             <div class="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
                 @foreach ($products as $product)
-                    <article data-product-card data-product-name="{{ strtolower($product['nama']) }}" data-product-category="{{ $product['kategori'] }}" class="group rounded-[2rem] border border-[#2C3E50]/10 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
-                        <div class="overflow-hidden rounded-[1.75rem] bg-gray-100 mb-5">
+                    <article data-product-card data-product-name="{{ strtolower($product['nama']) }}" data-product-category="{{ $product['kategori'] }}" class="group rounded-2xl border border-[#2C3E50]/10 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md">
+                        <div class="overflow-hidden rounded-xl bg-gray-100 mb-5">
                             <img src="{{ $product['image'] }}" alt="{{ $product['nama'] }}" class="h-52 w-full object-cover transition duration-500 group-hover:scale-105" />
                         </div>
                         <div class="flex items-center justify-between gap-4 mb-4">
