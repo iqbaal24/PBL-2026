@@ -6,6 +6,7 @@ use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
 class TrackOrderController extends Controller
@@ -40,12 +41,12 @@ class TrackOrderController extends Controller
         $order = Order::query()
             ->with([
                 'items:id,order_id,product_name,variant_name,quantity,subtotal',
-                'statusHistories:id,order_id,status,notes,updated_at',
+                'statusHistories:id,order_id,status,note,created_at',
             ])
-            ->whereRaw('LOWER(order_number) = ?', [Str::lower(trim($formData['order_number']))])
+            ->whereRaw('LOWER(order_code) = ?', [Str::lower(trim($formData['order_number']))])
             ->first();
 
-        if (! $order || ! $this->phonesMatch($order->recipient_phone, $formData['whatsapp_number'])) {
+        if (! $order || ! $this->phonesMatch($order->customer_phone, $formData['whatsapp_number'])) {
             return view('track-order', [
                 'formData' => $formData,
                 'lookupState' => 'error',
@@ -71,11 +72,11 @@ class TrackOrderController extends Controller
             'wa' => ['required', 'string', 'max:30'],
         ]);
 
-        abort_unless($this->phonesMatch($order->recipient_phone, $validated['wa']), 404);
+        abort_unless($this->phonesMatch($order->customer_phone, $validated['wa']), 404);
 
         $payload = $this->buildTrackingPayload($order->loadMissing([
             'items:id,order_id,product_name,variant_name,quantity,subtotal',
-            'statusHistories:id,order_id,status,notes,updated_at',
+            'statusHistories:id,order_id,status,note,created_at',
         ]));
 
         $lines = [
@@ -128,7 +129,7 @@ class TrackOrderController extends Controller
             ->sortBy('created_at')
             ->values();
 
-        $timeline = $this->buildTimeline($order->current_status, $histories);
+        $timeline = $this->buildTimeline($order->status, $histories);
         $currentStep = collect($timeline)->firstWhere('state', 'current')
             ?? collect($timeline)->firstWhere('state', 'exception')
             ?? collect($timeline)->last();
@@ -144,14 +145,14 @@ class TrackOrderController extends Controller
 
         return [
             'id' => $order->id,
-            'order_number' => $order->order_number,
-            'whatsapp' => $order->recipient_phone,
+            'order_number' => $order->order_code,
+            'whatsapp' => $order->customer_phone,
             'current_status' => [
                 'label' => $currentStep['label'],
                 'description' => $currentStep['description'],
                 'tone' => $currentStep['tone'],
             ],
-            'last_updated' => optional($histories->last()?->updated_at ?? $order->updated_at)->translatedFormat('d M Y, H:i'),
+            'last_updated' => $this->formatDateTime($histories->last()?->created_at ?? $order->updated_at),
             'items' => $items,
             'timeline' => $timeline,
         ];
@@ -216,13 +217,26 @@ class TrackOrderController extends Controller
     {
         return match (Str::lower((string) $status)) {
             'pending', 'created', 'new', 'paid' => 'pending',
-            'design', 'designing', 'proses desain', 'design_review' => 'design',
+            'confirmed', 'design', 'designing', 'proses desain', 'design_review' => 'design',
             'printing', 'dicetak', 'production', 'produksi' => 'printing',
-            'completed', 'done', 'ready_pickup', 'pickup_ready', 'selesai', 'delivered' => 'completed',
+            'ready', 'completed', 'done', 'ready_pickup', 'pickup_ready', 'selesai', 'delivered' => 'completed',
             'cancelled', 'canceled' => 'canceled',
             'attention', 'needs_attention', 'hold', 'problem' => 'attention',
             default => null,
         };
+    }
+
+    private function formatDateTime(mixed $value): string
+    {
+        if ($value instanceof Carbon) {
+            return $value->translatedFormat('d M Y, H:i');
+        }
+
+        if (is_string($value) && $value !== '') {
+            return Carbon::parse($value)->translatedFormat('d M Y, H:i');
+        }
+
+        return '-';
     }
 
     private function phonesMatch(string $storedPhone, string $submittedPhone): bool
