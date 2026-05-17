@@ -13,7 +13,18 @@ return new class extends Migration
     {
         Schema::create('order_files', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->foreignId('order_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('order_item_id')->nullable()->constrained()->nullOnDelete();
+            $table->string('file_path');
+            $table->string('file_name');
+            $table->enum('file_type', [
+                'design',
+                'proof',
+                'receipt',
+                'other'
+            ]);
+            $table->foreignId('uploaded_by')->constrained('users')->cascadeOnDelete();
+            $table->timestamp('created_at')->useCurrent();
         });
     }
 
