@@ -17,7 +17,7 @@
 <body class="antialiased selection:bg-[#3498DB] selection:text-white bg-[#F8F9FA]">
     @include('partials.header')
 
-    <main class="pt-28 pb-24">
+    <main id="main-content" class="pt-28 pb-24">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="mb-10">
                 <h1 class="text-2xl md:text-3xl font-bold text-[#2C3E50]">Keranjang Belanja</h1>

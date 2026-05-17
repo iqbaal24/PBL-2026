@@ -3,10 +3,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const categorySelect = document.querySelector('[data-category-select]');
     const cards = document.querySelectorAll('[data-product-card]');
     const isCatalogPage = searchInput && cards.length > 0;
-    const headerSearchInput = document.querySelector('[data-header-search-input]');
-    const searchDropdown = document.querySelector('[data-search-dropdown]');
-    const searchResults = document.querySelector('[data-search-results]');
     const productSearchData = document.querySelector('#product-search-data');
+    const siteHeader = document.querySelector('[data-site-header]');
 
     const productSearchItems = (() => {
         if (!productSearchData) {
@@ -20,7 +18,13 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     })();
 
-    const renderHeaderSearch = (items) => {
+    const headerSearchRoots = Array.from(document.querySelectorAll('[data-header-search-root]'));
+    const whatsappBuilders = Array.from(document.querySelectorAll('[data-whatsapp-builder]'));
+
+    const renderHeaderSearch = (root, items) => {
+        const searchDropdown = root.querySelector('[data-search-dropdown]');
+        const searchResults = root.querySelector('[data-search-results]');
+
         if (!searchDropdown || !searchResults) {
             return;
         }
@@ -34,21 +38,23 @@ document.addEventListener('DOMContentLoaded', function () {
 
         items.forEach((item) => {
             const li = document.createElement('li');
-            li.innerHTML = `<a href="/katalog/${item.slug}" class="block px-4 py-3 text-sm text-[#2C3E50] transition hover:bg-[#F8F9FA]">${item.name}</a>`;
+            li.innerHTML = `<a href="/katalog/${item.slug}">${item.name}</a>`;
             searchResults.appendChild(li);
         });
 
         searchDropdown.classList.remove('hidden');
     };
 
-    const updateHeaderSearch = () => {
+    const updateHeaderSearch = (root) => {
+        const headerSearchInput = root.querySelector('[data-header-search-input]');
+
         if (!headerSearchInput) {
             return;
         }
 
         const query = headerSearchInput.value.trim().toLowerCase();
         if (!query) {
-            renderHeaderSearch([]);
+            renderHeaderSearch(root, []);
             return;
         }
 
@@ -56,19 +62,108 @@ document.addEventListener('DOMContentLoaded', function () {
             .filter((item) => item.name.toLowerCase().includes(query))
             .slice(0, 5);
 
-        renderHeaderSearch(matches);
+        renderHeaderSearch(root, matches);
     };
 
-    if (headerSearchInput) {
-        headerSearchInput.addEventListener('input', updateHeaderSearch);
-        headerSearchInput.addEventListener('focus', updateHeaderSearch);
-        document.addEventListener('click', (event) => {
-            if (!searchDropdown || !headerSearchInput) {
+    headerSearchRoots.forEach((root) => {
+        const headerSearchInput = root.querySelector('[data-header-search-input]');
+        const searchDropdown = root.querySelector('[data-search-dropdown]');
+
+        if (!headerSearchInput || !searchDropdown) {
+            return;
+        }
+
+        headerSearchInput.addEventListener('input', () => updateHeaderSearch(root));
+        headerSearchInput.addEventListener('focus', () => updateHeaderSearch(root));
+        headerSearchInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                searchDropdown.classList.add('hidden');
+            }
+        });
+    });
+
+    document.addEventListener('click', (event) => {
+        headerSearchRoots.forEach((root) => {
+            const searchDropdown = root.querySelector('[data-search-dropdown]');
+            if (!searchDropdown) {
                 return;
             }
 
-            if (!searchDropdown.contains(event.target) && event.target !== headerSearchInput) {
+            if (!root.contains(event.target)) {
                 searchDropdown.classList.add('hidden');
+            }
+        });
+    });
+
+    const setMobileMenuState = (isOpen) => {
+        if (!siteHeader) {
+            return;
+        }
+
+        const menuButton = siteHeader.querySelector('[data-mobile-menu-toggle]');
+        const mobilePanel = siteHeader.querySelector('[data-mobile-panel]');
+        const openIcon = siteHeader.querySelector('[data-menu-icon="open"]');
+        const closeIcon = siteHeader.querySelector('[data-menu-icon="close"]');
+
+        siteHeader.dataset.mobileMenu = isOpen ? 'open' : 'closed';
+
+        if (menuButton) {
+            menuButton.setAttribute('aria-expanded', String(isOpen));
+        }
+
+        if (mobilePanel) {
+            mobilePanel.setAttribute('aria-hidden', String(!isOpen));
+        }
+
+        if (openIcon && closeIcon) {
+            openIcon.classList.toggle('hidden', isOpen);
+            closeIcon.classList.toggle('hidden', !isOpen);
+        }
+    };
+
+    if (siteHeader) {
+        const menuButton = siteHeader.querySelector('[data-mobile-menu-toggle]');
+        const mobilePanel = siteHeader.querySelector('[data-mobile-panel]');
+        const mobileLinks = mobilePanel ? mobilePanel.querySelectorAll('a') : [];
+
+        const updateHeaderState = () => {
+            siteHeader.dataset.condensed = window.scrollY > 18 ? 'true' : 'false';
+        };
+
+        updateHeaderState();
+        window.addEventListener('scroll', updateHeaderState, { passive: true });
+
+        if (menuButton) {
+            menuButton.addEventListener('click', () => {
+                const isOpen = siteHeader.dataset.mobileMenu === 'open';
+                setMobileMenuState(!isOpen);
+            });
+        }
+
+        mobileLinks.forEach((link) => {
+            link.addEventListener('click', () => setMobileMenuState(false));
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                setMobileMenuState(false);
+            }
+        });
+
+        document.addEventListener('click', (event) => {
+            const isOpen = siteHeader.dataset.mobileMenu === 'open';
+            if (!isOpen) {
+                return;
+            }
+
+            if (!siteHeader.contains(event.target)) {
+                setMobileMenuState(false);
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 1024) {
+                setMobileMenuState(false);
             }
         });
     }
@@ -115,95 +210,58 @@ document.addEventListener('DOMContentLoaded', function () {
         filterCards();
     }
 
-    const cartItem = document.querySelector('[data-cart-item]');
-    const emptyState = document.querySelector('[data-empty-state]');
-    const cartCount = document.querySelector('[data-cart-count]');
-    const subtotalEl = document.querySelector('[data-subtotal]');
-    const totalEl = document.querySelector('[data-total]');
-    const checkoutLink = document.querySelector('a[href*="checkout/form"]');
-
-    const formatRupiah = (value) => {
-        return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(value);
-    };
-
-    const updateSummary = () => {
-        if (!cartItem) {
+    whatsappBuilders.forEach((builder) => {
+        const cta = builder.querySelector('[data-whatsapp-cta]');
+        if (!cta) {
             return;
         }
 
-        const qtyInput = cartItem.querySelector('[data-item-qty]');
-        const price = Number(cartItem.dataset.itemPrice || 0);
-        const qty = Number(qtyInput.value || 1);
-        const total = price * qty;
+        const productName = builder.dataset.productName || '';
+        const productCategory = builder.dataset.productCategory || '';
+        const number = builder.dataset.whatsappNumber || '';
+        const variantField = builder.querySelector('[data-whatsapp-variant]');
+        const quantityField = builder.querySelector('[data-whatsapp-quantity]');
+        const noteField = builder.querySelector('[data-whatsapp-note]');
+        const preview = builder.querySelector('[data-whatsapp-preview]');
+        const priceLabel = builder.querySelector('[data-whatsapp-price]');
 
-        if (cartCount) {
-            cartCount.textContent = qty;
-        }
+        const updateWhatsappLink = () => {
+            const selectedVariant = variantField ? variantField.options[variantField.selectedIndex] : null;
+            const variantLabel = selectedVariant ? selectedVariant.dataset.variantLabel || selectedVariant.textContent.trim() : 'Belum dipilih';
+            const variantPrice = selectedVariant ? selectedVariant.dataset.variantPrice || '' : '';
+            const quantity = quantityField && quantityField.value ? quantityField.value : 'Belum ditentukan';
+            const note = noteField && noteField.value.trim() ? noteField.value.trim() : 'Tidak ada catatan tambahan';
+            const lines = [
+                'Halo Harapan Jaya Printing, saya ingin pesan produk berikut:',
+                `Produk: ${productName}`,
+                productCategory ? `Kategori: ${productCategory}` : null,
+                `Varian: ${variantLabel}`,
+                `Jumlah perkiraan: ${quantity}`,
+                variantPrice ? `Harga acuan: ${variantPrice}` : null,
+                `Catatan: ${note}`,
+                'Mohon bantu proses pemesanan dan konfirmasi detail finalnya.',
+            ].filter(Boolean);
 
-        if (subtotalEl) {
-            subtotalEl.textContent = formatRupiah(total);
-        }
+            cta.href = `https://wa.me/${number}?text=${encodeURIComponent(lines.join('\n'))}`;
 
-        if (totalEl) {
-            totalEl.textContent = formatRupiah(total);
-        }
+            if (preview) {
+                preview.textContent = `${productName} • ${variantLabel} • ${quantity}`;
+            }
 
-        const itemTotal = cartItem.querySelector('[data-item-total]');
-        if (itemTotal) {
-            itemTotal.textContent = formatRupiah(total);
-        }
-    };
+            if (priceLabel) {
+                priceLabel.textContent = variantPrice || priceLabel.dataset.fallback || 'Harga dikonfirmasi di WhatsApp';
+            }
+        };
 
-    const checkCartEmpty = () => {
-        const items = document.querySelectorAll('[data-cart-item]');
-        const visibleItems = Array.from(items).filter((item) => item.style.display !== 'none');
-        const isEmpty = visibleItems.length === 0;
+        [variantField, quantityField, noteField].forEach((field) => {
+            if (!field) {
+                return;
+            }
 
-        if (emptyState) {
-            emptyState.classList.toggle('hidden', !isEmpty);
-        }
-
-        if (checkoutLink) {
-            checkoutLink.classList.toggle('pointer-events-none', isEmpty);
-            checkoutLink.classList.toggle('opacity-50', isEmpty);
-        }
-    };
-
-    if (cartItem) {
-        const qtyInput = cartItem.querySelector('[data-item-qty]');
-
-        cartItem.querySelectorAll('[data-qty-change]').forEach((button) => {
-            button.addEventListener('click', () => {
-                const action = button.dataset.qtyChange;
-                let qty = Number(qtyInput.value || 1);
-                if (action === 'increase') {
-                    qty += 1;
-                }
-                if (action === 'decrease' && qty > 1) {
-                    qty -= 1;
-                }
-                qtyInput.value = qty;
-                updateSummary();
-            });
+            field.addEventListener('input', updateWhatsappLink);
+            field.addEventListener('change', updateWhatsappLink);
         });
 
-        const removeButton = cartItem.querySelector('[data-remove-item]');
-        if (removeButton) {
-            removeButton.addEventListener('click', () => {
-                cartItem.style.display = 'none';
-                if (cartCount) {
-                    cartCount.textContent = 0;
-                }
-                if (subtotalEl) {
-                    subtotalEl.textContent = formatRupiah(0);
-                }
-                if (totalEl) {
-                    totalEl.textContent = formatRupiah(0);
-                }
-                checkCartEmpty();
-            });
-        }
-    }
-
-    checkCartEmpty();
+        updateWhatsappLink();
+    });
 });

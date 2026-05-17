@@ -17,13 +17,13 @@
 <body class="antialiased selection:bg-[#3498DB] selection:text-white bg-[#F8F9FA]">
     @include('partials.header')
 
-    <main class="pt-28 pb-24">
+    <main id="main-content" class="pt-28 pb-24">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="bg-white rounded-xl border border-[#2C3E50]/10 p-8 shadow-sm mb-10">
                 <div class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
                     <div class="max-w-2xl">
                         <h2 class="text-2xl md:text-3xl font-bold text-[#2C3E50] mb-3">Katalog Produk</h2>
-                        <p class="text-lg text-[#2C3E50]/70">Jelajahi berbagai produk digital printing berkualitas tinggi dengan harga kompetitif</p>
+                        <p class="text-lg text-[#2C3E50]/70">Jelajahi produk, bandingkan spesifikasi, lalu lanjutkan pemesanan melalui WhatsApp dari halaman detail produk.</p>
                     </div>
                     <div class="text-sm text-[#2C3E50]/70">
                         Menampilkan {{ $products->firstItem() ?? 0 }}-{{ $products->lastItem() ?? 0 }} dari {{ $products->total() }} produk
@@ -72,7 +72,7 @@
                                 <span class="rounded-full border border-[#2C3E50]/10 bg-[#F8F9FA] px-3 py-1">Belum ada varian aktif</span>
                             @endforelse
                         </div>
-                        <a href="{{ route('katalog.show', $product) }}" class="inline-flex w-full items-center justify-center rounded-full bg-[#0f172a] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#2c3e50]">Pesan Sekarang</a>
+                        <a href="{{ route('katalog.show', $product) }}" class="inline-flex w-full items-center justify-center rounded-full bg-[#0f172a] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#2c3e50]">Lihat Detail Produk</a>
                     </article>
                 @empty
                     <div class="sm:col-span-2 xl:col-span-3 rounded-xl border border-dashed border-[#2C3E50]/20 bg-white p-10 text-center text-[#2C3E50]/70">
