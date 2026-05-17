@@ -2,29 +2,32 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class OrderItem extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'order_id',
+        'product_id',
         'product_variant_id',
+        'product_finishing_id',
         'product_name',
         'variant_name',
-        'unit_price',
-        'weight',
+        'finishing_name',
         'quantity',
+        'unit_price',
         'subtotal',
-        'design_file_path',
-        'design_brief',
+        'specification',
     ];
 
     protected $casts = [
         'unit_price' => 'decimal:2',
-        'weight' => 'integer',
         'subtotal' => 'decimal:2',
-        'quantity' => 'integer',
     ];
 
     public function order(): BelongsTo
@@ -32,8 +35,23 @@ class OrderItem extends Model
         return $this->belongsTo(Order::class);
     }
 
-    public function productVariant(): BelongsTo
+    public function product(): BelongsTo
     {
-        return $this->belongsTo(ProductVariant::class);
+        return $this->belongsTo(Product::class);
+    }
+
+    public function variant(): BelongsTo
+    {
+        return $this->belongsTo(ProductVariant::class, 'product_variant_id');
+    }
+
+    public function finishing(): BelongsTo
+    {
+        return $this->belongsTo(ProductFinishing::class, 'product_finishing_id');
+    }
+
+    public function files(): HasMany
+    {
+        return $this->hasMany(OrderFile::class);
     }
 }
