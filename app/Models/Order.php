@@ -2,55 +2,39 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
 
 class Order extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
-        'user_id',
-        'order_number',
-        'total_amount',
-        'current_status',
-        'delivery_type',
-        'recipient_name',
-        'recipient_phone',
-        'shipping_address',
-        'shipping_city_id',
-        'total_weight',
-        'courier',
-        'courier_service',
-        'shipping_cost',
-        'tracking_number',
+        'order_code',
+        'customer_name',
+        'customer_phone',
+        'customer_address',
+        'deadline',
+        'notes',
+        'total_price',
+        'paid_amount',
+        'payment_status',
+        'status',
+        'admin_id',
     ];
 
     protected $casts = [
-        'total_amount' => 'decimal:2',
-        'shipping_cost' => 'decimal:2',
-        'total_weight' => 'integer',
+        'deadline' => 'date',
+        'total_price' => 'decimal:2',
+        'paid_amount' => 'decimal:2',
     ];
 
-    protected static function boot()
+    public function admin(): BelongsTo
     {
-        parent::boot();
-
-        static::creating(function ($order) {
-            if (empty($order->order_number)) {
-                $order->order_number = 'ORD-' . date('Ymd') . '-' . strtoupper(bin2hex(random_bytes(3)));
-            }
-        });
-    }
-
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
-    }
-
-    public function city(): BelongsTo
-    {
-        return $this->belongsTo(City::class, 'shipping_city_id');
+        return $this->belongsTo(User::class, 'admin_id');
     }
 
     public function items(): HasMany
@@ -58,18 +42,18 @@ class Order extends Model
         return $this->hasMany(OrderItem::class);
     }
 
-    public function statusHistories(): HasMany
+    public function files(): HasMany
+    {
+        return $this->hasMany(OrderFile::class);
+    }
+
+    public function statusHistories(): HasMany  
     {
         return $this->hasMany(OrderStatusHistory::class);
     }
 
-    public function payment(): HasOne
+    public function reviews(): HasMany
     {
-        return $this->hasOne(Payment::class);
-    }
-
-    public function review(): HasOne
-    {
-        return $this->hasOne(Review::class);
+        return $this->hasMany(Review::class);
     }
 }

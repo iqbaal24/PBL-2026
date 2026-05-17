@@ -2,15 +2,21 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class OrderStatusHistory extends Model
 {
-    protected $fillable = ['order_id', 'status', 'notes', 'updated_by'];
+    use HasFactory;
 
-    protected $casts = [
-        'updated_by' => 'integer',
+    public $timestamps = false;
+
+    protected $fillable = [
+        'order_id',
+        'status',
+        'note',
+        'changed_by',
     ];
 
     public function order(): BelongsTo
@@ -18,8 +24,8 @@ class OrderStatusHistory extends Model
         return $this->belongsTo(Order::class);
     }
 
-    public function updater(): BelongsTo
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'updated_by');
+        return $this->belongsTo(User::class, 'changed_by');
     }
 }
