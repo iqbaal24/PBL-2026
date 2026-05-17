@@ -13,7 +13,18 @@ return new class extends Migration
     {
         Schema::create('order_status_histories', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
+            $table->foreignId('order_id')->constrained()->cascadeOnDelete();
+            $table->enum('status', [
+                'pending',
+                'confirmed',
+                'production',
+                'ready',
+                'completed',
+                'cancelled'
+            ]);
+            $table->text('note')->nullable();
+            $table->foreignId('changed_by')->constrained('users')->cascadeOnDelete();
+            $table->timestamp('created_at')->useCurrent();
         });
     }
 

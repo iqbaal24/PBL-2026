@@ -13,6 +13,13 @@ return new class extends Migration
     {
         Schema::create('store_profile', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->text('about')->nullable();
+            $table->text('address')->nullable();
+            $table->string('whatsapp_number');
+            $table->string('email')->nullable();
+            $table->string('logo')->nullable();
+            $table->string('instagram_url')->nullable();
             $table->timestamps();
         });
     }
