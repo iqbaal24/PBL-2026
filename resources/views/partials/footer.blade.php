@@ -1,3 +1,7 @@
+@php
+    $storefront = config('storefront');
+@endphp
+
 <footer id="kontak" class="bg-[#0f172a] text-white pt-20 pb-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid gap-10 lg:grid-cols-4">
@@ -11,23 +15,26 @@
                     <li><a href="{{ url('/') }}" class="hover:text-white transition-colors">Beranda</a></li>
                     <li><a href="{{ url('/katalog') }}" class="hover:text-white transition-colors">Katalog</a></li>
                     <li><a href="{{ url('/panduan') }}" class="hover:text-white transition-colors">Panduan</a></li>
+                    <li><a href="{{ route('track-order') }}" class="hover:text-white transition-colors">Lacak Pesanan</a></li>
                     <li><a href="{{ url('/hubungi-kami') }}" class="hover:text-white transition-colors">Hubungi Kami</a></li>
                 </ul>
             </div>
             <div>
                 <h3 class="font-semibold mb-5">Kontak</h3>
                 <ul class="space-y-4 text-sm text-white/70">
-                    <li>Jl. Semanggi Barat 5C Jatimulyo, Lowokrawu, Malang</li>
-                    <li>082142117750</li>
-                    <li>harapanjaya366@gmail.com</li>
+                    @foreach ($storefront['address_lines'] as $line)
+                        <li>{{ $line }}</li>
+                    @endforeach
+                    <li>{{ $storefront['phone_display'] }}</li>
+                    <li>{{ $storefront['email'] }}</li>
                 </ul>
             </div>
             <div>
                 <h3 class="font-semibold mb-5">Jam Operasional</h3>
                 <ul class="space-y-3 text-sm text-white/70">
-                    <li>Senin - Jumat: 08:00 - 17:00</li>
-                    <li>Sabtu: 08:00 - 15:00</li>
-                    <li>Minggu: Tutup</li>
+                    @foreach ($storefront['hours'] as $hour)
+                        <li>{{ $hour['label'] }}: {{ $hour['value'] }}</li>
+                    @endforeach
                 </ul>
             </div>
         </div>

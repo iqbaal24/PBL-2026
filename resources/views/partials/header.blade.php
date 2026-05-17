@@ -1,47 +1,148 @@
-<nav class="fixed w-full z-50 bg-[#F8F9FA] border-b border-[#2C3E50]/10">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-20">
-            <div class="flex items-center gap-3">
-                <span class="font-bold text-2xl tracking-tight text-[#2C3E50]">Harapan Jaya Printing</span>
-            </div>
-            <div class="hidden lg:flex items-center gap-10">
-                <a href="{{ url('/') }}" class="text-[#2C3E50] font-medium text-sm">Beranda</a>
-                <a href="{{ url('/katalog') }}" class="text-[#2C3E50]/70 hover:text-[#3498DB] transition-colors font-medium text-sm">Katalog</a>
-                <a href="{{ url('/panduan') }}" class="text-[#2C3E50]/70 hover:text-[#3498DB] transition-colors font-medium text-sm">Panduan</a>
-                <a href="{{ url('/hubungi-kami') }}" class="text-[#2C3E50]/70 hover:text-[#3498DB] transition-colors font-medium text-sm">Hubungi Kami</a>
-            </div>
-            <div class="hidden lg:flex items-center gap-4">
-                <div class="relative">
-                    @php
-                        $searchProducts = [];
+@php
+    $searchProducts = [];
 
-                        try {
-                            $searchProducts = \App\Models\Product::query()
-                                ->orderBy('name')
-                                ->get(['name', 'slug'])
-                                ->map(fn($product) => ['name' => $product->name, 'slug' => $product->slug])
-                                ->all();
-                        } catch (\Throwable $exception) {
-                            $searchProducts = [];
-                        }
-                    @endphp
-                    <input type="text" data-header-search-input placeholder="Cari produk..." class="h-11 w-72 rounded-full border border-[#2C3E50]/10 bg-white px-12 text-sm text-[#2C3E50] outline-none focus:border-[#3498DB] focus:ring-2 focus:ring-[#3498DB]/15" />
-                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-[#2C3E50]/60">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1010.5 18.5a7.5 7.5 0 006.15-3.85z"></path></svg>
-                    </span>
-                    <div data-search-dropdown class="absolute left-0 right-0 top-full mt-2 hidden overflow-hidden rounded-xl border border-[#2C3E50]/10 bg-white shadow-lg z-50">
-                        <ul data-search-results class="divide-y divide-slate-200 max-h-72 overflow-auto"></ul>
-                    </div>
-                    <script type="application/json" id="product-search-data">@json($searchProducts)</script>
+    try {
+        $searchProducts = \App\Models\Product::query()
+            ->orderBy('name')
+            ->get(['name', 'slug'])
+            ->map(fn($product) => ['name' => $product->name, 'slug' => $product->slug])
+            ->all();
+    } catch (\Throwable $exception) {
+        $searchProducts = [];
+    }
+
+    $navItems = [
+        ['label' => 'Beranda', 'href' => url('/'), 'active' => request()->is('/')],
+        ['label' => 'Katalog', 'href' => route('katalog.index'), 'active' => request()->routeIs('katalog.*')],
+        ['label' => 'Panduan', 'href' => route('panduan'), 'active' => request()->routeIs('panduan')],
+        ['label' => 'Hubungi Kami', 'href' => route('hubungi-kami'), 'active' => request()->routeIs('hubungi-kami')],
+    ];
+@endphp
+
+<a href="#main-content" class="site-skip-link">Lewati ke konten utama</a>
+
+<nav data-site-header data-mobile-menu="closed" data-condensed="false" class="site-header fixed inset-x-0 top-0 z-50 border-b border-[#2C3E50]/10 bg-[#F8F9FA]">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="site-header__bar flex min-h-20 items-center justify-between gap-4">
+            <div class="flex min-w-0 items-center gap-4">
+                <a href="{{ url('/') }}" class="site-brand inline-flex min-w-0 items-center text-[#2C3E50] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3498DB] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F8F9FA]">
+                    <span class="truncate text-lg font-bold tracking-tight sm:text-2xl">Harapan Jaya Printing</span>
+                </a>
+
+                <div class="hidden lg:flex items-center gap-2 xl:gap-3">
+                    @foreach ($navItems as $item)
+                        <a
+                            href="{{ $item['href'] }}"
+                            @if ($item['active']) aria-current="page" @endif
+                            class="site-nav-link inline-flex items-center rounded-full px-4 py-2 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3498DB] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F8F9FA] {{ $item['active'] ? 'bg-white text-[#2C3E50] shadow-sm ring-1 ring-[#2C3E50]/10' : 'text-[#2C3E50]/72 hover:text-[#3498DB]' }}"
+                        >
+                            {{ $item['label'] }}
+                        </a>
+                    @endforeach
                 </div>
-                <button class="text-[#2C3E50]/70 hover:text-[#3498DB] transition-colors relative">
-                    <a href="{{ route('keranjang') }}" class="text-[#2C3E50]/70 hover:text-[#3498DB] transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h18l-2 13H5L3 3zm5 16a2 2 0 104 0m4 0a2 2 0 104 0"></path></svg>
-                    <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">1</span>
+            </div>
+
+            <div class="hidden lg:flex items-center gap-3">
+                <div data-header-search-root class="site-search relative w-[18rem] xl:w-[20rem]">
+                    <label for="desktop-header-search" class="sr-only">Cari produk</label>
+                    <input
+                        id="desktop-header-search"
+                        type="text"
+                        data-header-search-input
+                        autocomplete="off"
+                        placeholder="Cari produk..."
+                        class="h-11 w-full rounded-full border border-[#2C3E50]/10 bg-white pl-11 pr-4 text-sm text-[#2C3E50] outline-none transition focus:border-[#3498DB] focus:ring-2 focus:ring-[#3498DB]/15"
+                    />
+                    <span class="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#2C3E50]/55">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1010.5 18.5a7.5 7.5 0 006.15-3.85z"></path>
+                        </svg>
+                    </span>
+                    <div data-search-dropdown class="absolute left-0 right-0 top-full z-20 mt-2 hidden overflow-hidden rounded-2xl border border-[#2C3E50]/10 bg-white shadow-lg">
+                        <ul data-search-results class="max-h-72 overflow-auto divide-y divide-slate-200"></ul>
+                    </div>
+                </div>
+
+                <a
+                    href="{{ route('track-order') }}"
+                    @if (request()->routeIs('track-order')) aria-current="page" @endif
+                    class="inline-flex h-11 items-center justify-center rounded-full bg-[#0F172A] px-5 text-sm font-semibold text-white transition hover:bg-[#2C3E50] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3498DB] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F8F9FA]"
+                >
+                    Lacak Pesanan
+                </a>
+            </div>
+
+            <div class="flex items-center gap-2 lg:hidden">
+                <a
+                    href="{{ route('track-order') }}"
+                    class="inline-flex h-10 items-center justify-center rounded-full bg-[#0F172A] px-4 text-sm font-semibold text-white transition hover:bg-[#2C3E50] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3498DB] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F8F9FA]"
+                >
+                    Lacak
+                </a>
+                <button
+                    type="button"
+                    data-mobile-menu-toggle
+                    aria-expanded="false"
+                    aria-controls="mobile-site-menu"
+                    class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-[#2C3E50]/10 bg-white text-[#2C3E50] transition hover:border-[#3498DB]/30 hover:text-[#3498DB] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3498DB] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F8F9FA]"
+                >
+                    <span class="sr-only">Buka menu</span>
+                    <svg data-menu-icon="open" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M4 12h16M4 17h16"></path>
+                    </svg>
+                    <svg data-menu-icon="close" class="hidden h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 6l12 12M18 6L6 18"></path>
+                    </svg>
                 </button>
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A4 4 0 018 16h8a4 4 0 012.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            </div>
+        </div>
+
+        <div id="mobile-site-menu" data-mobile-panel aria-hidden="true" class="site-mobile-panel lg:hidden">
+            <div class="space-y-5 rounded-[1.5rem] border border-[#2C3E50]/10 bg-white p-4 shadow-lg">
+                <div data-header-search-root class="site-search relative">
+                    <label for="mobile-header-search" class="sr-only">Cari produk</label>
+                    <input
+                        id="mobile-header-search"
+                        type="text"
+                        data-header-search-input
+                        autocomplete="off"
+                        placeholder="Cari produk..."
+                        class="h-12 w-full rounded-full border border-[#2C3E50]/10 bg-[#F8F9FA] pl-11 pr-4 text-sm text-[#2C3E50] outline-none transition focus:border-[#3498DB] focus:ring-2 focus:ring-[#3498DB]/15"
+                    />
+                    <span class="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[#2C3E50]/55">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1010.5 18.5a7.5 7.5 0 006.15-3.85z"></path>
+                        </svg>
+                    </span>
+                    <div data-search-dropdown class="absolute left-0 right-0 top-full z-20 mt-2 hidden overflow-hidden rounded-2xl border border-[#2C3E50]/10 bg-white shadow-lg">
+                        <ul data-search-results class="max-h-72 overflow-auto divide-y divide-slate-200"></ul>
+                    </div>
+                </div>
+
+                <div class="grid gap-2">
+                    @foreach ($navItems as $item)
+                        <a
+                            href="{{ $item['href'] }}"
+                            @if ($item['active']) aria-current="page" @endif
+                            class="flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-medium transition {{ $item['active'] ? 'bg-[#E8F4FF] text-[#2C3E50]' : 'text-[#2C3E50] hover:bg-[#F8F9FA]' }}"
+                        >
+                            <span>{{ $item['label'] }}</span>
+                            <svg class="h-4 w-4 text-[#2C3E50]/40" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </a>
+                    @endforeach
+                </div>
+
+                <a
+                    href="{{ route('track-order') }}"
+                    class="inline-flex h-12 w-full items-center justify-center rounded-full bg-[#0F172A] px-5 text-sm font-semibold text-white transition hover:bg-[#2C3E50] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#3498DB] focus-visible:ring-offset-2"
+                >
+                    Lacak Pesanan
                 </a>
             </div>
         </div>
     </div>
+
+    <script type="application/json" id="product-search-data">@json($searchProducts)</script>
 </nav>
