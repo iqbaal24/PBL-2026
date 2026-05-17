@@ -13,12 +13,6 @@ return new class extends Migration
     {
         Schema::create('reviews', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('product_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('order_id')->unique()->constrained()->cascadeOnDelete();
-            $table->smallInteger('rating');
-            $table->text('comment')->nullable();
-            $table->string('moderation_status')->default('pending');
             $table->timestamps();
         });
     }
