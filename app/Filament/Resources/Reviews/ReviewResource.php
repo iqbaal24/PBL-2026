@@ -5,36 +5,78 @@ namespace App\Filament\Resources\Reviews;
 use App\Filament\Resources\Reviews\Pages\CreateReview;
 use App\Filament\Resources\Reviews\Pages\EditReview;
 use App\Filament\Resources\Reviews\Pages\ListReviews;
-use App\Filament\Resources\Reviews\Schemas\ReviewForm;
-use App\Filament\Resources\Reviews\Tables\ReviewsTable;
+use App\Filament\Resources\Reviews\Pages\ViewReview;
 use App\Models\Review;
 use BackedEnum;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 
 class ReviewResource extends Resource
 {
     protected static ?string $model = Review::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedStar;
+
+    protected static ?int $navigationSort = 3;
 
     public static function form(Schema $schema): Schema
     {
-        return ReviewForm::configure($schema);
+        return $schema->components([
+            Section::make('Review')
+                ->schema([
+                    Grid::make(2)->schema([
+                        TextInput::make('customer_name')->required()->maxLength(255),
+                        TextInput::make('rating')->numeric()->minValue(1)->maxValue(5)->required(),
+                        Select::make('product_id')->relationship('product', 'name')->searchable()->preload(),
+                        Select::make('order_id')->relationship('order', 'order_code')->searchable()->preload(),
+                        Textarea::make('comment')->required()->rows(4)->columnSpanFull(),
+                        Toggle::make('is_visible')->default(true),
+                    ]),
+                ]),
+        ]);
     }
 
     public static function table(Table $table): Table
     {
-        return ReviewsTable::configure($table);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
+        return $table
+            ->columns([
+                TextColumn::make('customer_name')->searchable()->sortable(),
+                TextColumn::make('product.name')->searchable()->toggleable(),
+                TextColumn::make('order.order_code')->searchable()->toggleable(),
+                TextColumn::make('rating')->sortable(),
+                IconColumn::make('is_visible')->boolean()->sortable(),
+                TextColumn::make('created_at')->dateTime()->sortable(),
+            ])
+            ->filters([
+                TernaryFilter::make('is_visible'),
+            ])
+            ->defaultSort('created_at', 'desc')
+            ->recordActions([
+                ViewAction::make(),
+                EditAction::make(),
+                DeleteAction::make(),
+            ])
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                ]),
+            ]);
     }
 
     public static function getPages(): array
@@ -42,6 +84,7 @@ class ReviewResource extends Resource
         return [
             'index' => ListReviews::route('/'),
             'create' => CreateReview::route('/create'),
+            'view' => ViewReview::route('/{record}'),
             'edit' => EditReview::route('/{record}/edit'),
         ];
     }
