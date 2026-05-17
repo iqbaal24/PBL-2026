@@ -12,12 +12,16 @@ class ProductVariant extends Model
 
     protected $fillable = [
         'product_id',
-        'name',
-        'is_active',
+        'variant_name',
+        'price',
+        'weight',
+        'stock_status',
     ];
 
     protected $casts = [
-        'is_active' => 'boolean',
+        'price' => 'decimal:2',
+        'weight' => 'integer',
+        'stock_status' => 'boolean',
     ];
 
     public function product(): BelongsTo

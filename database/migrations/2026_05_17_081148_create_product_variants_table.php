@@ -14,8 +14,10 @@ return new class extends Migration
         Schema::create('product_variants', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_id')->constrained()->cascadeOnDelete();
-            $table->string('name');
-            $table->boolean('is_active')->default(true);
+            $table->string('variant_name');
+            $table->decimal('price', 12, 2);
+            $table->integer('weight')->nullable();
+            $table->boolean('stock_status')->default(true);
             $table->timestamps();
         });
     }

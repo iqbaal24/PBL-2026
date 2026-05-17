@@ -12,20 +12,26 @@ class ProductVariantSeeder extends Seeder
     {
         ProductVariant::create([
             'product_id' => 1,
-            'name' => '2x1 Meter',
-            'is_active' => true,
+            'variant_name' => '2x1 Meter',
+            'price' => 50000,
+            'weight' => 600,
+            'stock_status' => true,
         ]);
 
         ProductVariant::create([
             'product_id' => 1,
-            'name' => '3x1 Meter',
-            'is_active' => true,
+            'variant_name' => '3x1 Meter',
+            'price' => 75000,
+            'weight' => 900,
+            'stock_status' => true,
         ]);
 
         ProductVariant::create([
             'product_id' => 2,
-            'name' => 'A4',
-            'is_active' => true,
+            'variant_name' => 'A4',
+            'price' => 15000,
+            'weight' => 50,
+            'stock_status' => true,
         ]);
     }
 }
