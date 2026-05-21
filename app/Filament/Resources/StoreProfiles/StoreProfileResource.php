@@ -48,6 +48,7 @@ class StoreProfileResource extends Resource
                             ->disk('public')
                             ->directory('store')
                             ->visibility('public')
+                            ->maxSize(5120)
                             ->columnSpanFull(),
                         Textarea::make('about')->rows(4)->columnSpanFull(),
                         Textarea::make('address')->rows(3)->columnSpanFull(),

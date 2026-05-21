@@ -113,6 +113,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (mobilePanel) {
             mobilePanel.setAttribute('aria-hidden', String(!isOpen));
+            mobilePanel.hidden = !isOpen;
         }
 
         if (openIcon && closeIcon) {
@@ -131,6 +132,7 @@ document.addEventListener('DOMContentLoaded', function () {
         };
 
         updateHeaderState();
+        setMobileMenuState(false);
         window.addEventListener('scroll', updateHeaderState, { passive: true });
 
         if (menuButton) {
@@ -264,4 +266,219 @@ document.addEventListener('DOMContentLoaded', function () {
 
         updateWhatsappLink();
     });
+
+    // Product Carousel
+    const carouselTrack = document.querySelector('[data-carousel-track]');
+    const carouselPrev = document.querySelector('[data-carousel-prev]');
+    const carouselNext = document.querySelector('[data-carousel-next]');
+    const carouselProgress = document.querySelector('[data-carousel-progress]');
+    const carouselCounter = document.querySelector('[data-carousel-counter]');
+
+    if (carouselTrack && carouselTrack.firstElementChild) {
+        const totalSlides = carouselTrack.children.length;
+
+        const updateCarouselState = () => {
+            const maxScrollLeft = carouselTrack.scrollWidth - carouselTrack.clientWidth;
+            const scrollLeft = carouselTrack.scrollLeft;
+            
+            // Calculate progress percentage
+            const percentage = maxScrollLeft > 0 ? (scrollLeft / maxScrollLeft) * 100 : 0;
+            if (carouselProgress) {
+                carouselProgress.style.width = `${percentage}%`;
+            }
+
+            // Update button disabled state
+            if (carouselPrev) {
+                carouselPrev.disabled = scrollLeft <= 8;
+            }
+            if (carouselNext) {
+                carouselNext.disabled = scrollLeft >= maxScrollLeft - 8;
+            }
+
+            // Update counter
+            if (carouselCounter) {
+                const cardWidth = carouselTrack.firstElementChild.getBoundingClientRect().width;
+                const style = window.getComputedStyle(carouselTrack);
+                const gap = parseFloat(style.columnGap || style.gap) || 24;
+                const step = cardWidth + gap;
+                const currentIndex = Math.min(
+                    totalSlides,
+                    Math.max(1, Math.round(scrollLeft / step) + 1)
+                );
+                carouselCounter.textContent = `Slide ${currentIndex} / ${totalSlides}`;
+            }
+        };
+
+        // Scroll action
+        const scrollCarousel = (direction) => {
+            const cardWidth = carouselTrack.firstElementChild.getBoundingClientRect().width;
+            const style = window.getComputedStyle(carouselTrack);
+            const gap = parseFloat(style.columnGap || style.gap) || 24;
+            const step = cardWidth + gap;
+            
+            carouselTrack.scrollBy({
+                left: direction * step,
+                behavior: 'smooth'
+            });
+        };
+
+        // Autoplay Logic (Delayed step scroll every 3 seconds)
+        let autoplayInterval = null;
+        let isHovered = false;
+        let isDragging = false;
+        let isFocused = false;
+
+        const shouldAutoplay = () => !isHovered && !isDragging && !isFocused;
+
+        const startAutoplay = () => {
+            stopAutoplay();
+            if (!shouldAutoplay()) return;
+            autoplayInterval = setInterval(() => {
+                const maxScrollLeft = carouselTrack.scrollWidth - carouselTrack.clientWidth;
+                const scrollLeft = carouselTrack.scrollLeft;
+                
+                if (scrollLeft >= maxScrollLeft - 10) {
+                    // Smoothly scroll back to start
+                    carouselTrack.scrollTo({
+                        left: 0,
+                        behavior: 'smooth'
+                    });
+                } else {
+                    scrollCarousel(1);
+                }
+            }, 3000); // 3 seconds delay
+        };
+
+        const stopAutoplay = () => {
+            if (autoplayInterval) {
+                clearInterval(autoplayInterval);
+                autoplayInterval = null;
+            }
+        };
+
+        if (carouselPrev) {
+            carouselPrev.addEventListener('click', () => {
+                scrollCarousel(-1);
+                startAutoplay();
+            });
+            carouselPrev.addEventListener('mouseenter', () => {
+                isHovered = true;
+                stopAutoplay();
+            });
+            carouselPrev.addEventListener('mouseleave', () => {
+                isHovered = false;
+                startAutoplay();
+            });
+        }
+        if (carouselNext) {
+            carouselNext.addEventListener('click', () => {
+                scrollCarousel(1);
+                startAutoplay();
+            });
+            carouselNext.addEventListener('mouseenter', () => {
+                isHovered = true;
+                stopAutoplay();
+            });
+            carouselNext.addEventListener('mouseleave', () => {
+                isHovered = false;
+                startAutoplay();
+            });
+        }
+
+        // Hover & Focus events on the carousel track to pause autoplay
+        carouselTrack.addEventListener('mouseenter', () => {
+            isHovered = true;
+            stopAutoplay();
+        });
+        carouselTrack.addEventListener('mouseleave', () => {
+            isHovered = false;
+            startAutoplay();
+        });
+        carouselTrack.addEventListener('focus', () => {
+            isFocused = true;
+            stopAutoplay();
+        }, { passive: true });
+        carouselTrack.addEventListener('blur', () => {
+            isFocused = false;
+            startAutoplay();
+        }, { passive: true });
+
+        // Listen to scroll events to update progress indicator and slide counts
+        carouselTrack.addEventListener('scroll', updateCarouselState, { passive: true });
+        
+        // Initial state update
+        updateCarouselState();
+        
+        // Update on resize
+        window.addEventListener('resize', updateCarouselState, { passive: true });
+
+        // Keyboard navigation
+        carouselTrack.setAttribute('tabindex', '0');
+        carouselTrack.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                scrollCarousel(-1);
+                startAutoplay();
+            } else if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                scrollCarousel(1);
+                startAutoplay();
+            }
+        });
+
+        // Touch / Mouse Dragging Interaction
+        let isDown = false;
+        let startX;
+        let scrollLeftVal;
+        let dragThreshold = 5;
+        let hasDragged = false;
+
+        carouselTrack.addEventListener('pointerdown', (e) => {
+            isDown = true;
+            isDragging = true;
+            stopAutoplay();
+            carouselTrack.classList.replace('cursor-grab', 'cursor-grabbing');
+            startX = e.pageX - carouselTrack.offsetLeft;
+            scrollLeftVal = carouselTrack.scrollLeft;
+            hasDragged = false;
+            carouselTrack.setPointerCapture(e.pointerId);
+        });
+
+        carouselTrack.addEventListener('pointermove', (e) => {
+            if (!isDown) return;
+            const x = e.pageX - carouselTrack.offsetLeft;
+            const walk = (x - startX) * 1.5; // Drag sensitivity multiplier
+            if (Math.abs(walk) > dragThreshold) {
+                hasDragged = true;
+            }
+            carouselTrack.scrollLeft = scrollLeftVal - walk;
+        });
+
+        const stopDragging = (e) => {
+            if (!isDown) return;
+            isDown = false;
+            isDragging = false;
+            carouselTrack.classList.replace('cursor-grabbing', 'cursor-grab');
+            carouselTrack.releasePointerCapture(e.pointerId);
+            
+            // If user did drag, prevent any accidental clicks on links inside cards
+            if (hasDragged) {
+                const preventClick = (clickEvent) => {
+                    clickEvent.preventDefault();
+                    clickEvent.stopImmediatePropagation();
+                    carouselTrack.removeEventListener('click', preventClick, true);
+                };
+                carouselTrack.addEventListener('click', preventClick, true);
+            }
+
+            // Resume autoplay
+            startAutoplay();
+        };
+
+        carouselTrack.addEventListener('pointerup', stopDragging);
+        carouselTrack.addEventListener('pointercancel', stopDragging);
+
+        // Start autoplay on load
+        startAutoplay();
+    }
 });
