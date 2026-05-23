@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class LatestOrders extends TableWidget
 {
-    protected static ?int $sort = 2;
+    protected static ?int $sort = 5;
     protected int | string | array $columnSpan = 'full';
 
     public function table(Table $table): Table
