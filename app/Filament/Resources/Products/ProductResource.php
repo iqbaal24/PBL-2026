@@ -133,8 +133,9 @@ class ProductResource extends Resource
             ])
             ->recordActions([
                 ViewAction::make(),
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()->slideOver(),
+                DeleteAction::make()
+                    ->modalDescription('Menghapus produk akan menghapus semua varian dan finishing terkait. Lanjutkan?'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

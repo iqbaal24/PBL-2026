@@ -346,8 +346,9 @@ class OrderResource extends Resource
                             'changed_by' => \Illuminate\Support\Facades\Auth::id(),
                         ]);
                     }),
-                \Filament\Actions\EditAction::make(),
-                \Filament\Actions\DeleteAction::make(),
+                \Filament\Actions\EditAction::make()->slideOver(),
+                \Filament\Actions\DeleteAction::make()
+                    ->modalDescription('Apakah Anda yakin ingin menghapus pesanan ini? Tindakan ini tidak dapat dibatalkan.'),
             ])
             ->toolbarActions([
                 \Filament\Actions\BulkActionGroup::make([
