@@ -43,6 +43,13 @@ class ProductResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    protected static ?string $recordTitleAttribute = 'name';
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'slug', 'category.name'];
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([

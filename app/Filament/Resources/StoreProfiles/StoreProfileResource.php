@@ -61,11 +61,31 @@ class StoreProfileResource extends Resource
     {
         return $table
             ->columns([
-                ImageColumn::make('logo')->disk('public')->square(),
-                TextColumn::make('name')->searchable(),
-                TextColumn::make('whatsapp_number')->searchable(),
-                TextColumn::make('email')->searchable(),
-                TextColumn::make('updated_at')->dateTime()->sortable(),
+                ImageColumn::make('logo')
+                    ->disk('public')
+                    ->circular(),
+                TextColumn::make('name')
+                    ->searchable()
+                    ->sortable()
+                    ->weight('bold'),
+                TextColumn::make('whatsapp_number')
+                    ->label('WhatsApp')
+                    ->searchable()
+                    ->icon('heroicon-m-phone')
+                    ->copyable()
+                    ->copyMessage('WhatsApp number copied')
+                    ->copyMessageDuration(1500),
+                TextColumn::make('email')
+                    ->searchable()
+                    ->icon('heroicon-m-envelope')
+                    ->copyable()
+                    ->copyMessage('Email address copied')
+                    ->copyMessageDuration(1500),
+                TextColumn::make('updated_at')
+                    ->label('Terakhir Diperbarui')
+                    ->dateTime('d M Y H:i')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->recordActions([
                 ViewAction::make(),

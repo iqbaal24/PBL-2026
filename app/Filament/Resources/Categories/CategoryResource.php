@@ -37,6 +37,13 @@ class CategoryResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
+    protected static ?string $recordTitleAttribute = 'name';
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'slug'];
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
