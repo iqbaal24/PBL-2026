@@ -12,6 +12,11 @@ use Filament\Models\Contracts\FilamentUser;
 
 class Login extends BasePage
 {
+    public function getHeading(): string
+    {
+        return 'Sign in Admin Harapan Jaya';
+    }
+
     public function authenticate(): ?LoginResponse
     {
         try {
@@ -91,4 +96,5 @@ class Login extends BasePage
 
         return app(LoginResponse::class);
     }
+
 }

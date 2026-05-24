@@ -30,7 +30,8 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->brandName('PBL Store Admin')
+            ->brandLogo(asset('images/logo-hj.png'))
+            ->brandLogoHeight('80px')
             ->favicon(asset('favicon.ico'))
             ->login(\App\Filament\Pages\Auth\Login::class)
             ->colors([
