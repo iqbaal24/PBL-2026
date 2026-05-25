@@ -19,6 +19,8 @@ class CatalogController extends Controller
                 'category:id,name,slug',
                 'activeVariants:id,product_id,variant_name,price,weight,stock_status',
             ])
+            ->withAvg(['reviews as visible_reviews_avg_rating' => fn (Builder $query) => $query->where('is_visible', true)], 'rating')
+            ->withCount(['reviews as visible_reviews_count' => fn (Builder $query) => $query->where('is_visible', true)])
             ->when(
                 $selectedCategory !== '',
                 fn (Builder $query) => $query->whereHas(
@@ -43,7 +45,13 @@ class CatalogController extends Controller
         $product->load([
             'category:id,name,slug',
             'activeVariants:id,product_id,variant_name,price,weight,stock_status',
+            'reviews' => fn ($query) => $query
+                ->where('is_visible', true)
+                ->latest()
+                ->limit(6),
         ]);
+        $product->loadAvg(['reviews as visible_reviews_avg_rating' => fn ($query) => $query->where('is_visible', true)], 'rating');
+        $product->loadCount(['reviews as visible_reviews_count' => fn ($query) => $query->where('is_visible', true)]);
 
         return view('katalog-detail', compact('product'));
     }

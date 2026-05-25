@@ -75,14 +75,14 @@
                         data-header-search-input
                         autocomplete="off"
                         placeholder="Cari produk..."
-                        class="h-10 w-full rounded-sm border border-[#4e3422]/12 bg-[#fffdfa] pl-10 pr-4 text-sm text-[#4e3422] placeholder-[#4e3422]/40 outline-none transition-all duration-300 focus:border-[#dd7a21] focus:bg-white focus:ring-1 focus:ring-[#dd7a21]"
+                        class="h-10 w-full rounded-sm border border-[#4e3422]/12 bg-[#fcfbf9] pl-10 pr-4 text-sm text-[#4e3422] placeholder-[#4e3422]/40 outline-none transition-all duration-300 focus:border-[#dd7a21] focus:bg-white focus:ring-1 focus:ring-[#dd7a21]"
                     />
                     <span class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#4e3422]/45">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1010.5 18.5a7.5 7.5 0 006.15-3.85z"></path>
                         </svg>
                     </span>
-                    <div data-search-dropdown class="absolute left-0 right-0 top-full z-20 mt-1.5 hidden overflow-hidden rounded-sm border border-[#4e3422]/12 bg-[#fffdfa] shadow-[0_8px_30px_rgb(78,52,34,0.06)]">
+                    <div data-search-dropdown class="absolute left-0 right-0 top-full z-20 mt-1.5 hidden overflow-hidden rounded-sm border border-[#4e3422]/12 bg-[#fcfbf9] shadow-[0_8px_30px_rgb(78,52,34,0.06)]">
                         <ul data-search-results class="max-h-72 overflow-auto divide-y divide-slate-100"></ul>
                     </div>
                 </div>
@@ -90,7 +90,7 @@
                 <a
                     href="{{ route('track-order') }}"
                     @if (request()->routeIs('track-order')) aria-current="page" @endif
-                    class="inline-flex h-10 items-center justify-center rounded-sm border border-[#4e3422]/15 px-4 text-xs font-semibold transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dd7a21] focus-visible:ring-offset-2 focus-visible:ring-offset-white ease-out-expo {{ request()->routeIs('track-order') ? 'bg-[#4e3422] text-[#fffdfa] border-[#4e3422]' : 'bg-transparent text-[#4e3422] hover:text-white hover:bg-[#dd7a21] hover:border-[#dd7a21]' }}"
+                    class="inline-flex h-10 items-center justify-center rounded-sm border border-[#4e3422]/15 px-4 text-xs font-semibold transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dd7a21] focus-visible:ring-offset-2 focus-visible:ring-offset-white ease-out-expo {{ request()->routeIs('track-order') ? 'bg-[#4e3422] text-[#fcfbf9] border-[#4e3422]' : 'bg-transparent text-[#4e3422] hover:text-white hover:bg-[#dd7a21] hover:border-[#dd7a21]' }}"
                 >
                     Lacak Pesanan
                 </a>
@@ -122,7 +122,7 @@
         </div>
 
         <div id="mobile-site-menu" data-mobile-panel aria-hidden="true" hidden class="site-mobile-panel relative z-0 lg:hidden">
-            <div class="space-y-6 rounded-sm border border-[#4e3422]/10 bg-[#fffdfa] p-6 shadow-xl">
+            <div class="space-y-6 rounded-sm border border-[#4e3422]/10 bg-[#fcfbf9] p-6 shadow-xl">
                 <div data-header-search-root class="site-search relative">
                     <label for="mobile-header-search" class="sr-only">Cari produk</label>
                     <input
@@ -138,7 +138,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1010.5 18.5a7.5 7.5 0 006.15-3.85z"></path>
                         </svg>
                     </span>
-                    <div data-search-dropdown class="absolute left-0 right-0 top-full z-20 mt-1.5 hidden overflow-hidden rounded-sm border border-[#4e3422]/12 bg-[#fffdfa] shadow-[0_8px_30px_rgb(78,52,34,0.06)]">
+                    <div data-search-dropdown class="absolute left-0 right-0 top-full z-20 mt-1.5 hidden overflow-hidden rounded-sm border border-[#4e3422]/12 bg-[#fcfbf9] shadow-[0_8px_30px_rgb(78,52,34,0.06)]">
                         <ul data-search-results class="max-h-72 overflow-auto divide-y divide-slate-100"></ul>
                     </div>
                 </div>
@@ -148,7 +148,7 @@
                         <a
                             href="{{ $item['href'] }}"
                             @if ($item['active']) aria-current="page" @endif
-                            class="flex items-center justify-between rounded-sm px-4 py-3 text-sm font-medium transition {{ $item['active'] ? 'text-[#dd7a21] bg-[#fffbf2]' : 'text-[#4e3422] hover:bg-[#fffdf7]' }}"
+                            class="flex items-center justify-between rounded-sm px-4 py-3 text-sm font-medium transition {{ $item['active'] ? 'text-[#dd7a21] bg-[#fcfbf9]' : 'text-[#4e3422] hover:bg-[#fcfbf9]' }}"
                         >
                             <span>{{ $item['label'] }}</span>
                             <svg class="h-3.5 w-3.5 text-[#4e3422]/40" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -160,7 +160,7 @@
 
                 <a
                     href="{{ route('track-order') }}"
-                    class="inline-flex h-11 w-full items-center justify-center rounded-sm border border-[#4e3422] bg-[#4e3422] px-5 text-sm font-semibold text-[#fffdfa] transition hover:bg-[#dd7a21] hover:border-[#dd7a21] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dd7a21]"
+                    class="inline-flex h-11 w-full items-center justify-center rounded-sm border border-[#4e3422] bg-[#4e3422] px-5 text-sm font-semibold text-[#fcfbf9] transition hover:bg-[#dd7a21] hover:border-[#dd7a21] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#dd7a21]"
                 >
                     Lacak Pesanan
                 </a>

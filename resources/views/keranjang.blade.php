@@ -25,12 +25,12 @@
 
             <div class="grid gap-8 lg:grid-cols-[1fr_380px]">
                 <!-- Items Cart -->
-                <div class="bg-white rounded-[2rem] border border-[#2C3E50]/10 p-6 shadow-sm">
+                <div class="bg-white rounded-sm border border-[#2C3E50]/10 p-6 shadow-sm">
                     <div class="space-y-6">
                         <!-- Cart Item 1 -->
                         <div class="flex gap-4 pb-6 border-b border-[#2C3E50]/10" data-cart-item data-item-id="1" data-item-price="29000">
                             <div class="flex-shrink-0">
-                                <img src="https://images.unsplash.com/photo-1515169067865-5387ec356754?auto=format&fit=crop&w=150&q=80" alt="Banner" class="h-24 w-24 rounded-lg object-cover" />
+                                <img src="https://images.unsplash.com/photo-1515169067865-5387ec356754?auto=format&fit=crop&w=150&q=80" alt="Banner" class="h-24 w-24 rounded-sm object-cover" />
                             </div>
                             <div class="flex-1">
                                 <div class="flex items-start justify-between gap-4 mb-3">
@@ -44,7 +44,7 @@
                                     </button>
                                 </div>
                                 <div class="flex items-center gap-4">
-                                    <div class="flex items-center gap-2 border border-[#2C3E50]/10 rounded-lg">
+                                    <div class="flex items-center gap-2 border border-[#2C3E50]/10 rounded-sm">
                                         <button type="button" data-qty-change="decrease" class="px-3 py-1 text-[#2C3E50]/60 hover:text-[#2C3E50]">−</button>
                                         <input type="number" value="1" min="1" data-item-qty class="w-10 text-center border-l border-r border-[#2C3E50]/10 py-1 outline-none" readonly />
                                         <button type="button" data-qty-change="increase" class="px-3 py-1 text-[#2C3E50]/60 hover:text-[#2C3E50]">+</button>
@@ -61,7 +61,7 @@
                 </div>
 
                 <!-- Cart Summary Sidebar -->
-                <div class="bg-white rounded-[2rem] border border-[#2C3E50]/10 p-6 shadow-sm h-fit">
+                <div class="bg-white rounded-sm border border-[#2C3E50]/10 p-6 shadow-sm h-fit">
                     <h2 class="text-lg font-bold text-[#2C3E50] mb-6">Ringkasan Pesanan</h2>
                     
                     <div class="space-y-4 mb-6 pb-6 border-b border-[#2C3E50]/10">
@@ -87,7 +87,7 @@
                     </div>
 
                     <div class="space-y-3">
-                        <a href="{{ route('checkout.form', 1) }}" class="block w-full bg-[#0f172a] text-white text-center py-3 rounded-full font-bold text-sm hover:bg-[#2c3e50] transition-colors">
+                        <a href="{{ route('checkout.form', 1) }}" class="block w-full bg-[#0f172a] text-white text-center py-3 rounded-sm font-bold text-sm hover:bg-[#2c3e50] transition-colors">
                             Lanjut ke Pembayaran
                         </a>
                         <a href="{{ url('/katalog') }}" class="block w-full text-[#2C3E50]/60 text-center py-3 text-sm font-medium hover:text-[#3498DB] transition-colors">

@@ -1,14 +1,32 @@
 @php
     $storefront = config('storefront');
+    $brandName = config('storefront.brand_name', 'Harapan Jaya Printing');
+    $brandLogoUrl = null;
+
+    try {
+        $storeProfile = \App\Models\StoreProfile::query()->first(['name', 'logo']);
+        if ($storeProfile?->name) {
+            $brandName = $storeProfile->name;
+        }
+        if ($storeProfile?->logo) {
+            $brandLogoUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($storeProfile->logo);
+        }
+    } catch (\Throwable $exception) {
+    }
 @endphp
 
 <footer id="kontak" class="bg-[#1b120d] text-white pt-20 pb-12 border-t border-white/5">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid gap-10 lg:grid-cols-4">
             <div>
-                <span class="text-xl font-semibold text-white tracking-tight">
-                    Harapan Jaya <span class="text-[#ffbf5a]">Printing</span>
-                </span>
+                <div class="flex items-center gap-3">
+                    @if ($brandLogoUrl)
+                        <img src="{{ $brandLogoUrl }}" alt="{{ $brandName }}" class="h-10 w-10 flex-shrink-0 rounded-sm object-cover bg-white" />
+                    @endif
+                    <span class="text-xl font-semibold text-white tracking-tight">
+                        Harapan Jaya <span class="text-[#ffbf5a]">Printing</span>
+                    </span>
+                </div>
                 <p class="mt-5 text-sm leading-relaxed text-white/70 max-w-sm font-normal">
                     Solusi cetak digital terpercaya untuk kebutuhan bisnis dan pribadi Anda. Berkualitas, transparan, dan responsif.
                 </p>
@@ -57,7 +75,7 @@
             </div>
             <div class="flex items-center gap-2 text-xs text-white/30">
                 <span>Digital &amp; Offset Printing</span>
-                <span class="h-1 w-1 rounded-full bg-white/20"></span>
+                <span class="h-1 w-1 rounded-sm bg-white/20"></span>
                 <span>Fast Service</span>
             </div>
         </div>

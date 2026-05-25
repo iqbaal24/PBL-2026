@@ -1,4 +1,4 @@
-@php
+﻿@php
     $storeProfile = null;
     $brandLogoUrl = null;
     $initials = '';
@@ -92,20 +92,20 @@
             <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1503694978374-8a2fa686963a?q=80&w=1738&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')] bg-cover bg-center"></div>
             <div class="absolute inset-0 bg-[#1c110b]/70"></div>
             <div class="relative z-10 mx-auto w-full max-w-7xl px-4 py-28 text-center sm:px-6 sm:py-32 lg:px-8 lg:py-36">
-                <span class="inline-flex rounded-sm border border-white/10 bg-white/5 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.25em] text-white/90">
-                    KUALITAS CETAK TANPA KOMPROMI
+                <span class="inline-flex rounded-sm border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white/90">
+                    Kualitas cetak tanpa kompromi
                 </span>
                 <h1 class="mt-6 text-4xl font-light leading-tight text-white sm:text-5xl lg:text-6xl tracking-tight">
-                    Mewujudkan Ide Visual Anda dengan <strong class="font-semibold text-[#ffdfa9]">Presisi dan Warna Sempurna</strong>
+                    Cetak Kebutuhan Visual dengan <strong class="font-semibold text-[#ffdfa9]">Warna yang Rapi</strong>
                 </h1>
                 <p class="mx-auto mt-6 max-w-3xl text-sm leading-relaxed text-white/70 sm:text-base">
-                    Dari layar hingga ke genggaman Anda. Jelajahi pilihan material di katalog kami, kirim desain Anda via WhatsApp, dan biarkan kami mencetaknya dengan ketajaman warna yang nyata.
+                    Pilih produk, cek bahan dan ukuran, lalu kirim file lewat WhatsApp. Tim kami bantu pastikan hasil cetak sesuai kebutuhan Anda.
                 </p>
                 <div class="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
-                    <a href="{{ route('katalog.index') }}" class="inline-flex items-center justify-center rounded-sm bg-[#dd7a21] px-8 py-4 text-xs font-bold uppercase tracking-wider text-white transition-colors duration-200 hover:bg-white hover:text-[#1c110b]">
+                    <a href="{{ route('katalog.index') }}" class="inline-flex items-center justify-center rounded-sm bg-[#dd7a21] px-8 py-4 text-sm font-semibold text-white transition-colors duration-200 hover:bg-white hover:text-[#1c110b]">
                         Lihat Katalog
                     </a>
-                    <a href="{{ route('track-order') }}" class="inline-flex items-center justify-center rounded-sm border border-white/20 bg-white/5 px-8 py-4 text-xs font-bold uppercase tracking-wider text-white transition-colors duration-200 hover:bg-white/10">
+                    <a href="{{ route('track-order') }}" class="inline-flex items-center justify-center rounded-sm border border-white/20 bg-white/5 px-8 py-4 text-sm font-semibold text-white transition-colors duration-200 hover:bg-white/10">
                         Lacak Pesanan
                     </a>
                 </div>
@@ -125,10 +125,10 @@
                             @else
                                 <!-- Elegant Monogram Fallback -->
                                 <div class="text-center">
-                                    <span class="text-7xl font-light tracking-wider text-[#dd7a21] font-serif block select-none">
+                                    <span class="text-7xl font-light text-[#dd7a21] font-serif block select-none">
                                         {{ $initials }}
                                     </span>
-                                    <span class="mt-4 block text-[10px] font-bold uppercase tracking-[0.2em] text-[#4e3422]/40">
+                                    <span class="mt-4 block text-xs font-medium text-[#4e3422]/40">
                                         Est. {{ $storeProfile->created_at?->format('Y') ?? '2026' }}
                                     </span>
                                 </div>
@@ -138,7 +138,7 @@
 
                     <!-- Right Column: Profile Info -->
                     <div class="lg:col-span-7">
-                        <span class="text-xs font-bold uppercase tracking-[0.25em] text-[#dd7a21] block mb-3">Tentang Kami</span>
+                        <span class="text-sm font-semibold text-[#dd7a21] block mb-3">Tentang kami</span>
                         <h2 class="text-3xl font-light tracking-tight text-[#4e3422] sm:text-4xl leading-tight">
                             Profil <strong class="font-semibold text-[#4e3422]">Harapan Jaya <span class="text-[#dd7a21]">Printing</span></strong>
                         </h2>
@@ -150,8 +150,8 @@
                         @endif
 
                         <div class="mt-8">
-                            <a href="{{ route('hubungi-kami') }}" class="inline-flex items-center justify-center rounded-sm border border-[#4e3422]/20 hover:border-[#dd7a21] bg-transparent px-6 py-3.5 text-[10px] font-bold uppercase tracking-wider text-[#4e3422] transition-colors duration-200 hover:bg-[#dd7a21] hover:text-white">
-                                Hubungi Kami
+                            <a href="{{ route('hubungi-kami') }}" class="inline-flex items-center justify-center rounded-sm border border-[#4e3422]/20 hover:border-[#dd7a21] bg-transparent px-6 py-3.5 text-sm font-semibold text-[#4e3422] transition-colors duration-200 hover:bg-[#dd7a21] hover:text-white">
+                                Hubungi kami
                             </a>
                         </div>
                     </div>
@@ -166,7 +166,7 @@
                 <!-- Section Header: Left-aligned, asymmetric, with Prev/Next buttons on the right -->
                 <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-8 mb-16">
                     <div class="max-w-2xl">
-                        <span class="text-xs font-bold uppercase tracking-[0.25em] text-[#dd7a21] block mb-3">Katalog Pilihan</span>
+                        <span class="text-sm font-semibold text-[#dd7a21] block mb-3">Katalog Pilihan</span>
                         <h2 class="text-3xl font-light tracking-tight text-[#4e3422] sm:text-4xl lg:text-5xl leading-tight">
                             Produk Cetak <strong class="font-semibold">Unggulan</strong>
                         </h2>
@@ -174,7 +174,7 @@
                     <div class="flex items-end justify-between md:justify-end gap-6 w-full md:w-auto">
                         <div class="max-w-xs hidden lg:block text-right">
                             <p class="text-xs leading-relaxed text-[#4e3422]/70">
-                                Geser katalog untuk melihat spesifikasi bahan terstandarisasi dengan harga transparan.
+                                Geser untuk melihat pilihan bahan, ukuran, dan harga awal.
                             </p>
                         </div>
                         <div class="flex items-center gap-3">
@@ -198,7 +198,7 @@
                         
                         @foreach ($featuredProducts as $product)
                             <!-- Dynamic Card -->
-                            <a href="{{ route('katalog.show', $product->slug) }}" class="group flex flex-col overflow-hidden border border-[#4e3422]/10 bg-[#fffdfa] w-[75vw] sm:w-[300px] md:w-[340px] lg:w-[380px] shrink-0 snap-start transition-all duration-300 hover:border-[#dd7a21]/40 hover:shadow-[0_8px_30px_rgb(78,52,34,0.02)] rounded-sm">
+                            <a href="{{ route('katalog.show', $product->slug) }}" class="group flex flex-col overflow-hidden border border-[#4e3422]/10 bg-[#fcfbf9] w-[75vw] sm:w-[300px] md:w-[340px] lg:w-[380px] shrink-0 snap-start transition-all duration-300 hover:border-[#dd7a21]/40 hover:shadow-[0_8px_30px_rgb(78,52,34,0.02)] rounded-sm">
                                 <div class="relative aspect-[4/5] w-full overflow-hidden bg-stone-50">
                                     <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out-expo group-hover:scale-105 select-none pointer-events-none" />
                                 </div>
@@ -221,7 +221,7 @@
                             </div>
                             <div class="p-5 flex items-center justify-between border-t border-white/10 bg-[#25170f]">
                                 <h3 class="text-base font-light text-white tracking-tight group-hover:text-[#ffdfa9] transition-colors duration-200">
-                                    Butuh Custom Work?
+                                    Butuh cetakan khusus?
                                 </h3>
                                 <svg class="h-4 w-4 text-white/40 transition-transform duration-300 group-hover:translate-x-1 group-hover:text-[#ffdfa9]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
@@ -236,7 +236,7 @@
                         <div class="h-[2px] w-48 bg-[#4e3422]/10 relative">
                             <div data-carousel-progress class="absolute top-0 left-0 h-full w-0 bg-[#dd7a21] transition-all duration-150"></div>
                         </div>
-                        <span class="text-[10px] font-bold uppercase tracking-widest text-[#4e3422]/40" data-carousel-counter>
+                        <span class="text-xs font-medium text-[#4e3422]/40" data-carousel-counter>
                             Slide 1 / 4
                         </span>
                     </div>
@@ -249,14 +249,14 @@
                 <!-- Section Header: Left-aligned, asymmetric, highly refined -->
                 <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 mb-20">
                     <div class="max-w-2xl">
-                        <span class="text-xs font-bold uppercase tracking-[0.25em] text-[#dd7a21] block mb-3">Langkah Mudah</span>
+                        <span class="text-sm font-semibold text-[#dd7a21] block mb-3">Langkah Mudah</span>
                         <h2 class="text-3xl font-light tracking-tight text-[#4e3422] sm:text-4xl lg:text-5xl leading-tight">
-                            Cara <strong class="font-semibold">Pemesanan</strong>
+                            Cara <strong class="font-semibold">Pesan</strong>
                         </h2>
                     </div>
                     <div class="max-w-md">
                         <p class="text-sm leading-relaxed text-[#4e3422]/70">
-                            Kami memangkas birokrasi cetak konvensional. Ikuti alur digital sederhana ini untuk memproses file desain Anda hingga siap ambil.
+                            Mulai dari pilih produk sampai barang siap ambil, semua bisa dicek tanpa bolak-balik tanya manual.
                         </p>
                     </div>
                 </div>
@@ -264,38 +264,38 @@
                 <!-- Minimalist Timeline Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     <!-- Step 1 -->
-                    <div class="group relative p-8 bg-[#fffdfa] border border-[#4e3422]/10 rounded-sm hover:border-[#dd7a21]/40 hover:shadow-[0_8px_30px_rgb(78,52,34,0.02)] transition-all duration-300">
+                    <div class="group relative p-8 bg-[#fcfbf9] border border-[#4e3422]/10 rounded-sm hover:border-[#dd7a21]/40 hover:shadow-[0_8px_30px_rgb(78,52,34,0.02)] transition-all duration-300">
                         <span class="text-4xl font-extralight text-[#dd7a21]/50 block mb-6 font-serif">01</span>
-                        <h3 class="text-lg font-medium text-[#4e3422] tracking-tight">Pilih Produk</h3>
+                        <h3 class="text-lg font-medium text-[#4e3422] tracking-tight">Pilih produk</h3>
                         <p class="mt-3 text-xs leading-relaxed text-[#4e3422]/70">
                             Pilih produk di katalog cetak kami. Tentukan spesifikasi bahan awal sesuai panduan di halaman detail produk.
                         </p>
                     </div>
 
                     <!-- Step 2 -->
-                    <div class="group relative p-8 bg-[#fffdfa] border border-[#4e3422]/10 rounded-sm hover:border-[#dd7a21]/40 hover:shadow-[0_8px_30px_rgb(78,52,34,0.02)] transition-all duration-300">
+                    <div class="group relative p-8 bg-[#fcfbf9] border border-[#4e3422]/10 rounded-sm hover:border-[#dd7a21]/40 hover:shadow-[0_8px_30px_rgb(78,52,34,0.02)] transition-all duration-300">
                         <span class="text-4xl font-extralight text-[#dd7a21]/50 block mb-6 font-serif">02</span>
-                        <h3 class="text-lg font-medium text-[#4e3422] tracking-tight">Cek Spesifikasi</h3>
+                        <h3 class="text-lg font-medium text-[#4e3422] tracking-tight">Cek spesifikasi</h3>
                         <p class="mt-3 text-xs leading-relaxed text-[#4e3422]/70">
                             Bandingkan ukuran, jenis finishing, harga acuan, serta syarat file cetak sebelum mengirim berkas Anda.
                         </p>
                     </div>
 
                     <!-- Step 3 -->
-                    <div class="group relative p-8 bg-[#fffdfa] border border-[#4e3422]/10 rounded-sm hover:border-[#dd7a21]/40 hover:shadow-[0_8px_30px_rgb(78,52,34,0.02)] transition-all duration-300">
+                    <div class="group relative p-8 bg-[#fcfbf9] border border-[#4e3422]/10 rounded-sm hover:border-[#dd7a21]/40 hover:shadow-[0_8px_30px_rgb(78,52,34,0.02)] transition-all duration-300">
                         <span class="text-4xl font-extralight text-[#dd7a21]/50 block mb-6 font-serif">03</span>
-                        <h3 class="text-lg font-medium text-[#4e3422] tracking-tight">Order via WhatsApp</h3>
+                        <h3 class="text-lg font-medium text-[#4e3422] tracking-tight">Pesan via WhatsApp</h3>
                         <p class="mt-3 text-xs leading-relaxed text-[#4e3422]/70">
-                            Klik tombol order di halaman detail produk. Admin akan menerima pesan otomatis beserta konteks spesifikasinya.
+                            Klik tombol pesan di halaman produk. Admin langsung menerima pilihan produk dan spesifikasinya.
                         </p>
                     </div>
 
                     <!-- Step 4 -->
-                    <div class="group relative p-8 bg-[#fffdfa] border border-[#4e3422]/10 rounded-sm hover:border-[#dd7a21]/40 hover:shadow-[0_8px_30px_rgb(78,52,34,0.02)] transition-all duration-300">
+                    <div class="group relative p-8 bg-[#fcfbf9] border border-[#4e3422]/10 rounded-sm hover:border-[#dd7a21]/40 hover:shadow-[0_8px_30px_rgb(78,52,34,0.02)] transition-all duration-300">
                         <span class="text-4xl font-extralight text-[#dd7a21]/50 block mb-6 font-serif">04</span>
-                        <h3 class="text-lg font-medium text-[#4e3422] tracking-tight">Lacak & Ambil</h3>
+                        <h3 class="text-lg font-medium text-[#4e3422] tracking-tight">Lacak & ambil</h3>
                         <p class="mt-3 text-xs leading-relaxed text-[#4e3422]/70">
-                            Pantau status pengerjaan, lakukan pembayaran termin, dan dapatkan nota resmi digital setelah barang selesai dicetak.
+                            Pantau status pengerjaan, selesaikan pembayaran, lalu ambil barang saat pesanan selesai.
                         </p>
                     </div>
                 </div>
@@ -307,14 +307,14 @@
                 <!-- Section Header: Left-aligned, asymmetric, highly refined -->
                 <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 mb-20">
                     <div class="max-w-2xl">
-                        <span class="text-xs font-bold uppercase tracking-[0.25em] text-[#dd7a21] block mb-3">Ulasan Pelanggan</span>
+                        <span class="text-sm font-semibold text-[#dd7a21] block mb-3">Ulasan Pelanggan</span>
                         <h2 class="text-3xl font-light tracking-tight text-[#4e3422] sm:text-4xl lg:text-5xl leading-tight">
-                            Apa Kata <strong class="font-semibold">Pelanggan Kami</strong>
+                            Apa kata <strong class="font-semibold">Pelanggan kami</strong>
                         </h2>
                     </div>
                     <div class="max-w-md">
                         <p class="text-sm leading-relaxed text-[#4e3422]/70">
-                            Pengalaman nyata dari berbagai kalangan, mulai dari pelaku usaha mikro hingga panitia event kampus yang telah mempercayakan cetakannya kepada kami.
+                            Beberapa cerita singkat dari pelanggan yang mencetak kebutuhan usaha, acara, dan promosi.
                         </p>
                     </div>
                 </div>
@@ -322,7 +322,7 @@
                 <!-- Minimalist Testimonial Cards -->
                 <div class="grid gap-8 lg:grid-cols-3">
                     <!-- Testimonial 1 -->
-                    <div class="group flex flex-col justify-between p-8 bg-[#fffdfa] border border-[#4e3422]/10 rounded-sm hover:border-[#dd7a21]/40 hover:shadow-[0_8px_30px_rgb(78,52,34,0.02)] transition-all duration-300">
+                    <div class="group flex flex-col justify-between p-8 bg-[#fcfbf9] border border-[#4e3422]/10 rounded-sm hover:border-[#dd7a21]/40 hover:shadow-[0_8px_30px_rgb(78,52,34,0.02)] transition-all duration-300">
                         <div>
                             <!-- Star Rating -->
                             <div class="flex gap-1 mb-6 text-[#dd7a21]">
@@ -333,17 +333,17 @@
                                 <svg class="h-3.5 w-3.5 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                             </div>
                             <p class="text-xs sm:text-sm leading-relaxed text-[#4e3422]/80 font-serif italic mb-8">
-                                "Pelayanan cepat dan penjelasan spesifikasinya sangat jelas. Sangat membantu kami untuk order kebutuhan acara kampus tanpa kebingungan varian bahan."
+                                "Responnya cepat dan penjelasan bahan cukup jelas. Kami jadi lebih mudah pesan kebutuhan acara kampus."
                             </p>
                         </div>
                         <div>
-                            <span class="text-xs font-semibold text-[#4e3422] uppercase tracking-wider block">Budi Santoso</span>
+                            <span class="text-sm font-semibold text-[#4e3422] block">Budi Santoso</span>
                             <span class="text-[10px] text-[#4e3422]/50 block mt-1">Panitia Event Kampus</span>
                         </div>
                     </div>
 
                     <!-- Testimonial 2 -->
-                    <div class="group flex flex-col justify-between p-8 bg-[#fffdfa] border border-[#4e3422]/10 rounded-sm hover:border-[#dd7a21]/40 hover:shadow-[0_8px_30px_rgb(78,52,34,0.02)] transition-all duration-300">
+                    <div class="group flex flex-col justify-between p-8 bg-[#fcfbf9] border border-[#4e3422]/10 rounded-sm hover:border-[#dd7a21]/40 hover:shadow-[0_8px_30px_rgb(78,52,34,0.02)] transition-all duration-300">
                         <div>
                             <!-- Star Rating -->
                             <div class="flex gap-1 mb-6 text-[#dd7a21]">
@@ -354,17 +354,17 @@
                                 <svg class="h-3.5 w-3.5 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                             </div>
                             <p class="text-xs sm:text-sm leading-relaxed text-[#4e3422]/80 font-serif italic mb-8">
-                                "Admin sangat responsif di WhatsApp dan hasil cetakannya rapi presisi. Sangat cocok dan membantu untuk kebutuhan packaging usaha kuliner kami."
+                                "Adminnya responsif di WhatsApp. Hasil stiker kemasan rapi dan warnanya konsisten untuk usaha kuliner kami."
                             </p>
                         </div>
                         <div>
-                            <span class="text-xs font-semibold text-[#4e3422] uppercase tracking-wider block">Siti Nurhaliza</span>
+                            <span class="text-sm font-semibold text-[#4e3422] block">Siti Nurhaliza</span>
                             <span class="text-[10px] text-[#4e3422]/50 block mt-1">Pemilik UMKM Makanan</span>
                         </div>
                     </div>
 
                     <!-- Testimonial 3 -->
-                    <div class="group flex flex-col justify-between p-8 bg-[#fffdfa] border border-[#4e3422]/10 rounded-sm hover:border-[#dd7a21]/40 hover:shadow-[0_8px_30px_rgb(78,52,34,0.02)] transition-all duration-300">
+                    <div class="group flex flex-col justify-between p-8 bg-[#fcfbf9] border border-[#4e3422]/10 rounded-sm hover:border-[#dd7a21]/40 hover:shadow-[0_8px_30px_rgb(78,52,34,0.02)] transition-all duration-300">
                         <div>
                             <!-- Star Rating -->
                             <div class="flex gap-1 mb-6 text-[#dd7a21]">
@@ -375,11 +375,11 @@
                                 <svg class="h-3.5 w-3.5 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                             </div>
                             <p class="text-xs sm:text-sm leading-relaxed text-[#4e3422]/80 font-serif italic mb-8">
-                                "Sistem tracking pesanan dan invoice digitalnya sangat memudahkan operasional kami saat memesan media promosi dalam frekuensi tinggi."
+                                "Tracking pesanan dan invoice digital membantu kami saat rutin pesan media promosi."
                             </p>
                         </div>
                         <div>
-                            <span class="text-xs font-semibold text-[#4e3422] uppercase tracking-wider block">Ahmad Wijaya</span>
+                            <span class="text-sm font-semibold text-[#4e3422] block">Ahmad Wijaya</span>
                             <span class="text-[10px] text-[#4e3422]/50 block mt-1">Event Organizer</span>
                         </div>
                     </div>

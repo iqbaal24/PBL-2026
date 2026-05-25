@@ -3,11 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\ViewErrorBag;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class TrackOrderController extends Controller
 {
@@ -40,7 +44,7 @@ class TrackOrderController extends Controller
 
         $order = Order::query()
             ->with([
-                'items:id,order_id,product_name,variant_name,quantity,subtotal',
+                'items:id,order_id,product_id,product_name,variant_name,quantity,subtotal',
                 'statusHistories:id,order_id,status,note,created_at',
             ])
             ->whereRaw('LOWER(order_code) = ?', [Str::lower(trim($formData['order_number']))])
@@ -75,7 +79,7 @@ class TrackOrderController extends Controller
         abort_unless($this->phonesMatch($order->customer_phone, $validated['wa']), 404);
 
         $payload = $this->buildTrackingPayload($order->loadMissing([
-            'items:id,order_id,product_name,variant_name,quantity,subtotal',
+            'items:id,order_id,product_id,product_name,variant_name,quantity,subtotal',
             'statusHistories:id,order_id,status,note,created_at',
         ]));
 
@@ -123,6 +127,101 @@ class TrackOrderController extends Controller
         ]);
     }
 
+    public function storeReview(Request $request, Order $order)
+    {
+        $order->loadMissing([
+            'items:id,order_id,product_id,product_name,variant_name,quantity,subtotal',
+            'reviews:id,order_id,product_id',
+            'statusHistories:id,order_id,status,note,created_at',
+        ]);
+
+        $formData = [
+            'order_number' => $order->order_code,
+            'whatsapp_number' => (string) $request->input('whatsapp_number', ''),
+        ];
+
+        if (! $this->phonesMatch($order->customer_phone, $formData['whatsapp_number'])) {
+            return view('track-order', [
+                'formData' => $formData,
+                'lookupState' => 'error',
+                'lookupError' => [
+                    'title' => 'Akses review tidak valid',
+                    'message' => 'Nomor WhatsApp tidak cocok dengan pesanan ini. Lacak ulang pesanan sebelum mengirim review.',
+                ],
+                'result' => null,
+            ]);
+        }
+
+        $reviewableProductIds = $order->items
+            ->pluck('product_id')
+            ->filter()
+            ->unique()
+            ->values();
+
+        $validator = Validator::make($request->all(), [
+            'product_id' => ['required', 'integer', Rule::in($reviewableProductIds->all())],
+            'rating' => ['required', 'integer', 'min:1', 'max:5'],
+            'comment' => ['required', 'string', 'min:10', 'max:1000'],
+            'whatsapp_number' => ['required', 'string', 'max:30'],
+        ], [
+            'product_id.required' => 'Pilih produk yang ingin diberi review.',
+            'product_id.in' => 'Produk yang dipilih tidak ada di pesanan ini.',
+            'rating.required' => 'Pilih rating terlebih dahulu.',
+            'comment.min' => 'Tulis review minimal 10 karakter.',
+        ]);
+
+        if ($validator->fails()) {
+            return view('track-order', [
+                'formData' => $formData,
+                'lookupState' => 'success',
+                'lookupError' => null,
+                'result' => $this->buildTrackingPayload($order),
+                'reviewInput' => $request->only(['product_id', 'rating', 'comment']),
+                'errors' => (new ViewErrorBag())->put('default', $validator->errors()),
+            ]);
+        }
+
+        $validated = $validator->validated();
+
+        $alreadyReviewed = $order->reviews()
+            ->where('product_id', $validated['product_id'])
+            ->exists();
+
+        if ($alreadyReviewed) {
+            $validator->errors()->add('product_id', 'Produk ini sudah pernah diberi review dari pesanan ini.');
+
+            return view('track-order', [
+                'formData' => $formData,
+                'lookupState' => 'success',
+                'lookupError' => null,
+                'result' => $this->buildTrackingPayload($order),
+                'reviewInput' => $request->only(['product_id', 'rating', 'comment']),
+                'errors' => (new ViewErrorBag())->put('default', $validator->errors()),
+            ]);
+        }
+
+        Review::create([
+            'customer_name' => $order->customer_name,
+            'order_id' => $order->id,
+            'product_id' => $validated['product_id'],
+            'rating' => $validated['rating'],
+            'comment' => $validated['comment'],
+            'is_visible' => false,
+        ]);
+
+        return view('track-order', [
+            'formData' => $formData,
+            'lookupState' => 'success',
+            'lookupError' => null,
+            'result' => $this->buildTrackingPayload($order->refresh()->load([
+                'items:id,order_id,product_id,product_name,variant_name,quantity,subtotal',
+                'reviews:id,order_id,product_id',
+                'statusHistories:id,order_id,status,note,created_at',
+            ])),
+            'reviewSuccess' => 'Terima kasih. Review Anda sudah terkirim dan akan dicek admin sebelum ditampilkan.',
+        ]);
+    }
+
     private function buildTrackingPayload(Order $order): array
     {
         $histories = $order->statusHistories
@@ -136,12 +235,33 @@ class TrackOrderController extends Controller
 
         $items = $order->items->map(function ($item) {
             return [
+                'product_id' => $item->product_id,
                 'product_name' => $item->product_name,
                 'variant_name' => $item->variant_name,
                 'quantity' => $item->quantity,
                 'subtotal' => (float) $item->subtotal,
             ];
         })->values()->all();
+
+        $reviewedProductIds = $order->reviews
+            ->pluck('product_id')
+            ->filter()
+            ->unique()
+            ->values();
+
+        $reviewableProducts = $order->items
+            ->filter(fn ($item) => $item->product_id)
+            ->groupBy('product_id')
+            ->map(function ($items, $productId) use ($reviewedProductIds) {
+                return [
+                    'product_id' => (int) $productId,
+                    'product_name' => $items->first()->product_name,
+                    'variants' => $items->pluck('variant_name')->filter()->unique()->values()->implode(', '),
+                    'has_review' => $reviewedProductIds->contains((int) $productId),
+                ];
+            })
+            ->values()
+            ->all();
 
         return [
             'id' => $order->id,
@@ -154,6 +274,7 @@ class TrackOrderController extends Controller
             ],
             'last_updated' => $this->formatDateTime($histories->last()?->created_at ?? $order->updated_at),
             'items' => $items,
+            'reviewable_products' => $reviewableProducts,
             'timeline' => $timeline,
         ];
     }

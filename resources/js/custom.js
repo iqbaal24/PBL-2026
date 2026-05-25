@@ -2,6 +2,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const searchInput = document.querySelector('[data-search-input]');
     const categorySelect = document.querySelector('[data-category-select]');
     const cards = document.querySelectorAll('[data-product-card]');
+    const searchEmptyState = document.querySelector('[data-search-empty-state]');
+    const searchReset = document.querySelector('[data-search-reset]');
     const isCatalogPage = searchInput && cards.length > 0;
     const productSearchData = document.querySelector('#product-search-data');
     const siteHeader = document.querySelector('[data-site-header]');
@@ -173,7 +175,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const updateCount = function (visibleCount) {
         const countEl = document.querySelector('[data-product-count]');
         if (countEl) {
-            countEl.textContent = `Menampilkan 1-${visibleCount} dari ${cards.length} produk`;
+            countEl.textContent = visibleCount > 0
+                ? `Menampilkan 1-${visibleCount} dari ${cards.length} produk`
+                : `Tidak ada produk yang cocok dari ${cards.length} produk`;
         }
     };
 
@@ -182,14 +186,14 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        const query = searchInput.value.trim().toLowerCase();
+        const terms = searchInput.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
         const category = categorySelect ? categorySelect.value : 'all';
         let visibleCount = 0;
 
         cards.forEach(function (card) {
-            const name = card.dataset.productName || '';
+            const searchableText = card.dataset.productSearch || card.dataset.productName || '';
             const productCategory = card.dataset.productCategory || '';
-            const matchesSearch = !query || name.indexOf(query) !== -1;
+            const matchesSearch = !terms.length || terms.some((term) => searchableText.includes(term));
             const matchesCategory = category === 'all' || productCategory === category;
 
             if (matchesSearch && matchesCategory) {
@@ -201,10 +205,22 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         updateCount(visibleCount);
+
+        if (searchEmptyState) {
+            searchEmptyState.hidden = visibleCount !== 0;
+        }
     };
 
     if (isCatalogPage) {
         searchInput.addEventListener('input', filterCards);
+        if (searchReset) {
+            searchReset.addEventListener('click', function () {
+                searchInput.value = '';
+                filterCards();
+                searchInput.focus();
+            });
+        }
+
         if (categorySelect) {
             categorySelect.addEventListener('change', filterCards);
         }
@@ -223,6 +239,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const number = builder.dataset.whatsappNumber || '';
         const variantField = builder.querySelector('[data-whatsapp-variant]');
         const quantityField = builder.querySelector('[data-whatsapp-quantity]');
+        const sizeField = builder.querySelector('[data-whatsapp-size]');
         const noteField = builder.querySelector('[data-whatsapp-note]');
         const preview = builder.querySelector('[data-whatsapp-preview]');
         const priceLabel = builder.querySelector('[data-whatsapp-price]');
@@ -232,6 +249,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const variantLabel = selectedVariant ? selectedVariant.dataset.variantLabel || selectedVariant.textContent.trim() : 'Belum dipilih';
             const variantPrice = selectedVariant ? selectedVariant.dataset.variantPrice || '' : '';
             const quantity = quantityField && quantityField.value ? quantityField.value : 'Belum ditentukan';
+            const size = sizeField && sizeField.value.trim() ? sizeField.value.trim() : 'Belum ditentukan';
             const note = noteField && noteField.value.trim() ? noteField.value.trim() : 'Tidak ada catatan tambahan';
             const lines = [
                 'Halo Harapan Jaya Printing, saya ingin pesan produk berikut:',
@@ -239,6 +257,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 productCategory ? `Kategori: ${productCategory}` : null,
                 `Varian: ${variantLabel}`,
                 `Jumlah perkiraan: ${quantity}`,
+                `Ukuran: ${size}`,
                 variantPrice ? `Harga acuan: ${variantPrice}` : null,
                 `Catatan: ${note}`,
                 'Mohon bantu proses pemesanan dan konfirmasi detail finalnya.',
@@ -247,7 +266,7 @@ document.addEventListener('DOMContentLoaded', function () {
             cta.href = `https://wa.me/${number}?text=${encodeURIComponent(lines.join('\n'))}`;
 
             if (preview) {
-                preview.textContent = `${productName} • ${variantLabel} • ${quantity}`;
+                preview.textContent = `${productName} • ${variantLabel} • ${quantity} • ${size}`;
             }
 
             if (priceLabel) {
@@ -255,7 +274,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         };
 
-        [variantField, quantityField, noteField].forEach((field) => {
+        [variantField, quantityField, sizeField, noteField].forEach((field) => {
             if (!field) {
                 return;
             }
