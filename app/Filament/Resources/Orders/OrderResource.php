@@ -46,6 +46,13 @@ class OrderResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    protected static ?string $recordTitleAttribute = 'order_code';
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['order_code', 'customer_name', 'customer_phone'];
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -234,16 +241,77 @@ class OrderResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('order_code')->searchable()->sortable(),
-                TextColumn::make('customer_name')->searchable()->sortable(),
-                TextColumn::make('customer_phone')->searchable(),
-                TextColumn::make('status')->badge()->sortable(),
-                TextColumn::make('payment_status')->badge()->sortable(),
-                TextColumn::make('total_price')->money('IDR')->sortable(),
-                TextColumn::make('paid_amount')->money('IDR')->sortable(),
-                TextColumn::make('deadline')->date()->sortable(),
-                TextColumn::make('admin.name')->label('Admin')->sortable(),
-                TextColumn::make('created_at')->dateTime()->sortable(),
+                TextColumn::make('order_code')
+                    ->label('ID')
+                    ->searchable()
+                    ->sortable()
+                    ->weight('bold')
+                    ->copyable(),
+                TextColumn::make('customer_name')
+                    ->label('Pelanggan')
+                    ->description(fn (Order $record): string => $record->customer_phone ?? '')
+                    ->searchable(['customer_name', 'customer_phone', 'order_code'])
+                    ->sortable(),
+                TextColumn::make('items_summary')
+                    ->label('Pesanan')
+                    ->getStateUsing(fn (Order $record): string => $record->items->map(fn ($item) => "{$item->quantity}x {$item->product_name}")->join(', '))
+                    ->limit(30)
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('status')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'pending' => 'warning',
+                        'confirmed' => 'info',
+                        'production' => 'primary',
+                        'ready' => 'success',
+                        'completed' => 'success',
+                        'cancelled' => 'danger',
+                        default => 'gray',
+                    })
+                    ->icon(fn (string $state): string => match ($state) {
+                        'pending' => 'heroicon-m-clock',
+                        'confirmed' => 'heroicon-m-check-circle',
+                        'production' => 'heroicon-m-cog-6-tooth',
+                        'ready' => 'heroicon-m-truck',
+                        'completed' => 'heroicon-m-check-badge',
+                        'cancelled' => 'heroicon-m-x-circle',
+                        default => 'heroicon-m-question-mark-circle',
+                    })
+                    ->sortable(),
+                TextColumn::make('payment_status')
+                    ->label('Bayar')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'unpaid' => 'danger',
+                        'partial' => 'warning',
+                        'paid' => 'success',
+                        default => 'gray',
+                    })
+                    ->icon(fn (string $state): string => match ($state) {
+                        'unpaid' => 'heroicon-m-x-circle',
+                        'partial' => 'heroicon-m-exclamation-circle',
+                        'paid' => 'heroicon-m-check-circle',
+                        default => 'heroicon-m-question-mark-circle',
+                    })
+                    ->sortable(),
+                TextColumn::make('total_price')
+                    ->label('Total')
+                    ->money('IDR', locale: 'id')
+                    ->sortable()
+                    ->alignment('right'),
+                TextColumn::make('deadline')
+                    ->date('d/m/y')
+                    ->sortable()
+                    ->color(fn (Order $record): string => $record->deadline && $record->deadline->isPast() && $record->status !== 'completed' ? 'danger' : 'gray'),
+                TextColumn::make('admin.name')
+                    ->label('Admin')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                TextColumn::make('created_at')
+                    ->label('Dibuat')
+                    ->dateTime('d/m/y H:i')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 SelectFilter::make('status')->options(self::statusOptions()),
@@ -251,13 +319,63 @@ class OrderResource extends Resource
             ])
             ->defaultSort('created_at', 'desc')
             ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
-                DeleteAction::make(),
+                \Filament\Actions\Action::make('whatsapp')
+                    ->label('WhatsApp')
+                    ->icon('heroicon-m-chat-bubble-left-right')
+                    ->color('success')
+                    ->url(fn (Order $record): string => "https://wa.me/" . preg_replace('/[^0-9]/', '', $record->customer_phone) . "?text=" . urlencode("Halo {$record->customer_name}, kami dari PBL Store ingin menginformasikan mengenai pesanan Anda #{$record->order_code}..."))
+                    ->openUrlInNewTab(),
+                \Filament\Actions\Action::make('updateStatus')
+                    ->label('Update Progress')
+                    ->icon('heroicon-o-arrow-path')
+                    ->color('warning')
+                    ->form([
+                        \Filament\Forms\Components\Select::make('status')
+                            ->options(self::statusOptions())
+                            ->default(fn (Order $record) => $record->status)
+                            ->required(),
+                        \Filament\Forms\Components\Textarea::make('note')
+                            ->label('Catatan Perubahan')
+                            ->rows(2),
+                    ])
+                    ->action(function (Order $record, array $data): void {
+                        $record->update(['status' => $data['status']]);
+                        $record->statusHistories()->create([
+                            'status' => $data['status'],
+                            'note' => $data['note'],
+                            'changed_by' => \Illuminate\Support\Facades\Auth::id(),
+                        ]);
+                    }),
+                \Filament\Actions\EditAction::make()->slideOver(),
+                \Filament\Actions\DeleteAction::make()
+                    ->modalDescription('Apakah Anda yakin ingin menghapus pesanan ini? Tindakan ini tidak dapat dibatalkan.'),
             ])
             ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                \Filament\Actions\BulkActionGroup::make([
+                    \Filament\Actions\BulkAction::make('updateBulkStatus')
+                        ->label('Update Status Massal')
+                        ->icon('heroicon-m-arrow-path')
+                        ->color('warning')
+                        ->form([
+                            \Filament\Forms\Components\Select::make('status')
+                                ->options(self::statusOptions())
+                                ->required(),
+                            \Filament\Forms\Components\Textarea::make('note')
+                                ->label('Catatan (Opsional)')
+                                ->rows(2),
+                        ])
+                        ->action(function (\Illuminate\Database\Eloquent\Collection $records, array $data): void {
+                            $records->each(function (Order $record) use ($data) {
+                                $record->update(['status' => $data['status']]);
+                                $record->statusHistories()->create([
+                                    'status' => $data['status'],
+                                    'note' => $data['note'] ?? 'Bulk update',
+                                    'changed_by' => \Illuminate\Support\Facades\Auth::id(),
+                                ]);
+                            });
+                        })
+                        ->deselectRecordsAfterCompletion(),
+                    \Filament\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }

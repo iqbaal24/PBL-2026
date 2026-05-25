@@ -24,6 +24,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 
@@ -56,12 +57,38 @@ class ReviewResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('customer_name')->searchable()->sortable(),
-                TextColumn::make('product.name')->searchable()->toggleable(),
-                TextColumn::make('order.order_code')->searchable()->toggleable(),
-                TextColumn::make('rating')->sortable(),
-                IconColumn::make('is_visible')->boolean()->sortable(),
-                TextColumn::make('created_at')->dateTime()->sortable(),
+                TextColumn::make('customer_name')
+                    ->label('Pelanggan')
+                    ->searchable()
+                    ->sortable()
+                    ->weight('bold'),
+                TextColumn::make('rating')
+                    ->label('Rating')
+                    ->icon('heroicon-m-star')
+                    ->color('warning')
+                    ->sortable()
+                    ->alignCenter(),
+                TextColumn::make('comment')
+                    ->label('Komentar')
+                    ->limit(50)
+                    ->searchable()
+                    ->wrap()
+                    ->tooltip(fn (Review $record): string => $record->comment),
+                TextColumn::make('product.name')
+                    ->label('Produk')
+                    ->searchable()
+                    ->toggleable(),
+                TextColumn::make('order.order_code')
+                    ->label('ID Pesanan')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                ToggleColumn::make('is_visible')
+                    ->label('Tampilkan'),
+                TextColumn::make('created_at')
+                    ->label('Tanggal')
+                    ->dateTime('d M Y H:i')
+                    ->sortable()
+                    ->toggleable(),
             ])
             ->filters([
                 TernaryFilter::make('is_visible'),

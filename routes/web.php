@@ -19,6 +19,7 @@ Route::get('/hubungi-kami', function () {
 
 Route::get('/track-order', [TrackOrderController::class, 'index'])->name('track-order');
 Route::post('/track-order', [TrackOrderController::class, 'show'])->name('track-order.lookup');
+Route::post('/track-order/{order}/reviews', [TrackOrderController::class, 'storeReview'])->name('track-order.reviews.store');
 Route::get('/track-order/{order}/receipt', [TrackOrderController::class, 'receipt'])->name('track-order.receipt');
 
 Route::get('/keranjang', function () {

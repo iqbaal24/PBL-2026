@@ -37,6 +37,13 @@ class CategoryResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
+    protected static ?string $recordTitleAttribute = 'name';
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'slug'];
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -69,10 +76,14 @@ class CategoryResource extends Resource
                 TextColumn::make('products_count')->counts('products')->label('Products')->sortable(),
                 TextColumn::make('updated_at')->dateTime()->sortable()->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->emptyStateHeading('Belum Ada Kategori')
+            ->emptyStateDescription('Kategori membantu Anda mengelompokkan produk agar mudah ditemukan.')
+            ->emptyStateIcon('heroicon-o-tag')
             ->recordActions([
                 ViewAction::make(),
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()->slideOver(),
+                DeleteAction::make()
+                    ->modalDescription('Apakah Anda yakin ingin menghapus kategori ini? Semua produk di dalamnya mungkin terpengaruh.'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

@@ -43,6 +43,13 @@ class ProductResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    protected static ?string $recordTitleAttribute = 'name';
+
+    public static function getGloballySearchableAttributes(): array
+    {
+        return ['name', 'slug', 'category.name'];
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
@@ -126,8 +133,9 @@ class ProductResource extends Resource
             ])
             ->recordActions([
                 ViewAction::make(),
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()->slideOver(),
+                DeleteAction::make()
+                    ->modalDescription('Menghapus produk akan menghapus semua varian dan finishing terkait. Lanjutkan?'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

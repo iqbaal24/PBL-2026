@@ -17,7 +17,7 @@
             <p class="text-[#2C3E50]/70">Silakan selesaikan pembayaran untuk order <span class="font-bold">#{{ str_pad($order->id, 5, '0', STR_PAD_LEFT) }}</span></p>
         </div>
 
-        <div class="bg-white rounded-xl shadow-sm border border-[#2C3E50]/10 overflow-hidden mb-6">
+        <div class="bg-white rounded-sm shadow-sm border border-[#2C3E50]/10 overflow-hidden mb-6">
             <div class="bg-[#2C3E50] p-6 text-center text-white">
                 <p class="text-white/70 text-sm font-medium mb-1">Total Tagihan:</p>
                 <h2 class="text-4xl font-bold text-[#3498DB]">Rp {{ number_format($order->total_price, 0, ',', '.') }}</h2>
@@ -28,7 +28,7 @@
                         <svg class="w-5 h-5 text-[#3498DB]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
                         Instruksi Transfer
                     </h3>
-                    <div class="bg-[#F8F9FA] p-5 rounded-lg border border-[#2C3E50]/10">
+                    <div class="bg-[#F8F9FA] p-5 rounded-sm border border-[#2C3E50]/10">
                         <p class="text-sm text-[#2C3E50]/70 mb-2">Bank BCA</p>
                         <p class="text-2xl font-bold text-[#2C3E50] tracking-wider mb-1">123 456 7890</p>
                         <p class="text-sm font-medium text-[#2C3E50]">a.n PrintDigital Profesional</p>
@@ -42,7 +42,7 @@
                     </h3>
                     
                     @if($errors->any())
-                        <div class="mb-4 p-3 bg-red-50 text-red-600 rounded drop-shadow-sm text-sm border border-red-200">
+                        <div class="mb-4 p-3 bg-red-50 text-red-600 rounded-sm drop-shadow-sm text-sm border border-red-200">
                             {{ $errors->first() }}
                         </div>
                     @endif
@@ -57,7 +57,7 @@
                                 file:bg-[#3498DB]/10 file:text-[#3498DB]
                                 hover:file:bg-[#3498DB]/20 transition-all cursor-pointer">
                         </div>
-                        <button type="submit" class="w-full px-6 py-3.5 rounded-full bg-[#3498DB] hover:bg-[#2980B9] text-white font-bold text-base transition-colors shadow-sm">
+                        <button type="submit" class="w-full px-6 py-3.5 rounded-sm bg-[#3498DB] hover:bg-[#2980B9] text-white font-bold text-base transition-colors shadow-sm">
                             Kirim Bukti Pembayaran
                         </button>
                     </form>
