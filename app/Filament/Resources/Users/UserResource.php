@@ -56,7 +56,19 @@ class UserResource extends Resource
 
     public static function canDelete(Model $record): bool
     {
-        return static::canAccess();
+        if (! static::canAccess()) {
+            return false;
+        }
+
+        if (Auth::id() === $record->getKey()) {
+            return false;
+        }
+
+        if ($record->role === 'superadmin' && User::query()->where('role', 'superadmin')->count() <= 1) {
+            return false;
+        }
+
+        return true;
     }
 
     public static function form(Schema $schema): Schema
@@ -107,7 +119,8 @@ class UserResource extends Resource
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
-                DeleteAction::make(),
+                DeleteAction::make()
+                    ->visible(fn (User $record): bool => static::canDelete($record)),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Auth;
+use RuntimeException;
 
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
@@ -13,6 +15,19 @@ use Filament\Panel;
 class User extends Authenticatable implements FilamentUser
 {
     use HasFactory, Notifiable;
+
+    protected static function booted(): void
+    {
+        static::deleting(function (User $user): void {
+            if (Auth::id() === $user->getKey()) {
+                throw new RuntimeException('You cannot delete your own account.');
+            }
+
+            if ($user->role === 'superadmin' && static::query()->where('role', 'superadmin')->count() <= 1) {
+                throw new RuntimeException('You cannot delete the last superadmin account.');
+            }
+        });
+    }
 
     public function canAccessPanel(Panel $panel): bool
     {

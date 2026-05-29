@@ -15,6 +15,7 @@ class CatalogController extends Controller
         $selectedCategory = $request->string('kategori')->toString();
 
         $products = Product::query()
+            ->where('is_active', true)
             ->with([
                 'category:id,name,slug',
                 'activeVariants:id,product_id,variant_name,price,weight,stock_status',
@@ -42,6 +43,8 @@ class CatalogController extends Controller
 
     public function show(Product $product): View
     {
+        abort_unless($product->is_active, 404);
+
         $product->load([
             'category:id,name,slug',
             'activeVariants:id,product_id,variant_name,price,weight,stock_status',

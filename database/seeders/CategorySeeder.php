@@ -2,30 +2,29 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\Category;
+use Illuminate\Database\Seeder;
 
 class CategorySeeder extends Seeder
 {
     public function run(): void
     {
-        Category::create([
-            'name' => 'Banner',
-            'slug' => 'banner',
-            'is_active' => true,
-        ]);
+        $categories = [
+            ['name' => 'Banner', 'slug' => 'banner'],
+            ['name' => 'Sticker', 'slug' => 'sticker'],
+            ['name' => 'Poster', 'slug' => 'poster'],
+            ['name' => 'Brosur', 'slug' => 'brosur'],
+            ['name' => 'Kartu Nama', 'slug' => 'kartu-nama'],
+            ['name' => 'Dokumen', 'slug' => 'dokumen'],
+            ['name' => 'Kemasan', 'slug' => 'kemasan'],
+            ['name' => 'Merchandise', 'slug' => 'merchandise'],
+        ];
 
-        Category::create([
-            'name' => 'Sticker',
-            'slug' => 'sticker',
-            'is_active' => true,
-        ]);
-
-        Category::create([
-            'name' => 'Poster',
-            'slug' => 'poster',
-            'is_active' => true,
-        ]);
+        foreach ($categories as $category) {
+            Category::updateOrCreate(
+                ['slug' => $category['slug']],
+                ['name' => $category['name']],
+            );
+        }
     }
 }

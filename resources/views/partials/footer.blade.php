@@ -15,7 +15,7 @@
     }
 @endphp
 
-<footer id="kontak" class="bg-[#1b120d] text-white pt-20 pb-12 border-t border-white/5">
+<footer id="kontak" class="bg-[#181715] text-white pt-20 pb-12 border-t border-white/5">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid gap-10 lg:grid-cols-4">
             <div>
@@ -23,8 +23,8 @@
                     @if ($brandLogoUrl)
                         <img src="{{ $brandLogoUrl }}" alt="{{ $brandName }}" class="h-10 w-10 flex-shrink-0 rounded-sm object-cover bg-white" />
                     @endif
-                    <span class="text-xl font-semibold text-white tracking-tight">
-                        Harapan Jaya <span class="text-[#ffbf5a]">Printing</span>
+                    <span class="text-lg font-semibold text-white tracking-tight">
+                        Harapan Jaya <span class="text-[#e5a35d]">Printing</span>
                     </span>
                 </div>
                 <p class="mt-5 text-sm leading-relaxed text-white/70 max-w-sm font-normal">
@@ -32,33 +32,33 @@
                 </p>
             </div>
             <div>
-                <h3 class="text-sm font-semibold text-[#ffe1b0] mb-5 block">Navigasi</h3>
+                <h3 class="text-sm font-semibold text-[#f0c79d] mb-5 block">Navigasi</h3>
                 <ul class="space-y-3 text-sm text-white/70">
-                    <li><a href="{{ url('/') }}" class="transition-colors hover:text-[#ffbf5a]">Beranda</a></li>
-                    <li><a href="{{ url('/katalog') }}" class="transition-colors hover:text-[#ffbf5a]">Katalog</a></li>
-                    <li><a href="{{ url('/panduan') }}" class="transition-colors hover:text-[#ffbf5a]">Panduan</a></li>
-                    <li><a href="{{ route('track-order') }}" class="transition-colors hover:text-[#ffbf5a]">Lacak Pesanan</a></li>
-                    <li><a href="{{ url('/hubungi-kami') }}" class="transition-colors hover:text-[#ffbf5a]">Hubungi Kami</a></li>
+                    <li><a href="{{ url('/') }}" class="transition-colors hover:text-[#e5a35d]">Beranda</a></li>
+                    <li><a href="{{ url('/katalog') }}" class="transition-colors hover:text-[#e5a35d]">Katalog</a></li>
+                    <li><a href="{{ url('/panduan') }}" class="transition-colors hover:text-[#e5a35d]">Panduan</a></li>
+                    <li><a href="{{ route('track-order') }}" class="transition-colors hover:text-[#e5a35d]">Lacak Pesanan</a></li>
+                    <li><a href="{{ url('/hubungi-kami') }}" class="transition-colors hover:text-[#e5a35d]">Hubungi Kami</a></li>
                 </ul>
             </div>
             <div>
-                <h3 class="text-sm font-semibold text-[#ffe1b0] mb-5 block">Kontak</h3>
+                <h3 class="text-sm font-semibold text-[#f0c79d] mb-5 block">Kontak</h3>
                 <ul class="space-y-3 text-sm text-white/70 leading-relaxed">
                     @foreach ($storefront['address_lines'] as $line)
                         <li>{{ $line }}</li>
                     @endforeach
                     <li class="pt-3 border-t border-white/5 text-white/80">
-                        <span class="block text-xs text-[#ffe1b0]/60 mb-0.5">Telepon</span>
+                        <span class="block text-xs text-[#f0c79d]/60 mb-0.5">Telepon</span>
                         {{ $storefront['phone_display'] }}
                     </li>
                     <li class="text-white/80">
-                        <span class="block text-xs text-[#ffe1b0]/60 mb-0.5">Email</span>
+                        <span class="block text-xs text-[#f0c79d]/60 mb-0.5">Email</span>
                         {{ $storefront['email'] }}
                     </li>
                 </ul>
             </div>
             <div>
-                <h3 class="text-sm font-semibold text-[#ffe1b0] mb-5 block">Jam Operasional</h3>
+                <h3 class="text-sm font-semibold text-[#f0c79d] mb-5 block">Jam Operasional</h3>
                 <ul class="space-y-3 text-sm text-white/70">
                     @foreach ($storefront['hours'] as $hour)
                         <li class="flex justify-between gap-4">
