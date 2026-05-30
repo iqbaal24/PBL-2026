@@ -41,7 +41,7 @@ class CreateOrder extends CreateRecord
             ->whereDate('created_at', now()->toDateString())
             ->count() + 1;
 
-        return sprintf('ORD-%s-%04d', $date, $sequence);
+        return sprintf('ORD-%s-%03d', $date, $sequence);
     }
 
     protected function getRedirectUrl(): string
