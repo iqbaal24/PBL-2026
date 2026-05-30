@@ -21,7 +21,7 @@
             <div class="max-w-[44rem]">
                 <h1 class="text-3xl font-bold text-[#33302d] sm:text-[2.6rem] sm:leading-tight">Lacak progres produksi dan unduh nota digital</h1>
                 <p class="mt-4 text-base leading-relaxed text-[#33302d]/72">
-                    Masukkan nomor pesanan dan nomor WhatsApp yang dipakai saat pemesanan untuk melihat status, timeline produksi, dan nota digital PDF.
+                    Masukkan nomor pesanan yang didapat saat pemesanan untuk melihat status, timeline produksi, dan nota digital PDF.
                 </p>
             </div>
 
@@ -30,7 +30,7 @@
                     <div class="rounded-sm border border-[#33302d]/10 bg-[#f7f7f5] p-6 shadow-sm sm:p-8">
                         <h2 class="text-xl font-bold text-[#33302d]">Cari pesanan</h2>
                         <p class="mt-2 text-base leading-relaxed text-[#33302d]/68">
-                            Kombinasi nomor pesanan dan nomor WhatsApp dipakai untuk memastikan hasil hanya tampil kepada pemilik pesanan yang benar.
+                            Masukkan nomor pesanan Anda untuk melihat status dan timeline produksi secara real-time.
                         </p>
 
                         <form action="{{ route('track-order.lookup') }}" method="POST" class="mt-6 space-y-5" novalidate>
@@ -50,23 +50,6 @@
                                     class="h-12 w-full rounded-sm border border-[#33302d]/12 bg-[#f7f7f5] px-4 text-sm text-[#33302d] outline-none transition focus:border-[#d9782a] focus:ring-2 focus:ring-[#d9782a]/15"
                                 />
                                 @error('order_number')
-                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            <div>
-                                <label for="whatsapp-number" class="mb-2 block text-sm font-semibold text-[#33302d]">Nomor WhatsApp</label>
-                                <input
-                                    id="whatsapp-number"
-                                    name="whatsapp_number"
-                                    type="text"
-                                    value="{{ old('whatsapp_number', $formData['whatsapp_number'] ?? '') }}"
-                                    autocomplete="tel"
-                                    inputmode="numeric"
-                                    placeholder="Contoh: 08123456789"
-                                    class="h-12 w-full rounded-sm border border-[#33302d]/12 bg-[#f7f7f5] px-4 text-sm text-[#33302d] outline-none transition focus:border-[#d9782a] focus:ring-2 focus:ring-[#d9782a]/15"
-                                />
-                                @error('whatsapp_number')
                                     <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
@@ -109,7 +92,7 @@
                                         <p class="mt-2 text-lg font-semibold text-[#33302d]">{{ $result['order_number'] }}</p>
                                     </div>
                                     <div>
-                                        <p class="text-xs font-semibold tracking-wide text-[#33302d]/55">Nomor WhatsApp</p>
+                                        <p class="text-xs font-semibold tracking-wide text-[#33302d]/55">Nomor WhatsApp Pembeli</p>
                                         <p class="mt-2 text-lg font-semibold text-[#33302d]">{{ $result['whatsapp'] }}</p>
                                     </div>
                                 </div>
@@ -181,7 +164,7 @@
                                             <p class="mt-2 text-base leading-relaxed text-[#33302d]/70">Daftar item yang tercatat pada pesanan ini.</p>
                                         </div>
                                         <a
-                                            href="{{ route('track-order.receipt', ['order' => $result['id'], 'wa' => $formData['whatsapp_number']]) }}"
+                                            href="{{ route('track-order.receipt', ['order' => $result['id']]) }}"
                                             class="inline-flex h-12 items-center justify-center rounded-sm bg-[#d9782a] px-6 text-sm font-semibold text-white transition hover:bg-[#c86818] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2"
                                         >
                                             Unduh nota digital (PDF)
@@ -217,7 +200,7 @@
                                         <div>
                                             <h3 class="text-lg font-bold text-[#33302d]">Beri review produk</h3>
                                             <p class="mt-2 max-w-[42rem] text-base leading-relaxed text-[#33302d]/70">
-                                                Review hanya bisa dikirim setelah nomor pesanan dan WhatsApp cocok. Admin dapat mengecek dan mengatur tampilannya dari dashboard.
+                                                Review hanya bisa dikirim setelah nomor pesanan valid. Admin dapat mengecek dan mengatur tampilannya dari dashboard.
                                             </p>
                                         </div>
                                         @if (isset($reviewSuccess))
@@ -246,7 +229,6 @@
                                     @else
                                         <form action="{{ route('track-order.reviews.store', $result['id']) }}" method="POST" class="mt-5 space-y-5">
                                             @csrf
-                                            <input type="hidden" name="whatsapp_number" value="{{ $formData['whatsapp_number'] }}">
 
                                             <div>
                                                 <label for="review-product" class="mb-2 block text-sm font-semibold text-[#33302d]">Produk yang direview</label>
@@ -314,7 +296,7 @@
                         <div class="rounded-sm border border-dashed border-[#33302d]/16 bg-[#f7f7f5] p-8 shadow-sm sm:p-10">
                             <h2 class="text-2xl font-bold text-[#33302d]">Status pesanan akan tampil di sini</h2>
                             <p class="mt-3 max-w-[40ch] text-base leading-relaxed text-[#33302d]/70">
-                                Setelah nomor pesanan dan WhatsApp cocok, halaman ini akan menampilkan progres produksi, ringkasan produk, dan tombol unduh nota digital.
+                                Setelah nomor pesanan ditemukan, halaman ini akan menampilkan progres produksi, ringkasan produk, dan tombol unduh nota digital.
                             </p>
                         </div>
                     @endif
