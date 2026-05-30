@@ -4,18 +4,21 @@ namespace App\Filament\Resources\StoreProfiles\Pages;
 
 use App\Filament\Resources\StoreProfiles\StoreProfileResource;
 use App\Models\StoreProfile;
-use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 
 class ListStoreProfiles extends ListRecords
 {
     protected static string $resource = StoreProfileResource::class;
 
-    protected function getHeaderActions(): array
+    public function mount(): void
     {
-        return [
-            CreateAction::make()
-                ->visible(fn (): bool => StoreProfile::query()->doesntExist()),
-        ];
+        $record = StoreProfile::query()->first();
+
+        $this->redirect(
+            $record
+                ? static::getResource()::getUrl('edit', ['record' => $record])
+                : static::getResource()::getUrl('create'),
+            navigate: true,
+        );
     }
 }
