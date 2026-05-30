@@ -346,6 +346,10 @@ class OrderResource extends Resource
                             'changed_by' => \Illuminate\Support\Facades\Auth::id(),
                         ]);
                     }),
+                ViewAction::make()
+                    ->label('View')
+                    ->icon('heroicon-m-eye')
+                    ->color('gray'),
                 \Filament\Actions\EditAction::make()->slideOver(),
                 \Filament\Actions\DeleteAction::make()
                     ->modalDescription('Apakah Anda yakin ingin menghapus pesanan ini? Tindakan ini tidak dapat dibatalkan.'),
