@@ -32,7 +32,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->brandLogo(asset('images/logo-hj.png'))
             ->brandLogoHeight('80px')
-            ->favicon(asset('favicon.ico'))
+            ->favicon(asset('images/logo-hj.png'))
             ->login(\App\Filament\Pages\Auth\Login::class)
             ->colors([
                 'primary' => Color::Indigo,

@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Katalog Produk - Harapan Jaya Printing</title>
+    @include('partials.favicon')
 
     <!-- Styles / Scripts -->
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
@@ -102,6 +103,19 @@
                             <span class="text-xs font-semibold text-[#d9782a]">{{ $product->category->name }}</span>
 
                             <h2 class="mt-2 line-clamp-2 text-lg font-semibold tracking-tight text-[#33302d] transition-colors group-hover:text-[#d9782a]">{{ $product->name }}</h2>
+                            @if ($product->visible_reviews_count > 0)
+                                <div class="mt-3 flex items-center gap-2 text-sm text-[#33302d]/70">
+                                    <span class="flex items-center gap-0.5 text-[#d9782a]" aria-hidden="true">
+                                        @for ($star = 1; $star <= 5; $star++)
+                                            <svg class="h-4 w-4 {{ $star <= round($product->visible_reviews_avg_rating) ? 'fill-current' : 'fill-none text-[#33302d]/25' }}" viewBox="0 0 20 20" stroke="currentColor" stroke-width="1.5">
+                                                <path stroke-linejoin="round" d="M10 1.8 12.47 6.8l5.53.8-4 3.9.94 5.5L10 14.4 5.06 17l.94-5.5-4-3.9 5.53-.8L10 1.8Z" />
+                                            </svg>
+                                        @endfor
+                                    </span>
+                                    <span class="font-semibold text-[#33302d]">{{ number_format($product->visible_reviews_avg_rating, 1, ',', '.') }}</span>
+                                    <span>({{ $product->visible_reviews_count }} ulasan)</span>
+                                </div>
+                            @endif
                             <div class="mt-4 flex items-end justify-between gap-3 border-t border-[#33302d]/10 pt-4">
                                 <div>
                                     <p class="text-[11px] font-medium text-[#33302d]/50">Mulai dari</p>

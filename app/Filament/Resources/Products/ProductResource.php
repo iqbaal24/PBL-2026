@@ -92,11 +92,8 @@ class ProductResource extends Resource
                         ->relationship()
                         ->schema([
                             TextInput::make('variant_name')->label('Name')->required()->maxLength(255),
-                            TextInput::make('price')->numeric()->prefix('Rp')->required(),
-                            TextInput::make('weight')->numeric()->suffix('g'),
-                            Toggle::make('stock_status')->label('Available')->default(true),
                         ])
-                        ->columns(4)
+                        ->columns(1)
                         ->defaultItems(0)
                         ->addActionLabel('Add variant'),
                 ]),

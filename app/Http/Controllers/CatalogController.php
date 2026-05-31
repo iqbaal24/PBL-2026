@@ -18,7 +18,7 @@ class CatalogController extends Controller
             ->where('is_active', true)
             ->with([
                 'category:id,name,slug',
-                'activeVariants:id,product_id,variant_name,price,weight,stock_status',
+                'activeVariants:id,product_id,variant_name',
             ])
             ->withAvg(['reviews as visible_reviews_avg_rating' => fn (Builder $query) => $query->where('is_visible', true)], 'rating')
             ->withCount(['reviews as visible_reviews_count' => fn (Builder $query) => $query->where('is_visible', true)])
@@ -47,7 +47,7 @@ class CatalogController extends Controller
 
         $product->load([
             'category:id,name,slug',
-            'activeVariants:id,product_id,variant_name,price,weight,stock_status',
+            'activeVariants:id,product_id,variant_name',
             'reviews' => fn ($query) => $query
                 ->where('is_visible', true)
                 ->latest()

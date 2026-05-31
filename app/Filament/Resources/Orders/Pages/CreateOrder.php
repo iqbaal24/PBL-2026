@@ -27,11 +27,16 @@ class CreateOrder extends CreateRecord
 
         $record->statusHistories()->create([
             'status' => $record->status,
-            'note' => $note !== '' ? $note : 'Order created.',
+            'note' => $note !== '' ? $note : 'Pesanan dibuat.',
             'changed_by' => Auth::id(),
         ]);
 
         return $record;
+    }
+
+    protected function afterCreate(): void
+    {
+        $this->updatePaymentTotal();
     }
 
     private function makeOrderCode(): string
@@ -47,5 +52,14 @@ class CreateOrder extends CreateRecord
     protected function getRedirectUrl(): string
     {
         return static::getResource()::getUrl('index');
+    }
+
+    private function updatePaymentTotal(): void
+    {
+        $itemSubtotal = (int) $this->record->items()->sum('subtotal');
+
+        $this->record->forceFill([
+            'total_price' => $itemSubtotal + (int) $this->record->shipping_fee + (int) $this->record->design_fee,
+        ])->saveQuietly();
     }
 }

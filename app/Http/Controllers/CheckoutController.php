@@ -11,7 +11,7 @@ class CheckoutController extends Controller
     public function form(Product $product)
     {
         $product->load([
-            'activeVariants:id,product_id,variant_name,price,weight,stock_status',
+            'activeVariants:id,product_id,variant_name',
         ]);
 
         abort_if($product->activeVariants->isEmpty(), 404);
@@ -22,7 +22,7 @@ class CheckoutController extends Controller
     public function store(Request $request, Product $product)
     {
         $product->load([
-            'activeVariants:id,product_id,variant_name,price,weight,stock_status',
+            'activeVariants:id,product_id,variant_name',
         ]);
 
         abort_if($product->activeVariants->isEmpty(), 404);

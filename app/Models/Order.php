@@ -19,6 +19,8 @@ class Order extends Model
         'customer_address',
         'deadline',
         'notes',
+        'shipping_fee',
+        'design_fee',
         'total_price',
         'paid_amount',
         'payment_status',
@@ -28,6 +30,8 @@ class Order extends Model
 
     protected $casts = [
         'deadline' => 'date',
+        'shipping_fee' => 'integer',
+        'design_fee' => 'integer',
         'total_price' => 'decimal:2',
         'paid_amount' => 'decimal:2',
     ];

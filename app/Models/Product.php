@@ -38,13 +38,12 @@ class Product extends Model
 
     public function activeVariants(): HasMany
     {
-        return $this->hasMany(ProductVariant::class)->where('stock_status', true);
+        return $this->hasMany(ProductVariant::class);
     }
 
     public function getStartingPriceAttribute(): ?float
     {
-        $minVariantPrice = $this->activeVariants->min('price');
-        return $minVariantPrice !== null ? (float) $minVariantPrice : ($this->base_price ? (float) $this->base_price : null);
+        return $this->base_price ? (float) $this->base_price : null;
     }
 
     public function getImageUrlAttribute(): string

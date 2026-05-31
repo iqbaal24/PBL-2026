@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>Nota Pesanan - {{ $payload['order_number'] }}</title>
+    @include('partials.favicon')
     <style>
         body {
             font-family: 'Helvetica', sans-serif;
@@ -59,10 +60,32 @@
             text-align: right;
         }
         .total-section {
-            text-align: right;
+            margin-left: auto;
             margin-top: 20px;
+            width: 260px;
         }
-        .total-amount {
+        .total-row {
+            display: table;
+            width: 100%;
+            margin-bottom: 6px;
+        }
+        .total-label,
+        .total-value {
+            display: table-cell;
+        }
+        .total-label {
+            color: #555;
+        }
+        .total-value {
+            text-align: right;
+            font-weight: bold;
+        }
+        .grand-total {
+            border-top: 2px solid #eee;
+            margin-top: 8px;
+            padding-top: 8px;
+        }
+        .grand-total .total-value {
             font-size: 20px;
             font-weight: bold;
             color: #d9782a;
@@ -118,28 +141,46 @@
         <thead>
             <tr>
                 <th>Produk</th>
-                <th>Varian</th>
+                <th>Spesifikasi</th>
                 <th class="text-right">Qty</th>
+                <th class="text-right">Harga Satuan</th>
                 <th class="text-right">Subtotal</th>
             </tr>
         </thead>
         <tbody>
-            @php $grandTotal = 0; @endphp
             @foreach($payload['items'] as $item)
                 <tr>
                     <td>{{ $item['product_name'] }}</td>
-                    <td>{{ $item['variant_name'] ?: '-' }}</td>
+                    <td>{{ $item['specification'] ?: '-' }}</td>
                     <td class="text-right">{{ $item['quantity'] }}</td>
+                    <td class="text-right">Rp {{ number_format($item['unit_price'], 0, ',', '.') }}</td>
                     <td class="text-right">Rp {{ number_format($item['subtotal'], 0, ',', '.') }}</td>
                 </tr>
-                @php $grandTotal += $item['subtotal']; @endphp
             @endforeach
         </tbody>
     </table>
 
     <div class="total-section">
-        <p>Total Pembayaran:</p>
-        <p class="total-amount">Rp {{ number_format($grandTotal, 0, ',', '.') }}</p>
+        <div class="total-row">
+            <span class="total-label">Subtotal Produk</span>
+            <span class="total-value">Rp {{ number_format($payload['item_subtotal'], 0, ',', '.') }}</span>
+        </div>
+        @if($payload['shipping_fee'] != 0)
+            <div class="total-row">
+                <span class="total-label">Ongkos Kirim</span>
+                <span class="total-value">Rp {{ number_format($payload['shipping_fee'], 0, ',', '.') }}</span>
+            </div>
+        @endif
+        @if($payload['design_fee'] != 0)
+            <div class="total-row">
+                <span class="total-label">Biaya Desain</span>
+                <span class="total-value">Rp {{ number_format($payload['design_fee'], 0, ',', '.') }}</span>
+            </div>
+        @endif
+        <div class="total-row grand-total">
+            <span class="total-label">Total Keseluruhan</span>
+            <span class="total-value">Rp {{ number_format($payload['total_price'], 0, ',', '.') }}</span>
+        </div>
     </div>
 
     <div class="footer">

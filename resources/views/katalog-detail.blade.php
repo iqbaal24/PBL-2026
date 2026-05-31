@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $product->name }} - Harapan Jaya Printing</title>
+    @include('partials.favicon')
 
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
         @vite(['resources/css/app.css', 'resources/css/custom.css', 'resources/js/app.js', 'resources/js/custom.js'])
@@ -18,28 +19,13 @@
 
     @php
         $storefront = config('storefront');
-        $defaultVariant = $product->activeVariants->sortBy('price')->first();
-        $minPrice = $product->activeVariants->min('price');
-        $maxPrice = $product->activeVariants->max('price');
+        $defaultVariant = $product->activeVariants->first();
         $variantCount = $product->activeVariants->count();
-        $minWeight = $product->activeVariants->filter(fn ($variant) => $variant->weight)->min('weight');
-        $maxWeight = $product->activeVariants->filter(fn ($variant) => $variant->weight)->max('weight');
         $averageRating = $product->visible_reviews_avg_rating ? round($product->visible_reviews_avg_rating, 1) : null;
         $reviewCount = (int) ($product->visible_reviews_count ?? 0);
-        $priceRange = null;
-        $weightRange = null;
-
-        if ($minPrice !== null && $maxPrice !== null) {
-            $priceRange = $minPrice === $maxPrice
-                ? 'Rp ' . number_format($minPrice, 0, ',', '.')
-                : 'Rp ' . number_format($minPrice, 0, ',', '.') . ' - Rp ' . number_format($maxPrice, 0, ',', '.');
-        }
-
-        if ($minWeight !== null && $maxWeight !== null) {
-            $weightRange = $minWeight === $maxWeight
-                ? number_format($minWeight, 0, ',', '.') . ' gr'
-                : number_format($minWeight, 0, ',', '.') . ' - ' . number_format($maxWeight, 0, ',', '.') . ' gr';
-        }
+        $priceLabel = $product->starting_price !== null
+            ? 'Rp ' . number_format($product->starting_price, 0, ',', '.')
+            : 'Konfirmasi via WhatsApp';
     @endphp
 
     <main id="main-content" class="bg-white pt-28 pb-24">
@@ -90,11 +76,11 @@
                             <dl class="mt-7 grid gap-4 border-y border-[#33302d]/10 py-5 sm:grid-cols-2">
                                 <div>
                                     <dt class="text-xs font-medium text-[#33302d]/50">Harga acuan</dt>
-                                    <dd class="mt-1 text-lg font-semibold text-[#33302d]">{{ $priceRange ?? 'Konfirmasi via WhatsApp' }}</dd>
+                                    <dd class="mt-1 text-lg font-semibold text-[#33302d]">{{ $priceLabel }}</dd>
                                 </div>
                                 <div>
-                                    <dt class="text-xs font-medium text-[#33302d]/50">Rentang berat</dt>
-                                    <dd class="mt-1 text-lg font-semibold text-[#33302d]">{{ $weightRange ?? 'Menunggu konfirmasi' }}</dd>
+                                    <dt class="text-xs font-medium text-[#33302d]/50">Pilihan varian</dt>
+                                    <dd class="mt-1 text-lg font-semibold text-[#33302d]">{{ $variantCount ? $variantCount . ' opsi' : 'Konsultasi' }}</dd>
                                 </div>
                                 <div>
                                     <dt class="text-xs font-medium text-[#33302d]/50">File yang bisa dikirim</dt>
@@ -217,7 +203,6 @@
                                         <option
                                             value="{{ $variant->id }}"
                                             data-variant-label="{{ $variant->variant_name }}"
-                                            data-variant-price="Rp {{ number_format($variant->price, 0, ',', '.') }}"
                                             @selected($defaultVariant && $defaultVariant->id === $variant->id)
                                         >
                                             {{ $variant->variant_name }}
@@ -249,8 +234,8 @@
                             <p data-whatsapp-preview class="mt-2 text-sm font-semibold text-[#33302d]">{{ $product->name }} • {{ $defaultVariant?->variant_name ?? 'Konsultasi produk' }} • 1</p>
                             <div class="mt-3 flex items-center justify-between gap-4 text-sm">
                                 <span class="text-[#33302d]/68">Harga acuan</span>
-                                <span data-whatsapp-price data-fallback="{{ $priceRange ?? 'Harga dikonfirmasi di WhatsApp' }}" class="font-semibold text-[#33302d]">
-                                    {{ $defaultVariant ? 'Rp ' . number_format($defaultVariant->price, 0, ',', '.') : ($priceRange ?? 'Harga dikonfirmasi di WhatsApp') }}
+                                <span data-whatsapp-price data-fallback="{{ $priceLabel }}" class="font-semibold text-[#33302d]">
+                                    {{ $priceLabel }}
                                 </span>
                             </div>
                         </div>

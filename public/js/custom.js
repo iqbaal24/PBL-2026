@@ -295,6 +295,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const selectedVariant = variantField ? variantField.options[variantField.selectedIndex] : null;
             const variantLabel = selectedVariant ? selectedVariant.dataset.variantLabel || selectedVariant.textContent.trim() : 'Belum dipilih';
             const variantPrice = selectedVariant ? selectedVariant.dataset.variantPrice || '' : '';
+            const priceText = variantPrice || (priceLabel ? priceLabel.dataset.fallback || '' : '');
             const quantity = quantityField && quantityField.value ? quantityField.value : 'Belum ditentukan';
             const size = sizeField && sizeField.value.trim() ? sizeField.value.trim() : 'Belum ditentukan';
             const note = noteField && noteField.value.trim() ? noteField.value.trim() : 'Tidak ada catatan tambahan';
@@ -305,7 +306,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 `Varian: ${variantLabel}`,
                 `Jumlah perkiraan: ${quantity}`,
                 `Ukuran: ${size}`,
-                variantPrice ? `Harga acuan: ${variantPrice}` : null,
+                priceText ? `Harga acuan: ${priceText}` : null,
                 `Catatan: ${note}`,
                 'Mohon bantu proses pemesanan dan konfirmasi detail finalnya.',
             ].filter(Boolean);
@@ -317,7 +318,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             if (priceLabel) {
-                priceLabel.textContent = variantPrice || priceLabel.dataset.fallback || 'Harga dikonfirmasi di WhatsApp';
+                priceLabel.textContent = priceText || 'Harga dikonfirmasi di WhatsApp';
             }
         };
 

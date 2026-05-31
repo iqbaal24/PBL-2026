@@ -75,6 +75,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Harapan Jaya Printing - Katalog Cetak Digital</title>
+    @include('partials.favicon')
 
     <!-- Styles / Scripts -->
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))

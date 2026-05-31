@@ -16,10 +16,11 @@ use Illuminate\Validation\Rule;
 class TrackOrderController extends Controller
 {
     private const PUBLIC_STAGES = [
-        'pending' => ['label' => 'Pending', 'description' => 'Pesanan tercatat dan menunggu proses berikutnya.'],
-        'design' => ['label' => 'Proses Desain', 'description' => 'Tim sedang menyiapkan atau menyesuaikan desain pesanan Anda.'],
-        'printing' => ['label' => 'Dicetak', 'description' => 'Pesanan sedang diproses di tahap produksi cetak.'],
-        'completed' => ['label' => 'Selesai', 'description' => 'Pesanan selesai dan siap diambil.'],
+        'pending' => ['label' => 'Menunggu', 'description' => 'Pesanan tercatat dan menunggu konfirmasi admin.'],
+        'confirmed' => ['label' => 'Dikonfirmasi', 'description' => 'Pesanan sudah dikonfirmasi dan siap masuk proses produksi.'],
+        'production' => ['label' => 'Produksi', 'description' => 'Pesanan sedang dikerjakan oleh tim produksi.'],
+        'ready' => ['label' => 'Siap Diambil', 'description' => 'Pesanan selesai diproduksi dan siap diambil atau dikirim.'],
+        'completed' => ['label' => 'Selesai', 'description' => 'Pesanan sudah selesai. Terima kasih telah memesan.'],
     ];
 
     public function index()
@@ -43,7 +44,7 @@ class TrackOrderController extends Controller
 
         $order = Order::query()
             ->with([
-                'items:id,order_id,product_id,product_name,variant_name,quantity,subtotal',
+                'items:id,order_id,product_id,product_name,specification,quantity,unit_price,subtotal',
                 'statusHistories:id,order_id,status,note,created_at',
             ])
             ->whereRaw('LOWER(order_code) = ?', [Str::lower(trim($formData['order_number']))])
@@ -72,7 +73,7 @@ class TrackOrderController extends Controller
     public function receipt(Order $order)
     {
         $payload = $this->buildTrackingPayload($order->loadMissing([
-            'items:id,order_id,product_id,product_name,variant_name,quantity,subtotal',
+            'items:id,order_id,product_id,product_name,specification,quantity,unit_price,subtotal',
             'statusHistories:id,order_id,status,note,created_at',
         ]));
 
@@ -86,7 +87,7 @@ class TrackOrderController extends Controller
     public function storeReview(Request $request, Order $order)
     {
         $order->loadMissing([
-            'items:id,order_id,product_id,product_name,variant_name,quantity,subtotal',
+            'items:id,order_id,product_id,product_name,specification,quantity,unit_price,subtotal',
             'reviews:id,order_id,product_id',
             'statusHistories:id,order_id,status,note,created_at',
         ]);
@@ -94,6 +95,20 @@ class TrackOrderController extends Controller
         $formData = [
             'order_number' => $order->order_code,
         ];
+
+        if ($this->normalizeStatus($order->status) !== 'completed') {
+            $validator = Validator::make([], []);
+            $validator->errors()->add('rating', 'Review hanya bisa diberikan setelah pesanan selesai.');
+
+            return view('track-order', [
+                'formData' => $formData,
+                'lookupState' => 'success',
+                'lookupError' => null,
+                'result' => $this->buildTrackingPayload($order),
+                'reviewInput' => $request->only(['product_id', 'rating', 'comment']),
+                'errors' => (new ViewErrorBag())->put('default', $validator->errors()),
+            ]);
+        }
 
         $reviewableProductIds = $order->items
             ->pluck('product_id')
@@ -156,7 +171,7 @@ class TrackOrderController extends Controller
             'lookupState' => 'success',
             'lookupError' => null,
             'result' => $this->buildTrackingPayload($order->refresh()->load([
-                'items:id,order_id,product_id,product_name,variant_name,quantity,subtotal',
+                'items:id,order_id,product_id,product_name,specification,quantity,unit_price,subtotal',
                 'reviews:id,order_id,product_id',
                 'statusHistories:id,order_id,status,note,created_at',
             ])),
@@ -179,11 +194,17 @@ class TrackOrderController extends Controller
             return [
                 'product_id' => $item->product_id,
                 'product_name' => $item->product_name,
-                'variant_name' => $item->variant_name,
+                'specification' => $item->specification,
                 'quantity' => $item->quantity,
-                'subtotal' => (float) $item->subtotal,
+                'unit_price' => (int) $item->unit_price,
+                'subtotal' => (int) $item->subtotal,
             ];
         })->values()->all();
+        $itemSubtotal = array_sum(array_column($items, 'subtotal'));
+        $totalPrice = (float) $order->total_price;
+        $shippingFee = (int) $order->shipping_fee;
+        $designFee = (int) $order->design_fee;
+        $currentStatus = $this->normalizeStatus($order->status);
 
         $reviewedProductIds = $order->reviews
             ->pluck('product_id')
@@ -198,7 +219,6 @@ class TrackOrderController extends Controller
                 return [
                     'product_id' => (int) $productId,
                     'product_name' => $items->first()->product_name,
-                    'variants' => $items->pluck('variant_name')->filter()->unique()->values()->implode(', '),
                     'has_review' => $reviewedProductIds->contains((int) $productId),
                 ];
             })
@@ -215,7 +235,13 @@ class TrackOrderController extends Controller
                 'tone' => $currentStep['tone'],
             ],
             'last_updated' => $this->formatDateTime($histories->last()?->created_at ?? $order->updated_at),
+            'item_subtotal' => $itemSubtotal,
+            'shipping_fee' => $shippingFee,
+            'design_fee' => $designFee,
+            'additional_cost' => $shippingFee + $designFee,
+            'total_price' => $totalPrice,
             'items' => $items,
+            'review_enabled' => $currentStatus === 'completed',
             'reviewable_products' => $reviewableProducts,
             'timeline' => $timeline,
         ];
@@ -231,17 +257,17 @@ class TrackOrderController extends Controller
 
         $current = $this->normalizeStatus($currentStatus);
 
-        if (in_array($current, ['canceled', 'attention'], true)) {
+        if (in_array($current, ['cancelled', 'attention'], true)) {
             return [
                 ...$this->baseTimeline($normalizedHistory, null),
                 [
                     'key' => $current,
-                    'label' => $current === 'canceled' ? 'Dibatalkan' : 'Perlu Perhatian',
-                    'description' => $current === 'canceled'
+                    'label' => $current === 'cancelled' ? 'Dibatalkan' : 'Perlu Perhatian',
+                    'description' => $current === 'cancelled'
                         ? 'Pesanan dibatalkan. Silakan hubungi tim kami bila Anda membutuhkan bantuan lanjutan.'
                         : 'Pesanan memerlukan konfirmasi tambahan dari tim kami.',
                     'state' => 'exception',
-                    'tone' => $current === 'canceled' ? 'danger' : 'warning',
+                    'tone' => $current === 'cancelled' ? 'danger' : 'warning',
                 ],
             ];
         }
@@ -280,10 +306,11 @@ class TrackOrderController extends Controller
     {
         return match (Str::lower((string) $status)) {
             'pending', 'created', 'new', 'paid' => 'pending',
-            'confirmed', 'design', 'designing', 'proses desain', 'design_review' => 'design',
-            'printing', 'dicetak', 'production', 'produksi' => 'printing',
-            'ready', 'completed', 'done', 'ready_pickup', 'pickup_ready', 'selesai', 'delivered' => 'completed',
-            'cancelled', 'canceled' => 'canceled',
+            'confirmed', 'design', 'designing', 'proses desain', 'design_review' => 'confirmed',
+            'production', 'produksi', 'printing', 'dicetak' => 'production',
+            'ready', 'ready_pickup', 'pickup_ready', 'siap diambil' => 'ready',
+            'completed', 'done', 'selesai', 'delivered' => 'completed',
+            'cancelled', 'canceled' => 'cancelled',
             'attention', 'needs_attention', 'hold', 'problem' => 'attention',
             default => null,
         };

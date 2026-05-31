@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Lacak Pesanan - Harapan Jaya Printing</title>
+    @include('partials.favicon')
 
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
         @vite(['resources/css/app.css', 'resources/css/custom.css', 'resources/js/app.js', 'resources/js/custom.js'])
@@ -100,7 +101,7 @@
                                 <div class="mt-8">
                                     <div class="flex items-center justify-between gap-3">
                                         <h3 class="text-lg font-bold text-[#33302d]">Timeline produksi</h3>
-                                        <span class="text-xs font-semibold tracking-wide text-[#33302d]/50">4 tahap utama</span>
+                                        <span class="text-xs font-semibold tracking-wide text-[#33302d]/50">5 tahap utama</span>
                                     </div>
 
                                     <ol class="mt-5 space-y-4">
@@ -109,15 +110,18 @@
                                                 $isCurrent = $step['state'] === 'current';
                                                 $isDone = $step['state'] === 'done';
                                                 $isException = $step['state'] === 'exception';
+                                                $isCompletedCurrent = $isCurrent && $step['key'] === 'completed';
                                                 $indicatorClasses = $isException
                                                     ? 'border-amber-300 bg-amber-100 text-amber-700'
-                                                    : ($isCurrent
+                                                    : ($isCompletedCurrent
+                                                        ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                                                        : ($isCurrent
                                                         ? 'border-[#d9782a]/30 bg-[#f7eadf] text-[#d9782a]'
                                                         : ($isDone
                                                             ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                                                            : 'border-[#33302d]/12 bg-[#f7f7f5] text-[#33302d]/48'));
+                                                            : 'border-[#33302d]/12 bg-[#f7f7f5] text-[#33302d]/48')));
                                                 $cardClasses = $isCurrent
-                                                    ? 'border-[#d9782a]/20 bg-white'
+                                                    ? ($isCompletedCurrent ? 'border-emerald-200 bg-emerald-50' : 'border-[#d9782a]/20 bg-white')
                                                     : ($isException
                                                         ? 'border-amber-200 bg-amber-50'
                                                         : 'border-[#33302d]/10 bg-[#f7f7f5]');
@@ -125,7 +129,7 @@
                                             <li class="flex gap-4">
                                                 <div class="flex flex-col items-center">
                                                     <div class="flex h-11 w-11 items-center justify-center rounded-sm border text-sm font-bold {{ $indicatorClasses }}">
-                                                        @if ($isDone)
+                                                        @if ($isDone || $isCompletedCurrent)
                                                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                                             </svg>
@@ -143,7 +147,9 @@
                                                     <div class="flex flex-wrap items-center gap-3">
                                                         <h4 class="text-base font-semibold text-[#33302d]">{{ $step['label'] }}</h4>
                                                         @if ($isCurrent)
-                                                            <span class="rounded-sm bg-white px-3 py-1 text-xs font-semibold tracking-wide text-[#d9782a]">Sedang berjalan</span>
+                                                            <span class="rounded-sm bg-white px-3 py-1 text-xs font-semibold tracking-wide {{ $isCompletedCurrent ? 'text-emerald-700' : 'text-[#d9782a]' }}">
+                                                                {{ $isCompletedCurrent ? 'Selesai' : 'Sedang berjalan' }}
+                                                            </span>
                                                         @elseif ($isDone)
                                                             <span class="rounded-sm bg-white px-3 py-1 text-xs font-semibold tracking-wide text-emerald-700">Selesai dilalui</span>
                                                         @elseif ($isException)
@@ -177,7 +183,7 @@
                                                 <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                                                     <div>
                                                         <p class="text-base font-semibold text-[#33302d]">{{ $item['product_name'] }}</p>
-                                                        <p class="mt-1 text-sm text-[#33302d]/68">{{ $item['variant_name'] }}</p>
+                                                        <p class="mt-1 text-sm text-[#33302d]/68">{{ $item['specification'] }}</p>
                                                     </div>
                                                     <div class="flex items-center gap-4 text-sm text-[#33302d]/68">
                                                         <span>Qty {{ $item['quantity'] }}</span>
@@ -186,6 +192,31 @@
                                                 </div>
                                             </div>
                                         @endforeach
+                                    </div>
+
+                                    <div class="mt-5 rounded-sm border border-[#33302d]/10 bg-white p-4">
+                                        <div class="space-y-2 text-sm text-[#33302d]/70">
+                                            <div class="flex items-center justify-between gap-4">
+                                                <span>Subtotal Item</span>
+                                                <span class="font-semibold text-[#33302d]">Rp {{ number_format($result['item_subtotal'], 0, ',', '.') }}</span>
+                                            </div>
+                                            @if (($result['shipping_fee'] ?? 0) > 0)
+                                                <div class="flex items-center justify-between gap-4">
+                                                    <span>Ongkos Kirim</span>
+                                                    <span class="font-semibold text-[#33302d]">Rp {{ number_format($result['shipping_fee'], 0, ',', '.') }}</span>
+                                                </div>
+                                            @endif
+                                            @if (($result['design_fee'] ?? 0) > 0)
+                                                <div class="flex items-center justify-between gap-4">
+                                                    <span>Biaya Desain</span>
+                                                    <span class="font-semibold text-[#33302d]">Rp {{ number_format($result['design_fee'], 0, ',', '.') }}</span>
+                                                </div>
+                                            @endif
+                                        </div>
+                                        <div class="mt-4 flex items-center justify-between gap-4 border-t border-[#33302d]/10 pt-4">
+                                            <span class="text-base font-bold text-[#33302d]">Total Harga Akhir</span>
+                                            <span class="text-xl font-bold text-[#d9782a]">Rp {{ number_format($result['total_price'], 0, ',', '.') }}</span>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -214,7 +245,13 @@
                                         </div>
                                     @endif
 
-                                    @if ($reviewableProducts->isEmpty())
+                                    @if (! ($result['review_enabled'] ?? false))
+                                        <div class="mt-5 rounded-sm border border-[#33302d]/10 bg-[#f7f7f5] p-4">
+                                            <p class="text-base leading-relaxed text-[#33302d]/70">
+                                                Review produk baru bisa dikirim setelah status pesanan selesai.
+                                            </p>
+                                        </div>
+                                    @elseif ($reviewableProducts->isEmpty())
                                         <div class="mt-5 rounded-sm border border-[#33302d]/10 bg-[#f7f7f5] p-4">
                                             <p class="text-base leading-relaxed text-[#33302d]/70">
                                                 Produk pada pesanan ini belum terhubung ke katalog, jadi review produk belum bisa dikirim dari halaman tracking.
@@ -240,7 +277,7 @@
                                                     <option value="">Pilih produk</option>
                                                     @foreach ($availableReviewProducts as $reviewProduct)
                                                         <option value="{{ $reviewProduct['product_id'] }}" @selected((string) ($reviewInput['product_id'] ?? '') === (string) $reviewProduct['product_id'])>
-                                                            {{ $reviewProduct['product_name'] }}{{ $reviewProduct['variants'] ? ' - ' . $reviewProduct['variants'] : '' }}
+                                                            {{ $reviewProduct['product_name'] }}
                                                         </option>
                                                     @endforeach
                                                 </select>
@@ -253,8 +290,16 @@
                                                 <p class="mb-2 block text-sm font-semibold text-[#33302d]">Rating</p>
                                                 <div class="grid gap-2 sm:grid-cols-5">
                                                     @for ($rating = 5; $rating >= 1; $rating--)
-                                                        <label class="flex cursor-pointer items-center justify-between gap-2 rounded-sm border border-[#33302d]/10 bg-[#f7f7f5] px-3 py-3 text-sm font-semibold text-[#33302d] transition hover:border-[#d9782a]/40">
-                                                            <span>{{ $rating }} bintang</span>
+                                                        <label class="flex cursor-pointer flex-col items-center gap-2 rounded-sm border border-[#33302d]/10 bg-[#f7f7f5] px-3 py-3 text-sm font-semibold text-[#33302d] transition hover:border-[#d9782a]/40 has-[:checked]:border-[#d9782a] has-[:checked]:bg-[#f7eadf]">
+                                                            <span class="sr-only">{{ $rating }} bintang</span>
+                                                            <span class="flex items-center justify-center gap-0.5 text-[#d9782a]" aria-hidden="true">
+                                                                @for ($star = 1; $star <= 5; $star++)
+                                                                    <svg class="h-4 w-4 {{ $star <= $rating ? 'fill-current' : 'fill-none text-[#33302d]/25' }}" viewBox="0 0 20 20" stroke="currentColor" stroke-width="1.5">
+                                                                        <path stroke-linejoin="round" d="M10 1.8 12.47 6.8l5.53.8-4 3.9.94 5.5L10 14.4 5.06 17l.94-5.5-4-3.9 5.53-.8L10 1.8Z" />
+                                                                    </svg>
+                                                                @endfor
+                                                            </span>
+                                                            <span class="text-xs text-[#33302d]/60">{{ $rating }}/5</span>
                                                             <input
                                                                 type="radio"
                                                                 name="rating"

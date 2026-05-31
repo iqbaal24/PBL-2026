@@ -14,20 +14,17 @@ class OrderItem extends Model
     protected $fillable = [
         'order_id',
         'product_id',
-        'product_variant_id',
-        'product_finishing_id',
         'product_name',
-        'variant_name',
-        'finishing_name',
+        'specification',
         'quantity',
         'unit_price',
         'subtotal',
-        'specification',
+        'general_notes',
     ];
 
     protected $casts = [
-        'unit_price' => 'decimal:2',
-        'subtotal' => 'decimal:2',
+        'unit_price' => 'integer',
+        'subtotal' => 'integer',
     ];
 
     public function order(): BelongsTo
@@ -38,16 +35,6 @@ class OrderItem extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
-    }
-
-    public function variant(): BelongsTo
-    {
-        return $this->belongsTo(ProductVariant::class, 'product_variant_id');
-    }
-
-    public function finishing(): BelongsTo
-    {
-        return $this->belongsTo(ProductFinishing::class, 'product_finishing_id');
     }
 
     public function files(): HasMany
