@@ -17,7 +17,6 @@ use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -36,7 +35,6 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Validation\Rule;
 
 class OrderResource extends Resource
 {
@@ -56,44 +54,37 @@ class OrderResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make('Informasi Pelanggan')
+            Section::make('Customer Info')
                 ->schema([
                     Grid::make(2)->schema([
                         TextInput::make('order_code')
-                            ->label('Kode Pesanan')
                             ->disabled()
                             ->dehydrated(false)
-                            ->placeholder('Dibuat otomatis saat disimpan'),
+                            ->placeholder('Generated when saved'),
                         TextInput::make('customer_name')
-                            ->label('Nama Pelanggan')
                             ->required()
                             ->maxLength(255),
                         TextInput::make('customer_phone')
-                            ->label('Nomor WhatsApp')
+                            ->label('WhatsApp Number')
                             ->tel()
                             ->required()
                             ->maxLength(255),
-                        DatePicker::make('deadline')
-                            ->label('Tenggat'),
+                        DatePicker::make('deadline'),
                         Textarea::make('customer_address')
-                            ->label('Alamat Pelanggan')
                             ->rows(3)
                             ->columnSpanFull(),
                         Hidden::make('admin_id')
                             ->default(fn () => Auth::id()),
                     ]),
                 ]),
-            Section::make('Item Pesanan')
+            Section::make('Order Items')
                 ->schema([
                     Repeater::make('items')
-                        ->label('Item')
                         ->relationship()
-                        ->live()
-                        ->afterStateUpdated(fn (Get $get, Set $set) => self::updateOrderTotal($get, $set))
                         ->schema([
                             Grid::make(3)->schema([
                                 Select::make('product_id')
-                                    ->label('Produk')
+                                    ->label('Product')
                                     ->options(fn () => Product::query()->orderBy('name')->pluck('name', 'id'))
                                     ->searchable()
                                     ->nullable()
@@ -102,65 +93,52 @@ class OrderResource extends Resource
                                         $product = $state ? Product::find($state) : null;
 
                                         $set('product_name', $product?->name);
+                                        $set('unit_price', $product ? (int) $product->base_price : 0);
                                     }),
-                                // TextInput::make('product_name')
-                                //     ->label('Nama Produk')
-                                //     ->required()
-                                //     ->maxLength(255),
-                                Hidden::make('product_name')->required(),
-                                Textarea::make('specification')
-                                    ->label('Spesifikasi dari WhatsApp')
-                                    ->required()
-                                    ->rows(3)
-                                    ->columnSpanFull(),
                                 TextInput::make('quantity')
-                                    ->label('Jumlah')
                                     ->numeric()
                                     ->integer()
                                     ->default(1)
                                     ->minValue(1)
                                     ->required()
-                                    ->live()
-                                    ->afterStateUpdated(function (Get $get, Set $set): void {
-                                        self::updateItemSubtotal($set, $get('quantity'), $get('unit_price'));
-                                        self::updateOrderTotalFromItem($get, $set);
-                                    }),
+                                    ->live(onBlur: true)
+                                    ->afterStateUpdated(fn (Get $get, Set $set) => $set('subtotal', ((int) $get('quantity')) * ((int) $get('unit_price')))),
                                 TextInput::make('unit_price')
-                                    ->label('Harga Satuan')
-                                    ->numeric()
-                                    ->integer()
-                                    ->minValue(0)
-                                    ->prefix('Rp')
-                                    ->required()
-                                    ->live()
-                                    ->afterStateUpdated(function (Get $get, Set $set): void {
-                                        self::updateItemSubtotal($set, $get('quantity'), $get('unit_price'));
-                                        self::updateOrderTotalFromItem($get, $set);
-                                    }),
-                                TextInput::make('subtotal')
-                                    ->label('Subtotal')
+                                    ->label('Unit Price')
                                     ->numeric()
                                     ->integer()
                                     ->minValue(0)
                                     ->prefix('Rp')
                                     ->default(0)
                                     ->required()
-                                    ->readOnly(),
+                                    ->live(onBlur: true)
+                                    ->afterStateUpdated(fn (Get $get, Set $set) => $set('subtotal', ((int) $get('quantity')) * ((int) $get('unit_price')))),
+                                TextInput::make('subtotal')
+                                    ->numeric()
+                                    ->integer()
+                                    ->minValue(0)
+                                    ->prefix('Rp')
+                                    ->default(0)
+                                    ->required(),
+                                Textarea::make('specification')
+                                    ->label('Specification from WhatsApp')
+                                    ->required()
+                                    ->rows(3)
+                                    ->columnSpanFull(),
                                 Textarea::make('general_notes')
-                                    ->label('Catatan Item dari Admin')
+                                    ->label('Admin Item Notes')
                                     ->rows(3)
                                     ->columnSpanFull(),
                             ]),
                         ])
                         ->columns(1)
                         ->defaultItems(1)
-                        ->addActionLabel('Tambah item')
+                        ->addActionLabel('Add item')
                         ->required(),
                 ]),
-            Section::make('File')
+            Section::make('Files')
                 ->schema([
                     Repeater::make('files')
-                        ->label('File')
                         ->relationship()
                         ->schema([
                             FileUpload::make('file_path')
@@ -171,69 +149,33 @@ class OrderResource extends Resource
                                 ->required(),
                             Hidden::make('file_name'),
                             Select::make('file_type')
-                                ->label('Jenis File')
                                 ->options(self::fileTypeOptions())
                                 ->required()
                                 ->default('design'),
                             Select::make('order_item_id')
-                                ->label('Item Terkait')
-                                ->options(fn ($livewire): array => self::orderItemOptions($livewire))
-                                ->searchable()
-                                ->preload()
-                                ->helperText(fn ($livewire): string => self::getLivewireOrder($livewire)
-                                    ? 'Pilih item pesanan yang memakai file ini.'
-                                    : 'Simpan pesanan dulu jika file perlu dihubungkan ke item tertentu.')
-                                ->disabled(fn ($livewire): bool => ! self::getLivewireOrder($livewire))
-                                ->rules(fn ($livewire): array => [
-                                    'nullable',
-                                    Rule::exists('order_items', 'id')->where('order_id', self::getLivewireOrder($livewire)?->id ?? 0),
-                                ]),
+                                ->label('Related item')
+                                ->relationship('orderItem', 'product_name')
+                                ->searchable(),
                             Hidden::make('uploaded_by')
                                 ->default(fn () => Auth::id()),
                         ])
                         ->columns(2)
                         ->defaultItems(0)
-                        ->addActionLabel('Tambah file'),
+                        ->addActionLabel('Add file'),
                 ]),
-            Section::make('Pembayaran')
+            Section::make('Payment')
                 ->schema([
                     Grid::make(3)->schema([
-                        Placeholder::make('item_subtotal_display')
-                            ->label('Subtotal Item')
-                            ->content(fn (Get $get): string => self::formatRupiah(self::calculateItemSubtotal($get('items')))),
-                        TextInput::make('shipping_fee')
-                            ->label('Ongkos Kirim')
-                            ->numeric()
-                            ->integer()
-                            ->minValue(0)
-                            ->prefix('Rp')
-                            ->default(0)
-                            ->required()
-                            ->live()
-                            ->afterStateUpdated(fn (Get $get, Set $set) => self::updateOrderTotal($get, $set)),
-                        TextInput::make('design_fee')
-                            ->label('Biaya Desain')
-                            ->numeric()
-                            ->integer()
-                            ->minValue(0)
-                            ->prefix('Rp')
-                            ->live()
-                            ->afterStateUpdated(fn (Get $get, Set $set) => self::updateOrderTotal($get, $set)),
                         TextInput::make('total_price')
-                            ->label('Total Keseluruhan')
                             ->numeric()
                             ->prefix('Rp')
-                            ->default(0)
-                            ->required()
-                            ->readOnly(),
+                            ->required(),
                         TextInput::make('paid_amount')
-                            ->label('Jumlah Dibayar (DP)')
                             ->numeric()
                             ->prefix('Rp')
                             ->default(0)
                             ->required(),
                         Select::make('payment_status')
-                            ->label('Status Pembayaran')
                             ->options(self::paymentStatusOptions())
                             ->default('unpaid')
                             ->required(),
@@ -242,23 +184,21 @@ class OrderResource extends Resource
             Section::make('Status')
                 ->schema([
                     Select::make('status')
-                        ->label('Status Pesanan')
                         ->options(self::statusOptions())
                         ->default('pending')
                         ->required(),
                     Textarea::make('status_history_note')
-                        ->label('Catatan Riwayat Status')
-                        ->helperText('Catatan ini akan disimpan ke riwayat status saat pesanan dibuat atau status diperbarui.')
+                        ->label('Status History Note')
+                        ->helperText('This note will be saved to the status history when the order is created or when you update the status.')
                         ->rows(3)
                         ->dehydrated(false)
                         ->columnSpanFull(),
                     Repeater::make('statusHistories')
-                        ->label('Riwayat Status')
                         ->relationship()
                         ->schema([
-                            Select::make('status')->label('Status')->options(self::statusOptions())->required(),
-                            Textarea::make('note')->label('Catatan')->rows(2),
-                            Select::make('changed_by')->label('Diubah Oleh')->relationship('user', 'name')->disabled(),
+                            Select::make('status')->options(self::statusOptions())->required(),
+                            Textarea::make('note')->rows(2),
+                            Select::make('changed_by')->relationship('user', 'name')->disabled(),
                         ])
                         ->columns(3)
                         ->disabled()
@@ -266,10 +206,9 @@ class OrderResource extends Resource
                         ->defaultItems(0)
                         ->hiddenOn('create'),
                 ]),
-            Section::make('Catatan')
+            Section::make('Notes')
                 ->schema([
                     Textarea::make('notes')
-                        ->label('Catatan Pesanan')
                         ->rows(4)
                         ->columnSpanFull(),
                 ]),
@@ -362,7 +301,7 @@ class OrderResource extends Resource
                     ->label('WhatsApp')
                     ->icon('heroicon-m-chat-bubble-left-right')
                     ->color('success')
-                    ->url(fn (Order $record): string => "https://wa.me/" . preg_replace('/[^0-9]/', '', $record->customer_phone) . "?text=" . urlencode("Halo {$record->customer_name}, kami dari Harapan Jaya Printing ingin menginformasikan bahwa pesanan Anda dengan nomor #{$record->order_code} sedang kami proses. Untuk mengecek progress pesanan secara mandiri, silakan buka halaman Lacak Pesanan di website kami dan masukkan nomor pesanan tersebut. Jika ada pertanyaan atau detail tambahan, silakan balas pesan ini."))
+                    ->url(fn (Order $record): string => "https://wa.me/" . preg_replace('/[^0-9]/', '', $record->customer_phone) . "?text=" . urlencode("Halo {$record->customer_name}, kami dari PBL Store ingin menginformasikan mengenai pesanan Anda #{$record->order_code}..."))
                     ->openUrlInNewTab(),
                 \Filament\Actions\Action::make('updateStatus')
                     ->label('Update Progress')
@@ -370,7 +309,6 @@ class OrderResource extends Resource
                     ->color('warning')
                     ->form([
                         \Filament\Forms\Components\Select::make('status')
-                            ->label('Status')
                             ->options(self::statusOptions())
                             ->default(fn (Order $record) => $record->status)
                             ->required(),
@@ -387,12 +325,10 @@ class OrderResource extends Resource
                         ]);
                     }),
                 ViewAction::make()
-                    ->label('Lihat')
+                    ->label('View')
                     ->icon('heroicon-m-eye')
                     ->color('gray'),
-                \Filament\Actions\EditAction::make()
-                    ->label('Edit')
-                    ->slideOver(),
+                \Filament\Actions\EditAction::make()->slideOver(),
                 \Filament\Actions\DeleteAction::make()
                     ->modalDescription('Apakah Anda yakin ingin menghapus pesanan ini? Tindakan ini tidak dapat dibatalkan.'),
             ])
@@ -404,7 +340,6 @@ class OrderResource extends Resource
                         ->color('warning')
                         ->form([
                             \Filament\Forms\Components\Select::make('status')
-                                ->label('Status')
                                 ->options(self::statusOptions())
                                 ->required(),
                             \Filament\Forms\Components\Textarea::make('note')
@@ -440,77 +375,71 @@ class OrderResource extends Resource
     public static function infolist(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make('Informasi Pelanggan')
+            Section::make('Customer Info')
                 ->schema([
-                    TextEntry::make('order_code')->label('Kode Pesanan')->copyable(),
-                    TextEntry::make('customer_name')->label('Nama Pelanggan'),
-                    TextEntry::make('customer_phone')->label('Nomor WhatsApp')->copyable(),
-                    TextEntry::make('deadline')->label('Tenggat')->date()->placeholder('-'),
-                    TextEntry::make('customer_address')->label('Alamat Pelanggan')->placeholder('-')->columnSpanFull(),
+                    TextEntry::make('order_code')->copyable(),
+                    TextEntry::make('customer_name'),
+                    TextEntry::make('customer_phone')->label('WhatsApp Number')->copyable(),
+                    TextEntry::make('deadline')->date()->placeholder('-'),
+                    TextEntry::make('customer_address')->placeholder('-')->columnSpanFull(),
                     TextEntry::make('admin.name')->label('Admin')->placeholder('-'),
-                    TextEntry::make('created_at')->label('Dibuat')->dateTime(),
+                    TextEntry::make('created_at')->dateTime(),
                 ])
                 ->columns(2),
-            Section::make('Item Pesanan')
+            Section::make('Order Items')
                 ->schema([
                     RepeatableEntry::make('items')
-                        ->label('Item')
                         ->schema([
-                            TextEntry::make('product_name')->label('Produk'),
-                            TextEntry::make('specification')->label('Spesifikasi')->placeholder('-')->columnSpanFull(),
-                            TextEntry::make('quantity')->label('Jumlah'),
-                            TextEntry::make('unit_price')->label('Harga Satuan')->money('IDR')->placeholder('-'),
-                            TextEntry::make('subtotal')->label('Subtotal')->money('IDR')->placeholder('-'),
-                            TextEntry::make('general_notes')->label('Catatan Item dari Admin')->placeholder('-')->columnSpanFull(),
+                            TextEntry::make('product_name')->label('Product'),
+                            TextEntry::make('specification')->label('Specification')->placeholder('-')->columnSpanFull(),
+                            TextEntry::make('quantity'),
+                            TextEntry::make('unit_price')->money('IDR')->placeholder('-'),
+                            TextEntry::make('subtotal')->money('IDR')->placeholder('-'),
+                            TextEntry::make('general_notes')->label('Admin Item Notes')->placeholder('-')->columnSpanFull(),
                         ])
                         ->columns(3)
-                        ->placeholder('Tidak ada item.'),
+                        ->placeholder('No items.'),
                 ]),
-            Section::make('Pembayaran')
+            Section::make('Payment')
                 ->schema([
-                    TextEntry::make('items_sum_subtotal')->label('Subtotal Item')->state(fn (Order $record): int => (int) $record->items()->sum('subtotal'))->money('IDR'),
-                    TextEntry::make('shipping_fee')->label('Ongkos Kirim')->money('IDR'),
-                    TextEntry::make('design_fee')->label('Biaya Desain')->money('IDR')->placeholder('-'),
-                    TextEntry::make('total_price')->label('Total Keseluruhan')->money('IDR')->placeholder('-'),
-                    TextEntry::make('paid_amount')->label('Jumlah Dibayar (DP)')->money('IDR'),
-                    TextEntry::make('payment_status')->label('Status Pembayaran')->badge(),
-                    TextEntry::make('status')->label('Status Pesanan')->badge(),
+                    TextEntry::make('total_price')->money('IDR')->placeholder('-'),
+                    TextEntry::make('paid_amount')->money('IDR'),
+                    TextEntry::make('payment_status')->badge(),
+                    TextEntry::make('status')->badge(),
                 ])
-                ->columns(3),
-            Section::make('File')
+                ->columns(4),
+            Section::make('Files')
                 ->schema([
                     RepeatableEntry::make('files')
-                        ->label('File')
                         ->schema([
-                            TextEntry::make('file_name')->label('Nama File')->placeholder('-'),
-                            TextEntry::make('file_type')->label('Jenis File')->badge(),
-                            TextEntry::make('orderItem.product_name')->label('Item Terkait')->placeholder('-'),
-                            TextEntry::make('uploader.name')->label('Diunggah Oleh')->placeholder('-'),
+                            TextEntry::make('file_name')->label('File name')->placeholder('-'),
+                            TextEntry::make('file_type')->badge(),
+                            TextEntry::make('orderItem.product_name')->label('Related item')->placeholder('-'),
+                            TextEntry::make('uploader.name')->label('Uploaded by')->placeholder('-'),
                             TextEntry::make('file_path')
-                                ->label('Buka File')
+                                ->label('Open file')
                                 ->url(fn (?string $state): ?string => $state ? Storage::disk('public')->url($state) : null)
                                 ->openUrlInNewTab()
                                 ->placeholder('-'),
                         ])
                         ->columns(2)
-                        ->placeholder('Tidak ada file.'),
+                        ->placeholder('No files.'),
                 ]),
-            Section::make('Riwayat Status')
+            Section::make('Status History')
                 ->schema([
                     RepeatableEntry::make('statusHistories')
-                        ->label('Riwayat Status')
                         ->schema([
-                            TextEntry::make('status')->label('Status')->badge(),
-                            TextEntry::make('note')->label('Catatan')->placeholder('-'),
-                            TextEntry::make('user.name')->label('Diubah Oleh')->placeholder('-'),
-                            TextEntry::make('created_at')->label('Dibuat')->dateTime(),
+                            TextEntry::make('status')->badge(),
+                            TextEntry::make('note')->placeholder('-'),
+                            TextEntry::make('user.name')->label('Changed by')->placeholder('-'),
+                            TextEntry::make('created_at')->dateTime(),
                         ])
                         ->columns(4)
-                        ->placeholder('Belum ada riwayat status.'),
+                        ->placeholder('No status history.'),
                 ]),
-            Section::make('Catatan')
+            Section::make('Notes')
                 ->schema([
-                    TextEntry::make('notes')->label('Catatan Pesanan')->placeholder('-')->columnSpanFull(),
+                    TextEntry::make('notes')->placeholder('-')->columnSpanFull(),
                 ]),
         ]);
     }
@@ -518,98 +447,31 @@ class OrderResource extends Resource
     public static function statusOptions(): array
     {
         return [
-            'pending' => 'Menunggu',
-            'confirmed' => 'Dikonfirmasi',
-            'production' => 'Produksi',
-            'ready' => 'Siap Diambil',
-            'completed' => 'Selesai',
-            'cancelled' => 'Dibatalkan',
+            'pending' => 'Pending',
+            'confirmed' => 'Confirmed',
+            'production' => 'Production',
+            'ready' => 'Ready',
+            'completed' => 'Completed',
+            'cancelled' => 'Cancelled',
         ];
     }
 
     public static function paymentStatusOptions(): array
     {
         return [
-            'unpaid' => 'Belum Dibayar',
-            'partial' => 'Dibayar Sebagian',
-            'paid' => 'Lunas',
+            'unpaid' => 'Unpaid',
+            'partial' => 'Partial',
+            'paid' => 'Paid',
         ];
     }
 
     public static function fileTypeOptions(): array
     {
         return [
-            'design' => 'Desain',
-            'proof' => 'Bukti Pembayaran',
-            'receipt' => 'Nota',
-            'other' => 'Lainnya',
+            'design' => 'Design',
+            'proof' => 'Proof',
+            'receipt' => 'Receipt',
+            'other' => 'Other',
         ];
-    }
-
-    private static function orderItemOptions(mixed $livewire): array
-    {
-        $order = self::getLivewireOrder($livewire);
-
-        if (! $order) {
-            return [];
-        }
-
-        return $order->items()
-            ->orderBy('id')
-            ->get()
-            ->mapWithKeys(fn ($item): array => [
-                $item->id => "{$item->quantity}x {$item->product_name}",
-            ])
-            ->all();
-    }
-
-    private static function getLivewireOrder(mixed $livewire): ?Order
-    {
-        if (! is_object($livewire) || ! method_exists($livewire, 'getRecord')) {
-            return null;
-        }
-
-        $record = $livewire->getRecord();
-
-        return $record instanceof Order ? $record : null;
-    }
-
-    private static function updateItemSubtotal(Set $set, mixed $quantity, mixed $unitPrice): void
-    {
-        $set('subtotal', max(0, (int) $quantity) * max(0, (int) $unitPrice));
-    }
-
-    public static function calculatePaymentTotal(array $items, mixed $shippingFee = 0, mixed $designFee = 0): int
-    {
-        return self::calculateItemSubtotal($items) + max(0, (int) $shippingFee) + max(0, (int) $designFee);
-    }
-
-    private static function updateOrderTotal(Get $get, Set $set): void
-    {
-        $set('total_price', self::calculatePaymentTotal(
-            $get('items'),
-            $get('shipping_fee'),
-            $get('design_fee'),
-        ));
-    }
-
-    private static function updateOrderTotalFromItem(Get $get, Set $set): void
-    {
-        $set('../../total_price', self::calculatePaymentTotal(
-            $get('../../items'),
-            $get('../../shipping_fee'),
-            $get('../../design_fee'),
-        ));
-    }
-
-    private static function calculateItemSubtotal(mixed $items): int
-    {
-        return collect(is_array($items) ? $items : [])
-            ->sum(fn (array $item): int => max(0, (int) ($item['subtotal'] ?? 0)));
-    }
-
-    private static function formatRupiah(int $amount): string
-    {
-        return 'Rp ' . number_format($amount, 0, ',', '.');
     }
 }
