@@ -6,21 +6,13 @@ use App\Filament\Resources\StoreProfiles\Pages\CreateStoreProfile;
 use App\Filament\Resources\StoreProfiles\Pages\EditStoreProfile;
 use App\Filament\Resources\StoreProfiles\Pages\ListStoreProfiles;
 use App\Filament\Resources\StoreProfiles\Pages\ViewStoreProfile;
+use App\Filament\Resources\StoreProfiles\Schemas\StoreProfileForm;
+use App\Filament\Resources\StoreProfiles\Tables\StoreProfileTable;
 use App\Models\StoreProfile;
 use BackedEnum;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
-use Filament\Schemas\Components\Grid;
-use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
-use Filament\Tables\Columns\ImageColumn;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
 class StoreProfileResource extends Resource
@@ -35,63 +27,12 @@ class StoreProfileResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->components([
-            Section::make('Business Profile')
-                ->schema([
-                    Grid::make(2)->schema([
-                        TextInput::make('name')->required()->maxLength(255),
-                        TextInput::make('whatsapp_number')->required()->tel()->maxLength(255),
-                        TextInput::make('email')->email()->maxLength(255),
-                        TextInput::make('instagram_url')->url()->maxLength(255),
-                        FileUpload::make('logo')
-                            ->image()
-                            ->disk('public')
-                            ->directory('store')
-                            ->visibility('public')
-                            ->maxSize(5120)
-                            ->columnSpanFull(),
-                        Textarea::make('about')->rows(4)->columnSpanFull(),
-                        Textarea::make('address')->rows(3)->columnSpanFull(),
-                    ]),
-                ]),
-        ]);
+        return StoreProfileForm::make($schema);
     }
 
     public static function table(Table $table): Table
     {
-        return $table
-            ->columns([
-                ImageColumn::make('logo')
-                    ->disk('public')
-                    ->circular(),
-                TextColumn::make('name')
-                    ->searchable()
-                    ->sortable()
-                    ->weight('bold'),
-                TextColumn::make('whatsapp_number')
-                    ->label('WhatsApp')
-                    ->searchable()
-                    ->icon('heroicon-m-phone')
-                    ->copyable()
-                    ->copyMessage('WhatsApp number copied')
-                    ->copyMessageDuration(1500),
-                TextColumn::make('email')
-                    ->searchable()
-                    ->icon('heroicon-m-envelope')
-                    ->copyable()
-                    ->copyMessage('Email address copied')
-                    ->copyMessageDuration(1500),
-                TextColumn::make('updated_at')
-                    ->label('Terakhir Diperbarui')
-                    ->dateTime('d M Y H:i')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-            ])
-            ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
-                DeleteAction::make(),
-            ]);
+        return StoreProfileTable::make($table);
     }
 
     public static function getPages(): array
