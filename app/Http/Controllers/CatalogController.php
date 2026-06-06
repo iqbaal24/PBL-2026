@@ -22,6 +22,7 @@ class CatalogController extends Controller
             ])
             ->withAvg(['reviews as visible_reviews_avg_rating' => fn (Builder $query) => $query->where('is_visible', true)], 'rating')
             ->withCount(['reviews as visible_reviews_count' => fn (Builder $query) => $query->where('is_visible', true)])
+            ->withCount('orderItems')
             ->when(
                 $selectedCategory !== '',
                 fn (Builder $query) => $query->whereHas(
@@ -29,6 +30,7 @@ class CatalogController extends Controller
                     fn (Builder $categoryQuery) => $categoryQuery->where('slug', $selectedCategory),
                 ),
             )
+            ->orderByDesc('order_items_count')
             ->latest('id')
             ->paginate(9)
             ->withQueryString();
@@ -48,6 +50,7 @@ class CatalogController extends Controller
         $product->load([
             'category:id,name,slug',
             'activeVariants:id,product_id,variant_name',
+            'activeFinishings:id,product_id,name,description',
             'reviews' => fn ($query) => $query
                 ->where('is_visible', true)
                 ->latest()

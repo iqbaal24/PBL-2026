@@ -1,9 +1,20 @@
+@php
+    $storefront = config('storefront');
+
+    try {
+        $storeProfile = \App\Models\StoreProfile::query()->first();
+        if ($storeProfile?->name) {
+            $storefront['brand_name'] = $storeProfile->name;
+        }
+    } catch (\Throwable $exception) {
+    }
+@endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Lacak Pesanan - Harapan Jaya Printing</title>
+    <title>Lacak Pesanan - {{ $storefront['brand_name'] }}</title>
     @include('partials.favicon')
 
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
@@ -46,7 +57,7 @@
                                     value="{{ old('order_number', $formData['order_number'] ?? '') }}"
                                     autocapitalize="characters"
                                     autocomplete="off"
-                                    placeholder="Contoh: ORD-DEMO-0001"
+                                    placeholder="Contoh: ORD-20260605-001"
                                     spellcheck="false"
                                     class="h-12 w-full rounded-sm border border-[#33302d]/12 bg-[#f7f7f5] px-4 text-sm text-[#33302d] outline-none transition focus:border-[#d9782a] focus:ring-2 focus:ring-[#d9782a]/15"
                                 />
@@ -55,7 +66,7 @@
                                 @enderror
                             </div>
 
-                            <button type="submit" class="inline-flex h-12 w-full items-center justify-center rounded-sm bg-[#d9782a] px-6 text-sm font-semibold text-white transition hover:bg-[#c86818] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2">
+                            <button type="submit" class="inline-flex h-12 w-full items-center justify-center rounded-sm bg-[#d9782a] px-6 text-sm font-semibold text-white transition hover:bg-[#d9782a] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2">
                                 Tampilkan status pesanan
                             </button>
                         </form>
@@ -96,6 +107,18 @@
                                         <p class="text-xs font-semibold tracking-wide text-[#33302d]/55">Nomor WhatsApp Pembeli</p>
                                         <p class="mt-2 text-lg font-semibold text-[#33302d]">{{ $result['whatsapp'] }}</p>
                                     </div>
+                                    @if ($result['pickup_method'] ?? null)
+                                        <div>
+                                            <p class="text-xs font-semibold tracking-wide text-[#33302d]/55">Metode pengambilan</p>
+                                            <p class="mt-2 text-lg font-semibold text-[#33302d]">{{ $result['pickup_method'] }}</p>
+                                        </div>
+                                    @endif
+                                    @if ($result['design_file_status'] ?? null)
+                                        <div>
+                                            <p class="text-xs font-semibold tracking-wide text-[#33302d]/55">Status file desain</p>
+                                            <p class="mt-2 text-lg font-semibold text-[#33302d]">{{ $result['design_file_status'] }}</p>
+                                        </div>
+                                    @endif
                                 </div>
 
                                 <div class="mt-8">
@@ -171,7 +194,7 @@
                                         </div>
                                         <a
                                             href="{{ route('track-order.receipt', ['order' => $result['id']]) }}"
-                                            class="inline-flex h-12 items-center justify-center rounded-sm bg-[#d9782a] px-6 text-sm font-semibold text-white transition hover:bg-[#c86818] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2"
+                                            class="inline-flex h-12 items-center justify-center rounded-sm bg-[#d9782a] px-6 text-sm font-semibold text-white transition hover:bg-[#d9782a] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2"
                                         >
                                             Unduh nota digital (PDF)
                                         </a>
@@ -183,6 +206,17 @@
                                                 <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                                                     <div>
                                                         <p class="text-base font-semibold text-[#33302d]">{{ $item['product_name'] }}</p>
+                                                        <div class="mt-2 flex flex-wrap gap-2 text-xs font-semibold text-[#33302d]/65">
+                                                            @if ($item['variant_name'])
+                                                                <span class="rounded-sm border border-[#33302d]/10 bg-white px-2 py-1">Varian: {{ $item['variant_name'] }}</span>
+                                                            @endif
+                                                            @if ($item['finishing_name'])
+                                                                <span class="rounded-sm border border-[#33302d]/10 bg-white px-2 py-1">Finishing: {{ $item['finishing_name'] }}</span>
+                                                            @endif
+                                                            @if ($item['size'])
+                                                                <span class="rounded-sm border border-[#33302d]/10 bg-white px-2 py-1">Ukuran: {{ $item['size'] }}</span>
+                                                            @endif
+                                                        </div>
                                                         <p class="mt-1 text-sm text-[#33302d]/68">{{ $item['specification'] }}</p>
                                                     </div>
                                                     <div class="flex items-center gap-4 text-sm text-[#33302d]/68">
@@ -329,7 +363,7 @@
                                                 @enderror
                                             </div>
 
-                                            <button type="submit" class="inline-flex h-12 w-full items-center justify-center rounded-sm bg-[#d9782a] px-6 text-sm font-semibold text-white transition hover:bg-[#c86818] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2 sm:w-auto">
+                                            <button type="submit" class="inline-flex h-12 w-full items-center justify-center rounded-sm bg-[#d9782a] px-6 text-sm font-semibold text-white transition hover:bg-[#d9782a] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2 sm:w-auto">
                                                 Kirim review
                                             </button>
                                         </form>

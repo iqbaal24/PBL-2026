@@ -86,4 +86,22 @@ class OrderResource extends Resource
             'other' => 'Other',
         ];
     }
+
+    public static function pickupMethodOptions(): array
+    {
+        return [
+            'Ambil di toko' => 'Ambil di toko',
+            'Kirim' => 'Kirim',
+            'Belum tahu' => 'Belum tahu',
+        ];
+    }
+
+    public static function designFileStatusOptions(): array
+    {
+        return [
+            'Sudah siap' => 'Sudah siap',
+            'Perlu dibantu desain' => 'Perlu dibantu desain',
+            'Belum ada, mau konsultasi dulu' => 'Belum ada, mau konsultasi dulu',
+        ];
+    }
 }

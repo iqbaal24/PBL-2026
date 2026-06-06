@@ -1,9 +1,20 @@
+@php
+    $storefront = config('storefront');
+
+    try {
+        $storeProfile = \App\Models\StoreProfile::query()->first();
+        if ($storeProfile?->name) {
+            $storefront['brand_name'] = $storeProfile->name;
+        }
+    } catch (\Throwable $exception) {
+    }
+@endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Katalog Produk - Harapan Jaya Printing</title>
+    <title>Katalog Produk - {{ $storefront['brand_name'] }}</title>
     @include('partials.favicon')
 
     <!-- Styles / Scripts -->
@@ -26,14 +37,14 @@
             <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="max-w-4xl">
                     <div class="max-w-3xl">
-                        <span class="text-sm font-semibold text-[#f4e2d2] block mb-3">Katalog produk</span>
+                        <span class="text-sm font-semibold text-[#ffdfa9] block mb-3">Katalog produk</span>
                         <h1 class="text-3xl font-light tracking-tight text-white sm:text-4xl lg:text-5xl leading-tight">
-                            Pilih kebutuhan cetak, <strong class="font-semibold">cek spesifikasi awal</strong>
+                            Pilih kebutuhan cetak, <strong class="font-semibold text-[#ffdfa9]">cek spesifikasi awal</strong>
                         </h1>
                     </div>
                     <div class="mt-5 max-w-2xl">
                         <p class="text-base leading-relaxed text-white/75">
-                            Bandingkan bahan, harga acuan, dan opsi aktif sebelum lanjut ke halaman detail. Pesanan tetap dikunci lewat WhatsApp bersama admin.
+                            Eksplorasi bahan dan estimasi harga kami sekarang. Temukan yang paling sesuai, lalu selesaikan pesanan Anda lewat WhatsApp!
                         </p>
                     </div>
                 </div>
@@ -47,7 +58,7 @@
                         <div class="flex items-center justify-between gap-4 border-b border-[#33302d]/10 pb-4">
                             <h2 class="text-sm font-semibold text-[#33302d]">Filter katalog</h2>
                             @if ($selectedCategory)
-                                <a href="{{ route('katalog.index') }}" class="text-xs font-semibold text-[#d9782a] transition hover:text-[#8f471b] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2 focus-visible:ring-offset-white">
+                                <a href="{{ route('katalog.index') }}" class="text-xs font-semibold text-[#d9782a] transition hover:text-[#d9782a] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2 focus-visible:ring-offset-white">
                                     Reset
                                 </a>
                             @endif
@@ -66,7 +77,7 @@
                                     <option value="{{ $category->slug }}" @selected($selectedCategory === $category->slug)>{{ $category->name }}</option>
                                 @endforeach
                             </select>
-                            <button type="submit" class="mt-4 inline-flex h-11 w-full items-center justify-center rounded-sm bg-[#d9782a] px-5 text-sm font-semibold text-white transition hover:bg-[#c86818] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2">
+                            <button type="submit" class="mt-4 inline-flex h-11 w-full items-center justify-center rounded-sm bg-[#d9782a] px-5 text-sm font-semibold text-white transition hover:bg-[#d9782a] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2">
                                 Terapkan kategori
                             </button>
                         </form>
@@ -133,7 +144,7 @@
                             </div>
 
                             <div class="mt-auto pt-5">
-                                <a href="{{ route('katalog.show', $product) }}" class="inline-flex h-11 w-full items-center justify-center rounded-sm bg-[#d9782a] px-4 text-sm font-semibold text-white transition hover:bg-[#c86818] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2 focus-visible:ring-offset-white">
+                                <a href="{{ route('katalog.show', $product) }}" class="inline-flex h-11 w-full items-center justify-center rounded-sm bg-[#d9782a] px-4 text-sm font-semibold text-white transition hover:bg-[#d9782a] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2 focus-visible:ring-offset-white">
                                     Lihat detail
                                 </a>
                             </div>
@@ -149,7 +160,7 @@
                             <a href="{{ route('katalog.index') }}" class="inline-flex h-11 items-center justify-center rounded-sm border border-[#33302d]/12 bg-white px-5 text-sm font-semibold text-[#33302d] transition hover:border-[#d9782a]/30 hover:text-[#d9782a] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2">
                                 Reset katalog
                             </a>
-                            <a href="{{ route('hubungi-kami') }}" class="inline-flex h-11 items-center justify-center rounded-sm bg-[#d9782a] px-5 text-sm font-semibold text-white transition hover:bg-[#c86818] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2">
+                            <a href="{{ route('hubungi-kami') }}" class="inline-flex h-11 items-center justify-center rounded-sm bg-[#d9782a] px-5 text-sm font-semibold text-white transition hover:bg-[#d9782a] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2">
                                 Tanya admin
                             </a>
                         </div>
@@ -167,7 +178,7 @@
                         <button type="button" data-search-reset class="inline-flex h-11 items-center justify-center rounded-sm border border-[#33302d]/15 bg-white px-5 text-sm font-semibold text-[#33302d] transition hover:border-[#d9782a]/30 hover:text-[#d9782a] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2">
                             Reset pencarian
                         </button>
-                        <a href="{{ route('hubungi-kami') }}" class="inline-flex h-11 items-center justify-center rounded-sm bg-[#d9782a] px-5 text-sm font-semibold text-white transition hover:bg-[#c86818] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2">
+                        <a href="{{ route('hubungi-kami') }}" class="inline-flex h-11 items-center justify-center rounded-sm bg-[#d9782a] px-5 text-sm font-semibold text-white transition hover:bg-[#d9782a] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2">
                             Tanya admin
                         </a>
                     </div>

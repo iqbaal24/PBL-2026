@@ -60,6 +60,11 @@ class Product extends Model
         return $this->hasMany(ProductFinishing::class);
     }
 
+    public function activeFinishings(): HasMany
+    {
+        return $this->hasMany(ProductFinishing::class)->where('is_active', true);
+    }
+
     public function orderItems(): HasMany
     {
         return $this->hasMany(OrderItem::class);

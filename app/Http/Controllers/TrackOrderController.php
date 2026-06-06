@@ -44,7 +44,7 @@ class TrackOrderController extends Controller
 
         $order = Order::query()
             ->with([
-                'items:id,order_id,product_id,product_name,specification,quantity,unit_price,subtotal',
+                'items:id,order_id,product_id,product_name,variant_name,finishing_name,size,specification,quantity,unit_price,subtotal',
                 'statusHistories:id,order_id,status,note,created_at',
             ])
             ->whereRaw('LOWER(order_code) = ?', [Str::lower(trim($formData['order_number']))])
@@ -73,7 +73,7 @@ class TrackOrderController extends Controller
     public function receipt(Order $order)
     {
         $payload = $this->buildTrackingPayload($order->loadMissing([
-            'items:id,order_id,product_id,product_name,specification,quantity,unit_price,subtotal',
+            'items:id,order_id,product_id,product_name,variant_name,finishing_name,size,specification,quantity,unit_price,subtotal',
             'statusHistories:id,order_id,status,note,created_at',
         ]));
 
@@ -87,7 +87,7 @@ class TrackOrderController extends Controller
     public function storeReview(Request $request, Order $order)
     {
         $order->loadMissing([
-            'items:id,order_id,product_id,product_name,specification,quantity,unit_price,subtotal',
+            'items:id,order_id,product_id,product_name,variant_name,finishing_name,size,specification,quantity,unit_price,subtotal',
             'reviews:id,order_id,product_id',
             'statusHistories:id,order_id,status,note,created_at',
         ]);
@@ -171,7 +171,7 @@ class TrackOrderController extends Controller
             'lookupState' => 'success',
             'lookupError' => null,
             'result' => $this->buildTrackingPayload($order->refresh()->load([
-                'items:id,order_id,product_id,product_name,specification,quantity,unit_price,subtotal',
+                'items:id,order_id,product_id,product_name,variant_name,finishing_name,size,specification,quantity,unit_price,subtotal',
                 'reviews:id,order_id,product_id',
                 'statusHistories:id,order_id,status,note,created_at',
             ])),
@@ -194,6 +194,9 @@ class TrackOrderController extends Controller
             return [
                 'product_id' => $item->product_id,
                 'product_name' => $item->product_name,
+                'variant_name' => $item->variant_name,
+                'finishing_name' => $item->finishing_name,
+                'size' => $item->size,
                 'specification' => $item->specification,
                 'quantity' => $item->quantity,
                 'unit_price' => (int) $item->unit_price,
@@ -229,6 +232,8 @@ class TrackOrderController extends Controller
             'id' => $order->id,
             'order_number' => $order->order_code,
             'whatsapp' => $order->customer_phone,
+            'pickup_method' => $order->pickup_method,
+            'design_file_status' => $order->design_file_status,
             'current_status' => [
                 'label' => $currentStep['label'],
                 'description' => $currentStep['description'],

@@ -18,6 +18,8 @@ class Order extends Model
         'customer_phone',
         'customer_address',
         'deadline',
+        'pickup_method',
+        'design_file_status',
         'notes',
         'shipping_fee',
         'design_fee',

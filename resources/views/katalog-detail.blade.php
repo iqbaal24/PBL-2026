@@ -1,9 +1,24 @@
+@php
+    $storefront = config('storefront');
+
+    try {
+        $storeProfile = \App\Models\StoreProfile::query()->first();
+        if ($storeProfile?->name) {
+            $storefront['brand_name'] = $storeProfile->name;
+        }
+        if ($storeProfile?->whatsapp_number) {
+            $number = preg_replace('/[^0-9]/', '', $storeProfile->whatsapp_number) ?? '';
+            $storefront['whatsapp_number'] = str_starts_with($number, '0') ? '62' . substr($number, 1) : $number;
+        }
+    } catch (\Throwable $exception) {
+    }
+@endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $product->name }} - Harapan Jaya Printing</title>
+    <title>{{ $product->name }} - {{ $storefront['brand_name'] }}</title>
     @include('partials.favicon')
 
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
@@ -18,7 +33,6 @@
     @include('partials.header')
 
     @php
-        $storefront = config('storefront');
         $defaultVariant = $product->activeVariants->first();
         $variantCount = $product->activeVariants->count();
         $averageRating = $product->visible_reviews_avg_rating ? round($product->visible_reviews_avg_rating, 1) : null;
@@ -186,6 +200,7 @@
                         data-whatsapp-builder
                         data-product-name="{{ $product->name }}"
                         data-product-category="{{ $product->category->name }}"
+                        data-brand-name="{{ $storefront['brand_name'] }}"
                         data-whatsapp-number="{{ $storefront['whatsapp_number'] }}"
                         class="rounded-sm border border-[#33302d]/10 bg-[#f7f7f5] p-5 shadow-[0_1px_0_rgb(78,52,34,0.04)]"
                     >
@@ -196,6 +211,11 @@
                         </p>
 
                         <div class="mt-5 space-y-4">
+                            <div>
+                                <label for="customer-name" class="mb-2 block text-sm font-semibold text-[#33302d]">Nama pelanggan</label>
+                                <input id="customer-name" data-whatsapp-customer type="text" placeholder="Nama Anda atau nama usaha" class="h-12 w-full rounded-sm border border-[#33302d]/15 bg-white px-4 text-sm text-[#33302d] outline-none transition focus:border-[#d9782a] focus:ring-2 focus:ring-[#d9782a]/15" />
+                            </div>
+
                             <div>
                                 <label for="product-variant" class="mb-2 block text-sm font-semibold text-[#33302d]">Varian produk</label>
                                 <select id="product-variant" data-whatsapp-variant class="h-12 w-full rounded-sm border border-[#33302d]/15 bg-white px-4 text-sm text-[#33302d] outline-none transition focus:border-[#d9782a] focus:ring-2 focus:ring-[#d9782a]/15">
@@ -223,8 +243,40 @@
                                 <input id="estimated-size" data-whatsapp-size type="text" placeholder="Contoh: A3, 60 x 160 cm, 3 x 1 m" class="h-12 w-full rounded-sm border border-[#33302d]/15 bg-white px-4 text-sm text-[#33302d] outline-none transition focus:border-[#d9782a] focus:ring-2 focus:ring-[#d9782a]/15" />
                             </div>
 
+                            @if ($product->activeFinishings->isNotEmpty())
+                                <div>
+                                    <label for="product-finishing" class="mb-2 block text-sm font-semibold text-[#33302d]">Finishing</label>
+                                    <select id="product-finishing" data-whatsapp-finishing class="h-12 w-full rounded-sm border border-[#33302d]/15 bg-white px-4 text-sm text-[#33302d] outline-none transition focus:border-[#d9782a] focus:ring-2 focus:ring-[#d9782a]/15">
+                                        <option value="" data-finishing-label="Belum ditentukan, konsultasi dulu">Belum ditentukan, konsultasi dulu</option>
+                                        @foreach ($product->activeFinishings as $finishing)
+                                            <option value="{{ $finishing->id }}" data-finishing-label="{{ $finishing->name }}">
+                                                {{ $finishing->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            @endif
+
                             <div>
-                                <label for="product-note" class="mb-2 block text-sm font-semibold text-[#33302d]">Catatan singkat</label>
+                                <label for="design-file-status" class="mb-2 block text-sm font-semibold text-[#33302d]">Status file desain</label>
+                                <select id="design-file-status" data-whatsapp-file-status class="h-12 w-full rounded-sm border border-[#33302d]/15 bg-white px-4 text-sm text-[#33302d] outline-none transition focus:border-[#d9782a] focus:ring-2 focus:ring-[#d9782a]/15">
+                                    <option value="Sudah siap">Sudah siap</option>
+                                    <option value="Perlu dibantu desain">Perlu dibantu desain</option>
+                                    <option value="Belum ada, mau konsultasi dulu">Belum ada, mau konsultasi dulu</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label for="pickup-method" class="mb-2 block text-sm font-semibold text-[#33302d]">Metode pengambilan</label>
+                                <select id="pickup-method" data-whatsapp-pickup class="h-12 w-full rounded-sm border border-[#33302d]/15 bg-white px-4 text-sm text-[#33302d] outline-none transition focus:border-[#d9782a] focus:ring-2 focus:ring-[#d9782a]/15">
+                                    <option value="Ambil di toko">Ambil di toko</option>
+                                    <option value="Kirim">Kirim</option>
+                                    <option value="Belum tahu">Belum tahu</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label for="product-note" class="mb-2 block text-sm font-semibold text-[#33302d]">Detail kebutuhan</label>
                                 <textarea id="product-note" data-whatsapp-note rows="4" placeholder="Contoh: butuh untuk acara kampus minggu depan" class="w-full rounded-sm border border-[#33302d]/15 bg-white px-4 py-3 text-sm text-[#33302d] outline-none transition focus:border-[#d9782a] focus:ring-2 focus:ring-[#d9782a]/15"></textarea>
                             </div>
                         </div>
@@ -240,7 +292,7 @@
                             </div>
                         </div>
 
-                        <a data-whatsapp-cta href="https://wa.me/{{ $storefront['whatsapp_number'] }}" target="_blank" rel="noopener" class="mt-5 inline-flex h-12 w-full items-center justify-center rounded-sm bg-[#d9782a] px-6 text-sm font-semibold text-white transition hover:bg-[#c86818] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2">
+                        <a data-whatsapp-cta href="https://wa.me/{{ $storefront['whatsapp_number'] }}" target="_blank" rel="noopener" class="mt-5 inline-flex h-12 w-full items-center justify-center rounded-sm bg-[#d9782a] px-6 text-sm font-semibold text-white transition hover:bg-[#d9782a] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2">
                             Pesan via WhatsApp
                         </a>
 

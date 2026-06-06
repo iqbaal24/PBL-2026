@@ -283,10 +283,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const productName = builder.dataset.productName || '';
         const productCategory = builder.dataset.productCategory || '';
+        const brandName = builder.dataset.brandName || 'Harapan Jaya Printing';
         const number = builder.dataset.whatsappNumber || '';
+        const customerField = builder.querySelector('[data-whatsapp-customer]');
         const variantField = builder.querySelector('[data-whatsapp-variant]');
         const quantityField = builder.querySelector('[data-whatsapp-quantity]');
         const sizeField = builder.querySelector('[data-whatsapp-size]');
+        const finishingField = builder.querySelector('[data-whatsapp-finishing]');
+        const fileStatusField = builder.querySelector('[data-whatsapp-file-status]');
+        const pickupField = builder.querySelector('[data-whatsapp-pickup]');
         const noteField = builder.querySelector('[data-whatsapp-note]');
         const preview = builder.querySelector('[data-whatsapp-preview]');
         const priceLabel = builder.querySelector('[data-whatsapp-price]');
@@ -296,18 +301,27 @@ document.addEventListener('DOMContentLoaded', function () {
             const variantLabel = selectedVariant ? selectedVariant.dataset.variantLabel || selectedVariant.textContent.trim() : 'Belum dipilih';
             const variantPrice = selectedVariant ? selectedVariant.dataset.variantPrice || '' : '';
             const priceText = variantPrice || (priceLabel ? priceLabel.dataset.fallback || '' : '');
+            const customer = customerField && customerField.value.trim() ? customerField.value.trim() : '';
             const quantity = quantityField && quantityField.value ? quantityField.value : 'Belum ditentukan';
             const size = sizeField && sizeField.value.trim() ? sizeField.value.trim() : 'Belum ditentukan';
-            const note = noteField && noteField.value.trim() ? noteField.value.trim() : 'Tidak ada catatan tambahan';
+            const selectedFinishing = finishingField ? finishingField.options[finishingField.selectedIndex] : null;
+            const finishingText = selectedFinishing ? selectedFinishing.dataset.finishingLabel || selectedFinishing.textContent.trim() : '';
+            const fileStatus = fileStatusField && fileStatusField.value ? fileStatusField.value : 'Belum ditentukan';
+            const pickup = pickupField && pickupField.value ? pickupField.value : 'Belum ditentukan';
+            const note = noteField && noteField.value.trim() ? noteField.value.trim() : 'Tidak ada detail tambahan';
             const lines = [
-                'Halo Harapan Jaya Printing, saya ingin pesan produk berikut:',
+                `Halo ${brandName}, saya ingin pesan produk berikut:`,
+                customer ? `Nama: ${customer}` : null,
                 `Produk: ${productName}`,
                 productCategory ? `Kategori: ${productCategory}` : null,
                 `Varian: ${variantLabel}`,
                 `Jumlah perkiraan: ${quantity}`,
                 `Ukuran: ${size}`,
+                finishingText ? `Finishing: ${finishingText}` : null,
+                `Status file desain: ${fileStatus}`,
+                `Metode pengambilan: ${pickup}`,
                 priceText ? `Harga acuan: ${priceText}` : null,
-                `Catatan: ${note}`,
+                `Detail kebutuhan: ${note}`,
                 'Mohon bantu proses pemesanan dan konfirmasi detail finalnya.',
             ].filter(Boolean);
 
@@ -322,7 +336,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         };
 
-        [variantField, quantityField, sizeField, noteField].forEach((field) => {
+        [customerField, variantField, quantityField, sizeField, finishingField, fileStatusField, pickupField, noteField].forEach((field) => {
             if (!field) {
                 return;
             }

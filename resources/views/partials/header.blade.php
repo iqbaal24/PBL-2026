@@ -1,21 +1,24 @@
 @php
-    $storeProfile = null;
-    $brandName = config('storefront.brand_name', 'Harapan Jaya Printing');
-    $brandLogoUrl = null;
+    $storefront = config('storefront');
+    $storefront['logo_url'] = null;
+    $storefront['about'] = null;
 
     try {
-        $storeProfile = \App\Models\StoreProfile::query()->first(['name', 'logo']);
+        $storeProfile = \App\Models\StoreProfile::query()->first();
 
-        if ($storeProfile?->name) {
-            $brandName = $storeProfile->name;
-        }
+        if ($storeProfile) {
+            $storefront['brand_name'] = $storeProfile->name ?: $storefront['brand_name'];
+            $storefront['about'] = $storeProfile->about;
 
-        if ($storeProfile?->logo) {
-            $brandLogoUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($storeProfile->logo);
+            if ($storeProfile->logo) {
+                $storefront['logo_url'] = \Illuminate\Support\Facades\Storage::disk('public')->url($storeProfile->logo);
+            }
         }
     } catch (\Throwable $exception) {
-        $storeProfile = null;
     }
+
+    $brandName = $storefront['brand_name'] ?? 'Harapan Jaya Printing';
+    $brandLogoUrl = $storefront['logo_url'] ?? null;
 
     $searchProducts = [];
 

@@ -1,23 +1,36 @@
 ﻿@php
-    $storeProfile = null;
-    $brandLogoUrl = null;
-    $initials = '';
+    $storefront = config('storefront');
+    $storefront['logo_url'] = null;
+    $storefront['about'] = null;
+
     try {
         $storeProfile = \App\Models\StoreProfile::query()->first();
+
         if ($storeProfile) {
+            $storefront['brand_name'] = $storeProfile->name ?: $storefront['brand_name'];
+            $storefront['about'] = $storeProfile->about;
+
+            if ($storeProfile->address) {
+                $storefront['address_lines'] = collect(preg_split('/\r\n|\r|\n/', $storeProfile->address))
+                    ->map(fn (string $line): string => trim($line))
+                    ->filter()
+                    ->values()
+                    ->all();
+            }
+
             if ($storeProfile->logo) {
-                $brandLogoUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($storeProfile->logo);
+                $storefront['logo_url'] = \Illuminate\Support\Facades\Storage::disk('public')->url($storeProfile->logo);
             }
-            // Generate initials
-            $words = explode(' ', $storeProfile->name);
-            foreach ($words as $w) {
-                $initials .= strtoupper(substr($w, 0, 1));
-            }
-            $initials = substr($initials, 0, 3);
         }
-    } catch (\Throwable $e) {
-        // Fallback
+    } catch (\Throwable $exception) {
     }
+
+    $brandLogoUrl = $storefront['logo_url'] ?? null;
+    $initials = collect(explode(' ', $storefront['brand_name'] ?? 'HJ'))
+        ->filter()
+        ->map(fn (string $word): string => strtoupper(substr($word, 0, 1)))
+        ->take(3)
+        ->implode('');
 
     $featuredProducts = collect();
     try {
@@ -74,7 +87,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Harapan Jaya Printing - Katalog Cetak Digital</title>
+    <title>{{ $storefront['brand_name'] }} - Katalog Cetak Digital</title>
     @include('partials.favicon')
 
     <!-- Styles / Scripts -->
@@ -96,27 +109,27 @@
             <div class="relative z-10 mx-auto w-full max-w-7xl px-4 py-20 sm:px-6 sm:py-24 lg:px-8 lg:py-28">
                 <div class="max-w-4xl">
                     <span data-hero-reveal class="inline-flex rounded-sm border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold text-white/90">
-                        Harapan Jaya Printing, Malang
+                        {{ $storefront['brand_name'] }}{{ filled($storefront['address_lines'][1] ?? null) ? ', ' . $storefront['address_lines'][1] : '' }}
                     </span>
                     <h1 data-hero-reveal class="mt-6 text-4xl font-light leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
-                        Cetak banner, stiker, dan poster tanpa <strong class="font-semibold text-[#f4e2d2]">bingung spesifikasi</strong>
+                        Cetak Banner, Stiker, dan Poster Tanpa <strong class="font-semibold text-[#f4e2d2]">Bingung Spesifikasi</strong>
                     </h1>
                     <p data-hero-reveal class="mt-6 max-w-2xl text-base leading-relaxed text-white/74 sm:text-base">
                         Cek pilihan bahan dan harga awal di katalog, lalu lanjutkan pemesanan lewat WhatsApp.
                     </p>
                     <div data-hero-reveal class="mt-10 flex flex-col gap-4 sm:flex-row">
                         <a href="{{ route('katalog.index') }}" class="home-action inline-flex items-center justify-center rounded-sm bg-[#d9782a] px-8 py-4 text-sm font-semibold text-white transition-colors duration-200 hover:bg-white hover:text-[#181715]">
-                            Lihat katalog
+                            Lihat Katalog
                         </a>
                         <a href="{{ route('track-order') }}" class="home-action inline-flex items-center justify-center rounded-sm border border-white/20 bg-white/5 px-8 py-4 text-sm font-semibold text-white transition-colors duration-200 hover:bg-white/10">
-                            Lacak pesanan
+                            Lacak Pesanan
                         </a>
                     </div>
                 </div>
             </div>
         </section>
 
-        @if ($storeProfile && ($storeProfile->about || $brandLogoUrl))
+        @if (($storefront['about'] ?? null) || $brandLogoUrl)
         <section data-reveal-section class="bg-white py-16 sm:py-20 border-t border-[#33302d]/10">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
@@ -125,7 +138,7 @@
                     <div data-reveal class="order-2 lg:order-1 lg:col-span-5 flex justify-center">
                         <div class="w-full max-w-36 sm:max-w-44 lg:max-w-sm aspect-square bg-transparent flex flex-col items-center justify-center transition-all duration-300">
                             @if ($brandLogoUrl)
-                                <img src="{{ $brandLogoUrl }}" alt="{{ $storeProfile->name }}" class="max-h-full max-w-full object-contain filter drop-shadow-sm" />
+                                <img src="{{ $brandLogoUrl }}" alt="{{ $storefront['brand_name'] }}" class="max-h-full max-w-full object-contain filter drop-shadow-sm" />
                             @else
                                 <!-- Elegant Monogram Fallback -->
                                 <div class="text-center">
@@ -133,7 +146,7 @@
                                         {{ $initials }}
                                     </span>
                                     <span class="mt-4 block text-xs font-medium text-[#33302d]/40">
-                                        Est. {{ $storeProfile->created_at?->format('Y') ?? '2026' }}
+                                        Est. 2026
                                     </span>
                                 </div>
                             @endif
@@ -144,12 +157,12 @@
                     <div data-reveal class="order-1 lg:order-2 lg:col-span-7">
                         <span class="text-sm font-semibold text-[#d9782a] block mb-3">Tentang kami</span>
                         <h2 class="text-3xl font-light tracking-tight text-[#33302d] sm:text-4xl leading-tight">
-                            Profil <strong class="font-semibold text-[#33302d]">Harapan Jaya <span class="text-[#d9782a]">Printing</span></strong>
+                            Profil <strong class="font-semibold text-[#33302d]">{{ $storefront['brand_name'] }}</strong>
                         </h2>
                         
-                        @if ($storeProfile->about)
+                        @if ($storefront['about'])
                             <p class="mt-6 text-base leading-relaxed text-[#33302d]/80 whitespace-pre-line font-normal">
-                                {{ $storeProfile->about }}
+                                {{ $storefront['about'] }}
                             </p>
                         @endif
 

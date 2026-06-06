@@ -1,9 +1,24 @@
+@php
+    $storefront = config('storefront');
+
+    try {
+        $storeProfile = \App\Models\StoreProfile::query()->first();
+        if ($storeProfile?->name) {
+            $storefront['brand_name'] = $storeProfile->name;
+        }
+        if ($storeProfile?->whatsapp_number) {
+            $number = preg_replace('/[^0-9]/', '', $storeProfile->whatsapp_number) ?? '';
+            $storefront['whatsapp_number'] = str_starts_with($number, '0') ? '62' . substr($number, 1) : $number;
+        }
+    } catch (\Throwable $exception) {
+    }
+@endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Panduan Pemesanan - Harapan Jaya Printing</title>
+    <title>Panduan Pemesanan - {{ $storefront['brand_name'] }}</title>
     @include('partials.favicon')
 
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
@@ -18,14 +33,13 @@
     @include('partials.header')
 
     @php
-        $storefront = config('storefront');
-        $whatsappLink = 'https://wa.me/' . $storefront['whatsapp_number'] . '?text=' . rawurlencode('Halo Harapan Jaya Printing, saya ingin konsultasi pemesanan.');
+        $whatsappLink = 'https://wa.me/' . $storefront['whatsapp_number'] . '?text=' . rawurlencode('Halo ' . $storefront['brand_name'] . ', saya ingin konsultasi pemesanan.');
     @endphp
 
     <main id="main-content" class="bg-white">
         <section class="relative overflow-hidden border-b border-[#33302d]/10 pt-32 pb-12 sm:pt-36 sm:pb-16">
             <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1503694978374-8a2fa686963a?q=80&w=1738&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')] bg-cover bg-center"></div>
-            <div class="absolute inset-0 bg-white/88"></div>
+            <div class="absolute inset-0 bg-white/92"></div>
             <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white to-transparent"></div>
             <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="max-w-4xl">
@@ -150,7 +164,7 @@
                             Untuk pesanan baru, mulai dari katalog. Jika kebutuhan Anda khusus, langsung konsultasi lewat WhatsApp.
                         </p>
                         <div class="mt-5 grid gap-3">
-                            <a href="{{ route('katalog.index') }}" class="inline-flex h-11 items-center justify-center rounded-sm bg-[#d9782a] px-5 text-sm font-semibold text-white transition hover:bg-[#c86818] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2">
+                            <a href="{{ route('katalog.index') }}" class="inline-flex h-11 items-center justify-center rounded-sm bg-[#d9782a] px-5 text-sm font-semibold text-white transition hover:bg-[#d9782a] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2">
                                 Buka katalog
                             </a>
                             <a href="{{ $whatsappLink }}" target="_blank" rel="noopener" class="inline-flex h-11 items-center justify-center rounded-sm border border-[#33302d]/15 bg-white px-5 text-sm font-semibold text-[#33302d] transition hover:border-[#d9782a]/30 hover:text-[#d9782a] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2">

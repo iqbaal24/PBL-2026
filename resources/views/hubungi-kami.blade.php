@@ -1,9 +1,37 @@
+@php
+    $storefront = config('storefront');
+
+    try {
+        $storeProfile = \App\Models\StoreProfile::query()->first();
+        if ($storeProfile?->name) {
+            $storefront['brand_name'] = $storeProfile->name;
+        }
+        if ($storeProfile?->address) {
+            $storefront['address_lines'] = collect(preg_split('/\r\n|\r|\n/', $storeProfile->address))
+                ->map(fn (string $line): string => trim($line))
+                ->filter()
+                ->values()
+                ->all();
+            $storefront['maps_url'] = 'https://maps.google.com/?q=' . rawurlencode(str_replace(["\r", "\n"], ' ', $storeProfile->address));
+        }
+        if ($storeProfile?->whatsapp_number) {
+            $number = preg_replace('/[^0-9]/', '', $storeProfile->whatsapp_number) ?? '';
+            $displayNumber = str_starts_with($number, '62') ? '0' . substr($number, 2) : $number;
+            $storefront['whatsapp_number'] = str_starts_with($number, '0') ? '62' . substr($number, 1) : $number;
+            $storefront['whatsapp_display'] = $displayNumber;
+        }
+        if ($storeProfile?->email) {
+            $storefront['email'] = $storeProfile->email;
+        }
+    } catch (\Throwable $exception) {
+    }
+@endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Hubungi Kami - Harapan Jaya Printing</title>
+    <title>Hubungi Kami - {{ $storefront['brand_name'] }}</title>
     @include('partials.favicon')
 
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
@@ -18,15 +46,14 @@
     @include('partials.header')
 
     @php
-        $storefront = config('storefront');
-        $whatsappConsultLink = 'https://wa.me/' . $storefront['whatsapp_number'] . '?text=' . rawurlencode('Halo Harapan Jaya Printing, saya ingin konsultasi produk.');
-        $whatsappQuoteLink = 'https://wa.me/' . $storefront['whatsapp_number'] . '?text=' . rawurlencode('Halo Harapan Jaya Printing, saya ingin meminta penawaran harga.');
+        $whatsappConsultLink = 'https://wa.me/' . $storefront['whatsapp_number'] . '?text=' . rawurlencode('Halo ' . $storefront['brand_name'] . ', saya ingin konsultasi produk.');
+        $whatsappQuoteLink = 'https://wa.me/' . $storefront['whatsapp_number'] . '?text=' . rawurlencode('Halo ' . $storefront['brand_name'] . ', saya ingin meminta penawaran harga.');
     @endphp
 
     <main id="main-content" class="bg-white">
         <section class="relative overflow-hidden border-b border-[#33302d]/10 pt-32 pb-12 sm:pt-36 sm:pb-16">
             <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1503694978374-8a2fa686963a?q=80&w=1738&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D')] bg-cover bg-center"></div>
-            <div class="absolute inset-0 bg-white/88"></div>
+            <div class="absolute inset-0 bg-white/92"></div>
             <div class="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white to-transparent"></div>
             <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="max-w-4xl">
@@ -63,7 +90,7 @@
                                             Pilih produk dulu agar bahan, varian, dan harga acuan jelas sebelum chat admin.
                                         </p>
                                     </div>
-                                    <a href="{{ route('katalog.index') }}" class="inline-flex h-11 items-center justify-center rounded-sm bg-[#d9782a] px-5 text-sm font-semibold text-white transition hover:bg-[#c86818] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2">
+                                    <a href="{{ route('katalog.index') }}" class="inline-flex h-11 items-center justify-center rounded-sm bg-[#d9782a] px-5 text-sm font-semibold text-white transition hover:bg-[#d9782a] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2">
                                         Buka katalog
                                     </a>
                                 </article>
@@ -103,7 +130,7 @@
                                     Siapkan detail ini agar harga lebih cepat dihitung
                                 </h2>
                             </div>
-                            <a href="{{ $whatsappQuoteLink }}" target="_blank" rel="noopener" class="inline-flex h-11 items-center justify-center rounded-sm bg-[#d9782a] px-5 text-sm font-semibold text-white transition hover:bg-[#c86818] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2">
+                            <a href="{{ $whatsappQuoteLink }}" target="_blank" rel="noopener" class="inline-flex h-11 items-center justify-center rounded-sm bg-[#d9782a] px-5 text-sm font-semibold text-white transition hover:bg-[#d9782a] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2">
                                 Minta penawaran
                             </a>
                         </div>
@@ -142,7 +169,7 @@
                                         <p>{{ $line }}</p>
                                     @endforeach
                                     </div>
-                                    <a href="{{ $storefront['maps_url'] }}" target="_blank" rel="noopener" class="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#d9782a] transition hover:text-[#8f471b] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2">
+                                    <a href="{{ $storefront['maps_url'] }}" target="_blank" rel="noopener" class="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[#d9782a] transition hover:text-[#d9782a] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2">
                                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
                                         </svg>
@@ -173,7 +200,7 @@
                             Admin akan lebih cepat membantu jika pesan Anda sudah berisi produk, ukuran, jumlah, dan deadline.
                         </p>
                         <div class="mt-5 grid gap-3">
-                            <a href="{{ $whatsappConsultLink }}" target="_blank" rel="noopener" class="inline-flex h-11 items-center justify-center rounded-sm bg-[#d9782a] px-5 text-sm font-semibold text-white transition hover:bg-[#c86818] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2">
+                            <a href="{{ $whatsappConsultLink }}" target="_blank" rel="noopener" class="inline-flex h-11 items-center justify-center rounded-sm bg-[#d9782a] px-5 text-sm font-semibold text-white transition hover:bg-[#d9782a] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2">
                                 Konsultasi produk
                             </a>
                             <a href="{{ $whatsappQuoteLink }}" target="_blank" rel="noopener" class="inline-flex h-11 items-center justify-center rounded-sm border border-[#33302d]/15 bg-white px-5 text-sm font-semibold text-[#33302d] transition hover:border-[#d9782a]/30 hover:text-[#d9782a] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2">
@@ -187,13 +214,13 @@
                         <div class="mt-4 space-y-4 text-base leading-relaxed text-[#33302d]/70">
                             <div>
                                 <p class="font-semibold text-[#33302d]">WhatsApp</p>
-                                <a href="https://wa.me/{{ $storefront['whatsapp_number'] }}" target="_blank" rel="noopener" class="mt-1 inline-flex text-[#d9782a] transition hover:text-[#8f471b] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2">
+                                <a href="https://wa.me/{{ $storefront['whatsapp_number'] }}" target="_blank" rel="noopener" class="mt-1 inline-flex text-[#d9782a] transition hover:text-[#d9782a] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2">
                                     {{ $storefront['whatsapp_display'] }}
                                 </a>
                             </div>
                             <div>
                                 <p class="font-semibold text-[#33302d]">Email</p>
-                                <a href="mailto:{{ $storefront['email'] }}" class="mt-1 inline-flex text-[#d9782a] transition hover:text-[#8f471b] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2">
+                                <a href="mailto:{{ $storefront['email'] }}" class="mt-1 inline-flex text-[#d9782a] transition hover:text-[#d9782a] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2">
                                     {{ $storefront['email'] }}
                                 </a>
                             </div>

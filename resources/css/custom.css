@@ -105,7 +105,7 @@ body:not(.is-home-page) main button:active {
 body:not(.is-home-page) main input:focus,
 body:not(.is-home-page) main select:focus,
 body:not(.is-home-page) main textarea:focus {
-    box-shadow: 0 0 0 3px color-mix(in oklch, oklch(0.62 0.15 50) 14%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in oklch, #d9782a 14%, transparent);
 }
 
 body:not(.is-home-page) [data-product-card],
@@ -191,7 +191,7 @@ body:not(.is-home-page) main article:hover {
     left: 1rem;
     z-index: 80;
     border-radius: 9999px;
-    background: oklch(0.55 0.12 50);
+    background: #d9782a;
     color: oklch(0.99 0.006 70);
     padding: 0.75rem 1rem;
     font-size: 0.875rem;
@@ -202,7 +202,7 @@ body:not(.is-home-page) main article:hover {
 
 .site-skip-link:focus {
     transform: translateY(0);
-    outline: 2px solid oklch(0.63 0.12 50);
+    outline: 2px solid #d9782a;
     outline-offset: 3px;
 }
 
@@ -252,7 +252,7 @@ body:not(.is-home-page) main article:hover {
 .site-search [data-search-results] a:hover,
 .site-search [data-search-results] a:focus-visible {
     background-color: oklch(0.96 0.025 65);
-    color: oklch(0.52 0.12 50);
+    color: #d9782a;
     outline: none;
 }
 

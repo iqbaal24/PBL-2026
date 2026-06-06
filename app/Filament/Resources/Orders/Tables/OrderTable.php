@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Orders\Tables;
 
 use App\Filament\Resources\Orders\OrderResource;
 use App\Models\Order;
+use App\Models\StoreProfile;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -103,7 +104,7 @@ class OrderTable
                     ->label('WhatsApp')
                     ->icon('heroicon-m-chat-bubble-left-right')
                     ->color('success')
-                    ->url(fn (Order $record): string => "https://wa.me/" . preg_replace('/[^0-9]/', '', $record->customer_phone) . "?text=" . urlencode("Halo {$record->customer_name}, kami dari PBL Store ingin menginformasikan mengenai pesanan Anda #{$record->order_code}..."))
+                    ->url(fn (Order $record): string => "https://wa.me/" . preg_replace('/[^0-9]/', '', $record->customer_phone) . "?text=" . urlencode("Halo {$record->customer_name}, kami dari " . (StoreProfile::query()->value('name') ?: config('storefront.brand_name', 'Harapan Jaya Printing')) . " ingin menginformasikan pesanan Anda #{$record->order_code}."))
                     ->openUrlInNewTab(),
                 \Filament\Actions\Action::make('updateStatus')
                     ->label('Update Progress')

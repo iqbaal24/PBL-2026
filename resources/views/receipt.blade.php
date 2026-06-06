@@ -1,3 +1,32 @@
+@php
+    $storefront = config('storefront');
+
+    try {
+        $storeProfile = \App\Models\StoreProfile::query()->first();
+
+        if ($storeProfile) {
+            $storefront['brand_name'] = $storeProfile->name ?: $storefront['brand_name'];
+
+            if ($storeProfile->address) {
+                $storefront['address_lines'] = collect(preg_split('/\r\n|\r|\n/', $storeProfile->address))
+                    ->map(fn (string $line): string => trim($line))
+                    ->filter()
+                    ->values()
+                    ->all();
+            }
+
+            if ($storeProfile->whatsapp_number) {
+                $number = preg_replace('/[^0-9]/', '', $storeProfile->whatsapp_number) ?? '';
+                $storefront['whatsapp_display'] = str_starts_with($number, '62') ? '0' . substr($number, 2) : $number;
+            }
+
+            if ($storeProfile->email) {
+                $storefront['email'] = $storeProfile->email;
+            }
+        }
+    } catch (\Throwable $exception) {
+    }
+@endphp
 <!DOCTYPE html>
 <html>
 <head>
@@ -111,9 +140,11 @@
 </head>
 <body>
     <div class="header">
-        <h1>Harapan Jaya Digital Printing</h1>
-        <p>Jl. Semanggi Barat 5C Jatimulyo</p>
-        <p>WhatsApp: 082142117750 | Email: harapanjaya366@gmail.com</p>
+        <h1>{{ $storefront['brand_name'] }}</h1>
+        @foreach ($storefront['address_lines'] as $line)
+            <p>{{ $line }}</p>
+        @endforeach
+        <p>WhatsApp: {{ $storefront['whatsapp_display'] }}@if($storefront['email']) | Email: {{ $storefront['email'] }}@endif</p>
     </div>
 
     <div class="info-section">
@@ -134,6 +165,18 @@
                 <td class="info-label">WhatsApp Pembeli</td>
                 <td>: {{ $payload['whatsapp'] }}</td>
             </tr>
+            @if($payload['pickup_method'])
+                <tr>
+                    <td class="info-label">Metode Pengambilan</td>
+                    <td>: {{ $payload['pickup_method'] }}</td>
+                </tr>
+            @endif
+            @if($payload['design_file_status'])
+                <tr>
+                    <td class="info-label">Status File Desain</td>
+                    <td>: {{ $payload['design_file_status'] }}</td>
+                </tr>
+            @endif
         </table>
     </div>
 
@@ -151,7 +194,18 @@
             @foreach($payload['items'] as $item)
                 <tr>
                     <td>{{ $item['product_name'] }}</td>
-                    <td>{{ $item['specification'] ?: '-' }}</td>
+                    <td>
+                        @if($item['variant_name'])
+                            <strong>Varian:</strong> {{ $item['variant_name'] }}<br>
+                        @endif
+                        @if($item['finishing_name'])
+                            <strong>Finishing:</strong> {{ $item['finishing_name'] }}<br>
+                        @endif
+                        @if($item['size'])
+                            <strong>Ukuran:</strong> {{ $item['size'] }}<br>
+                        @endif
+                        {{ $item['specification'] ?: '-' }}
+                    </td>
                     <td class="text-right">{{ $item['quantity'] }}</td>
                     <td class="text-right">Rp {{ number_format($item['unit_price'], 0, ',', '.') }}</td>
                     <td class="text-right">Rp {{ number_format($item['subtotal'], 0, ',', '.') }}</td>
@@ -185,7 +239,7 @@
 
     <div class="footer">
         <p>Terima kasih telah mempercayakan kebutuhan cetak Anda kepada kami.</p>
-        <p>Nota ini adalah dokumen digital resmi dari sistem tracking Harapan Jaya Digital Printing.</p>
+        <p>Nota ini adalah dokumen digital resmi dari sistem tracking {{ $storefront['brand_name'] }}.</p>
     </div>
 </body>
 </html>

@@ -19,6 +19,8 @@ class OrderInfolist
                     TextEntry::make('customer_name'),
                     TextEntry::make('customer_phone')->label('WhatsApp Number')->copyable(),
                     TextEntry::make('deadline')->date()->placeholder('-'),
+                    TextEntry::make('pickup_method')->label('Pickup Method')->placeholder('-'),
+                    TextEntry::make('design_file_status')->label('Design File Status')->placeholder('-'),
                     TextEntry::make('customer_address')->placeholder('-')->columnSpanFull(),
                     TextEntry::make('admin.name')->label('Admin')->placeholder('-'),
                     TextEntry::make('created_at')->dateTime(),
@@ -29,6 +31,9 @@ class OrderInfolist
                     RepeatableEntry::make('items')
                         ->schema([
                             TextEntry::make('product_name')->label('Product'),
+                            TextEntry::make('variant_name')->label('Variant')->placeholder('-'),
+                            TextEntry::make('finishing_name')->label('Finishing')->placeholder('-'),
+                            TextEntry::make('size')->label('Size')->placeholder('-'),
                             TextEntry::make('specification')->label('Specification')->placeholder('-')->columnSpanFull(),
                             TextEntry::make('quantity'),
                             TextEntry::make('unit_price')->money('IDR')->placeholder('-'),
