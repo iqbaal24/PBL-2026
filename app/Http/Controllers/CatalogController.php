@@ -13,6 +13,7 @@ class CatalogController extends Controller
     public function index(Request $request): View
     {
         $selectedCategory = $request->string('kategori')->toString();
+        $searchQuery = $request->string('cari')->trim()->toString();
 
         $products = Product::query()
             ->where('is_active', true)
@@ -30,6 +31,14 @@ class CatalogController extends Controller
                     fn (Builder $categoryQuery) => $categoryQuery->where('slug', $selectedCategory),
                 ),
             )
+            ->when(
+                $searchQuery !== '',
+                fn (Builder $query) => $query->where(function (Builder $query) use ($searchQuery) {
+                    $query->where('name', 'like', "%{$searchQuery}%")
+                        ->orWhereHas('category', fn (Builder $query) => $query->where('name', 'like', "%{$searchQuery}%"))
+                        ->orWhereHas('activeVariants', fn (Builder $query) => $query->where('variant_name', 'like', "%{$searchQuery}%"));
+                })
+            )
             ->orderByDesc('order_items_count')
             ->latest('id')
             ->paginate(9)
@@ -40,7 +49,7 @@ class CatalogController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('katalog', compact('products', 'categories', 'selectedCategory'));
+        return view('katalog', compact('products', 'categories', 'selectedCategory', 'searchQuery'));
     }
 
     public function show(Product $product): View

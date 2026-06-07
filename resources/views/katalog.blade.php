@@ -57,28 +57,31 @@
                     <div class="rounded-sm border border-[#33302d]/10 bg-white p-5 shadow-[0_1px_0_rgb(78,52,34,0.04)]">
                         <div class="flex items-center justify-between gap-4 border-b border-[#33302d]/10 pb-4">
                             <h2 class="text-sm font-semibold text-[#33302d]">Filter katalog</h2>
-                            @if ($selectedCategory)
+                            @if ($selectedCategory || $searchQuery)
                                 <a href="{{ route('katalog.index') }}" class="text-xs font-semibold text-[#d9782a] transition hover:text-[#d9782a] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2 focus-visible:ring-offset-white">
                                     Reset
                                 </a>
                             @endif
                         </div>
 
-                        <div class="mt-5">
-                            <label class="block text-sm font-semibold text-[#33302d] mb-3">Cari cepat</label>
-                            <input data-search-input type="text" placeholder="Nama, bahan, varian..." class="h-12 w-full rounded-sm border border-[#33302d]/15 bg-white px-4 text-sm text-[#33302d] outline-none transition focus:border-[#d9782a] focus:ring-2 focus:ring-[#d9782a]/15" />
-                        </div>
+                        <form method="GET" action="{{ route('katalog.index') }}" class="mt-5 space-y-6">
+                            <div>
+                                <label class="block text-sm font-semibold text-[#33302d] mb-3">Cari cepat</label>
+                                <input type="text" name="cari" value="{{ $searchQuery }}" placeholder="Nama, bahan, varian..." class="h-12 w-full rounded-sm border border-[#33302d]/15 bg-white px-4 text-sm text-[#33302d] outline-none transition focus:border-[#d9782a] focus:ring-2 focus:ring-[#d9782a]/15" />
+                            </div>
 
-                        <form method="GET" class="mt-6 border-t border-[#33302d]/10 pt-5">
-                            <label class="block text-sm font-semibold text-[#33302d]">Kategori</label>
-                            <select name="kategori" class="mt-3 h-12 w-full rounded-sm border border-[#33302d]/15 bg-white px-4 text-sm text-[#33302d] outline-none transition focus:border-[#d9782a] focus:ring-2 focus:ring-[#d9782a]/15">
-                                <option value="">Semua Kategori</option>
-                                @foreach ($categories as $category)
-                                    <option value="{{ $category->slug }}" @selected($selectedCategory === $category->slug)>{{ $category->name }}</option>
-                                @endforeach
-                            </select>
-                            <button type="submit" class="mt-4 inline-flex h-11 w-full items-center justify-center rounded-sm bg-[#d9782a] px-5 text-sm font-semibold text-white transition hover:bg-[#d9782a] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2">
-                                Terapkan kategori
+                            <div class="border-t border-[#33302d]/10 pt-5">
+                                <label class="block text-sm font-semibold text-[#33302d]">Kategori</label>
+                                <select name="kategori" class="mt-3 h-12 w-full rounded-sm border border-[#33302d]/15 bg-white px-4 text-sm text-[#33302d] outline-none transition focus:border-[#d9782a] focus:ring-2 focus:ring-[#d9782a]/15">
+                                    <option value="">Semua Kategori</option>
+                                    @foreach ($categories as $category)
+                                        <option value="{{ $category->slug }}" @selected($selectedCategory === $category->slug)>{{ $category->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <button type="submit" class="inline-flex h-11 w-full items-center justify-center rounded-sm bg-[#d9782a] px-5 text-sm font-semibold text-white transition hover:bg-[#d9782a] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2">
+                                Terapkan filter
                             </button>
                         </form>
                     </div>
@@ -102,11 +105,9 @@
                 @forelse ($products as $product)
                     @php
                         $activeVariants = $product->activeVariants;
-                        $variantSearchText = $activeVariants->pluck('variant_name')->join(' ');
-                        $searchText = strtolower($product->name . ' ' . $product->category->name . ' ' . $variantSearchText);
                     @endphp
 
-                    <article data-product-card data-product-name="{{ strtolower($product->name) }}" data-product-search="{{ $searchText }}" data-product-category="{{ $product->category->name }}" class="group flex min-h-full flex-col overflow-hidden rounded-sm border border-[#33302d]/10 bg-white transition-all duration-300 hover:border-[#d9782a]/35">
+                    <article class="group flex min-h-full flex-col overflow-hidden rounded-sm border border-[#33302d]/10 bg-white transition-all duration-300 hover:border-[#d9782a]/35">
                         <div class="relative aspect-[4/3] overflow-hidden border-b border-[#33302d]/5 bg-white">
                             <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="absolute inset-0 h-full w-full object-cover transition duration-500 ease-out-expo group-hover:scale-[1.03]" />
                         </div>
@@ -167,23 +168,6 @@
                     </div>
                 @endforelse
             </div>
-
-                @if ($products->isNotEmpty())
-                <div data-search-empty-state hidden class="mt-6 rounded-sm border border-dashed border-[#33302d]/20 bg-white p-10 text-center text-[#33302d]/70">
-                    <h2 class="text-xl font-semibold text-[#33302d]">Tidak ada produk yang cocok</h2>
-                    <p class="mx-auto mt-3 max-w-md text-base leading-relaxed">
-                        Coba kata kunci lain, reset pencarian, atau tanya admin untuk kebutuhan bahan, ukuran, atau finishing khusus.
-                    </p>
-                    <div class="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
-                        <button type="button" data-search-reset class="inline-flex h-11 items-center justify-center rounded-sm border border-[#33302d]/15 bg-white px-5 text-sm font-semibold text-[#33302d] transition hover:border-[#d9782a]/30 hover:text-[#d9782a] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2">
-                            Reset pencarian
-                        </button>
-                        <a href="{{ route('hubungi-kami') }}" class="inline-flex h-11 items-center justify-center rounded-sm bg-[#d9782a] px-5 text-sm font-semibold text-white transition hover:bg-[#d9782a] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#d9782a] focus-visible:ring-offset-2">
-                            Tanya admin
-                        </a>
-                    </div>
-                </div>
-                @endif
 
                 @if ($products->hasPages())
                 <div class="mt-10">

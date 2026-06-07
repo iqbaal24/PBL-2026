@@ -1,10 +1,4 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const searchInput = document.querySelector('[data-search-input]');
-    const categorySelect = document.querySelector('[data-category-select]');
-    const cards = document.querySelectorAll('[data-product-card]');
-    const searchEmptyState = document.querySelector('[data-search-empty-state]');
-    const searchReset = document.querySelector('[data-search-reset]');
-    const isCatalogPage = searchInput && cards.length > 0;
     const productSearchData = document.querySelector('#product-search-data');
     const siteHeader = document.querySelector('[data-site-header]');
     const isHomePage = window.location.pathname === '/';
@@ -217,62 +211,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 setMobileMenuState(false);
             }
         });
-    }
-
-    const updateCount = function (visibleCount) {
-        const countEl = document.querySelector('[data-product-count]');
-        if (countEl) {
-            countEl.textContent = visibleCount > 0
-                ? `Menampilkan 1-${visibleCount} dari ${cards.length} produk`
-                : `Tidak ada produk yang cocok dari ${cards.length} produk`;
-        }
-    };
-
-    const filterCards = function () {
-        if (!isCatalogPage) {
-            return;
-        }
-
-        const terms = searchInput.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
-        const category = categorySelect ? categorySelect.value : 'all';
-        let visibleCount = 0;
-
-        cards.forEach(function (card) {
-            const searchableText = card.dataset.productSearch || card.dataset.productName || '';
-            const productCategory = card.dataset.productCategory || '';
-            const matchesSearch = !terms.length || terms.some((term) => searchableText.includes(term));
-            const matchesCategory = category === 'all' || productCategory === category;
-
-            if (matchesSearch && matchesCategory) {
-                card.style.display = '';
-                visibleCount += 1;
-            } else {
-                card.style.display = 'none';
-            }
-        });
-
-        updateCount(visibleCount);
-
-        if (searchEmptyState) {
-            searchEmptyState.hidden = visibleCount !== 0;
-        }
-    };
-
-    if (isCatalogPage) {
-        searchInput.addEventListener('input', filterCards);
-        if (searchReset) {
-            searchReset.addEventListener('click', function () {
-                searchInput.value = '';
-                filterCards();
-                searchInput.focus();
-            });
-        }
-
-        if (categorySelect) {
-            categorySelect.addEventListener('change', filterCards);
-        }
-
-        filterCards();
     }
 
     whatsappBuilders.forEach((builder) => {
