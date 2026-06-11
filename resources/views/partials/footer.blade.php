@@ -48,7 +48,7 @@
 
 <footer id="kontak" class="bg-[#181715] text-white pt-20 pb-12 border-t border-white/5">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid gap-10 lg:grid-cols-4">
+        <div class="grid gap-10 lg:grid-cols-5">
             <div>
                 <div class="flex items-center gap-3">
                     @if ($brandLogoUrl)
@@ -78,6 +78,12 @@
                     @foreach ($storefront['address_lines'] as $line)
                         <li>{{ $line }}</li>
                     @endforeach
+                    <li class="pt-2">
+                        <a href="{{ $storefront['maps_url'] }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-xs text-[#f0c79d] hover:text-[#e5a35d] transition-colors">
+                            <svg class="h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                            Lihat di Peta
+                        </a>
+                    </li>
                     <li class="pt-3 border-t border-white/5 text-white/80">
                         <span class="block text-xs text-[#f0c79d]/60 mb-0.5">Telepon</span>
                         {{ $storefront['phone_display'] }}
@@ -87,6 +93,21 @@
                         {{ $storefront['email'] }}
                     </li>
                 </ul>
+            </div>
+            <div>
+                <h3 class="text-sm font-semibold text-[#f0c79d] mb-5 block">Lokasi</h3>
+                <div class="overflow-hidden rounded-sm border border-white/10 h-40 relative">
+                    <iframe 
+                        src="{{ $storefront['maps_embed_url'] }}" 
+                        width="100%" 
+                        height="100%" 
+                        style="border:0;" 
+                        allowfullscreen="" 
+                        loading="lazy" 
+                        referrerpolicy="no-referrer-when-downgrade"
+                        class="w-full h-full"
+                    ></iframe>
+                </div>
             </div>
             <div>
                 <h3 class="text-sm font-semibold text-[#f0c79d] mb-5 block">Jam Operasional</h3>
@@ -100,6 +121,7 @@
                 </ul>
             </div>
         </div>
+
         <div class="mt-16 border-t border-white/5 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-white/50">
             <div>
                 &copy; {{ now()->year }} {{ $brandName }}. All rights reserved.
