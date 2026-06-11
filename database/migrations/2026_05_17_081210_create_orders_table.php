@@ -19,6 +19,8 @@ return new class extends Migration
             $table->text('customer_address')->nullable();
             $table->date('deadline')->nullable();
             $table->text('notes')->nullable();
+            $table->unsignedBigInteger('shipping_fee')->default(0);
+            $table->unsignedBigInteger('design_fee')->nullable();
             $table->decimal('total_price', 12, 2)->nullable();
             $table->decimal('paid_amount', 12, 2)->default(0);
             $table->enum('payment_status', [

@@ -1,12 +1,9 @@
 document.addEventListener('DOMContentLoaded', function () {
-    const searchInput = document.querySelector('[data-search-input]');
-    const categorySelect = document.querySelector('[data-category-select]');
-    const cards = document.querySelectorAll('[data-product-card]');
-    const searchEmptyState = document.querySelector('[data-search-empty-state]');
-    const searchReset = document.querySelector('[data-search-reset]');
-    const isCatalogPage = searchInput && cards.length > 0;
     const productSearchData = document.querySelector('#product-search-data');
     const siteHeader = document.querySelector('[data-site-header]');
+    const isHomePage = window.location.pathname === '/';
+
+    document.body.classList.toggle('is-home-page', isHomePage);
 
     const productSearchItems = (() => {
         if (!productSearchData) {
@@ -22,6 +19,48 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const headerSearchRoots = Array.from(document.querySelectorAll('[data-header-search-root]'));
     const whatsappBuilders = Array.from(document.querySelectorAll('[data-whatsapp-builder]'));
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (!isHomePage) {
+        const quietMotionTargets = [
+            ...document.querySelectorAll('main > section, main > div, main article, main aside > div, main [data-product-card], main [data-whatsapp-builder]'),
+        ];
+
+        quietMotionTargets.forEach((item) => {
+            if (!item.hasAttribute('data-reveal')) {
+                item.setAttribute('data-reveal', 'quiet');
+            }
+        });
+    }
+
+    const revealItems = Array.from(document.querySelectorAll('[data-reveal]'));
+
+    if (revealItems.length) {
+        if (prefersReducedMotion || !('IntersectionObserver' in window)) {
+            revealItems.forEach((item) => item.classList.add('is-visible'));
+        } else {
+            document.body.classList.add('reveal-ready');
+            const revealObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach((entry) => {
+                    if (!entry.isIntersecting) {
+                        return;
+                    }
+
+                    entry.target.classList.add('is-visible');
+                    observer.unobserve(entry.target);
+                });
+            }, {
+                rootMargin: '0px 0px -12% 0px',
+                threshold: 0.12,
+            });
+
+            revealItems.forEach((item, index) => {
+                const delayStep = item.dataset.reveal === 'quiet' ? 45 : 70;
+                item.style.animationDelay = `${Math.min(index % 5, 4) * delayStep}ms`;
+                revealObserver.observe(item);
+            });
+        }
+    }
 
     const renderHeaderSearch = (root, items) => {
         const searchDropdown = root.querySelector('[data-search-dropdown]');
@@ -138,7 +177,9 @@ document.addEventListener('DOMContentLoaded', function () {
         window.addEventListener('scroll', updateHeaderState, { passive: true });
 
         if (menuButton) {
-            menuButton.addEventListener('click', () => {
+            menuButton.dataset.mobileMenuBound = 'true';
+            menuButton.addEventListener('click', (event) => {
+                event.preventDefault();
                 const isOpen = siteHeader.dataset.mobileMenu === 'open';
                 setMobileMenuState(!isOpen);
             });
@@ -172,62 +213,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    const updateCount = function (visibleCount) {
-        const countEl = document.querySelector('[data-product-count]');
-        if (countEl) {
-            countEl.textContent = visibleCount > 0
-                ? `Menampilkan 1-${visibleCount} dari ${cards.length} produk`
-                : `Tidak ada produk yang cocok dari ${cards.length} produk`;
-        }
-    };
-
-    const filterCards = function () {
-        if (!isCatalogPage) {
-            return;
-        }
-
-        const terms = searchInput.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
-        const category = categorySelect ? categorySelect.value : 'all';
-        let visibleCount = 0;
-
-        cards.forEach(function (card) {
-            const searchableText = card.dataset.productSearch || card.dataset.productName || '';
-            const productCategory = card.dataset.productCategory || '';
-            const matchesSearch = !terms.length || terms.some((term) => searchableText.includes(term));
-            const matchesCategory = category === 'all' || productCategory === category;
-
-            if (matchesSearch && matchesCategory) {
-                card.style.display = '';
-                visibleCount += 1;
-            } else {
-                card.style.display = 'none';
-            }
-        });
-
-        updateCount(visibleCount);
-
-        if (searchEmptyState) {
-            searchEmptyState.hidden = visibleCount !== 0;
-        }
-    };
-
-    if (isCatalogPage) {
-        searchInput.addEventListener('input', filterCards);
-        if (searchReset) {
-            searchReset.addEventListener('click', function () {
-                searchInput.value = '';
-                filterCards();
-                searchInput.focus();
-            });
-        }
-
-        if (categorySelect) {
-            categorySelect.addEventListener('change', filterCards);
-        }
-
-        filterCards();
-    }
-
     whatsappBuilders.forEach((builder) => {
         const cta = builder.querySelector('[data-whatsapp-cta]');
         if (!cta) {
@@ -236,10 +221,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const productName = builder.dataset.productName || '';
         const productCategory = builder.dataset.productCategory || '';
+        const brandName = builder.dataset.brandName || 'Harapan Jaya Printing';
         const number = builder.dataset.whatsappNumber || '';
+        const customerField = builder.querySelector('[data-whatsapp-customer]');
         const variantField = builder.querySelector('[data-whatsapp-variant]');
         const quantityField = builder.querySelector('[data-whatsapp-quantity]');
         const sizeField = builder.querySelector('[data-whatsapp-size]');
+        const finishingField = builder.querySelector('[data-whatsapp-finishing]');
+        const fileStatusField = builder.querySelector('[data-whatsapp-file-status]');
+        const pickupField = builder.querySelector('[data-whatsapp-pickup]');
         const noteField = builder.querySelector('[data-whatsapp-note]');
         const preview = builder.querySelector('[data-whatsapp-preview]');
         const priceLabel = builder.querySelector('[data-whatsapp-price]');
@@ -248,18 +238,28 @@ document.addEventListener('DOMContentLoaded', function () {
             const selectedVariant = variantField ? variantField.options[variantField.selectedIndex] : null;
             const variantLabel = selectedVariant ? selectedVariant.dataset.variantLabel || selectedVariant.textContent.trim() : 'Belum dipilih';
             const variantPrice = selectedVariant ? selectedVariant.dataset.variantPrice || '' : '';
+            const priceText = variantPrice || (priceLabel ? priceLabel.dataset.fallback || '' : '');
+            const customer = customerField && customerField.value.trim() ? customerField.value.trim() : '';
             const quantity = quantityField && quantityField.value ? quantityField.value : 'Belum ditentukan';
             const size = sizeField && sizeField.value.trim() ? sizeField.value.trim() : 'Belum ditentukan';
-            const note = noteField && noteField.value.trim() ? noteField.value.trim() : 'Tidak ada catatan tambahan';
+            const selectedFinishing = finishingField ? finishingField.options[finishingField.selectedIndex] : null;
+            const finishingText = selectedFinishing ? selectedFinishing.dataset.finishingLabel || selectedFinishing.textContent.trim() : '';
+            const fileStatus = fileStatusField && fileStatusField.value ? fileStatusField.value : 'Belum ditentukan';
+            const pickup = pickupField && pickupField.value ? pickupField.value : 'Belum ditentukan';
+            const note = noteField && noteField.value.trim() ? noteField.value.trim() : 'Tidak ada detail tambahan';
             const lines = [
-                'Halo Harapan Jaya Printing, saya ingin pesan produk berikut:',
+                `Halo ${brandName}, saya ingin pesan produk berikut:`,
+                customer ? `Nama: ${customer}` : null,
                 `Produk: ${productName}`,
                 productCategory ? `Kategori: ${productCategory}` : null,
                 `Varian: ${variantLabel}`,
                 `Jumlah perkiraan: ${quantity}`,
                 `Ukuran: ${size}`,
-                variantPrice ? `Harga acuan: ${variantPrice}` : null,
-                `Catatan: ${note}`,
+                finishingText ? `Finishing: ${finishingText}` : null,
+                `Status file desain: ${fileStatus}`,
+                `Metode pengambilan: ${pickup}`,
+                priceText ? `Harga acuan: ${priceText}` : null,
+                `Detail kebutuhan: ${note}`,
                 'Mohon bantu proses pemesanan dan konfirmasi detail finalnya.',
             ].filter(Boolean);
 
@@ -270,11 +270,11 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             if (priceLabel) {
-                priceLabel.textContent = variantPrice || priceLabel.dataset.fallback || 'Harga dikonfirmasi di WhatsApp';
+                priceLabel.textContent = priceText || 'Harga dikonfirmasi di WhatsApp';
             }
         };
 
-        [variantField, quantityField, sizeField, noteField].forEach((field) => {
+        [customerField, variantField, quantityField, sizeField, finishingField, fileStatusField, pickupField, noteField].forEach((field) => {
             if (!field) {
                 return;
             }
@@ -290,45 +290,20 @@ document.addEventListener('DOMContentLoaded', function () {
     const carouselTrack = document.querySelector('[data-carousel-track]');
     const carouselPrev = document.querySelector('[data-carousel-prev]');
     const carouselNext = document.querySelector('[data-carousel-next]');
-    const carouselProgress = document.querySelector('[data-carousel-progress]');
-    const carouselCounter = document.querySelector('[data-carousel-counter]');
 
     if (carouselTrack && carouselTrack.firstElementChild) {
-        const totalSlides = carouselTrack.children.length;
-
         const updateCarouselState = () => {
             const maxScrollLeft = carouselTrack.scrollWidth - carouselTrack.clientWidth;
             const scrollLeft = carouselTrack.scrollLeft;
-            
-            // Calculate progress percentage
-            const percentage = maxScrollLeft > 0 ? (scrollLeft / maxScrollLeft) * 100 : 0;
-            if (carouselProgress) {
-                carouselProgress.style.width = `${percentage}%`;
-            }
 
-            // Update button disabled state
             if (carouselPrev) {
                 carouselPrev.disabled = scrollLeft <= 8;
             }
             if (carouselNext) {
                 carouselNext.disabled = scrollLeft >= maxScrollLeft - 8;
             }
-
-            // Update counter
-            if (carouselCounter) {
-                const cardWidth = carouselTrack.firstElementChild.getBoundingClientRect().width;
-                const style = window.getComputedStyle(carouselTrack);
-                const gap = parseFloat(style.columnGap || style.gap) || 24;
-                const step = cardWidth + gap;
-                const currentIndex = Math.min(
-                    totalSlides,
-                    Math.max(1, Math.round(scrollLeft / step) + 1)
-                );
-                carouselCounter.textContent = `Slide ${currentIndex} / ${totalSlides}`;
-            }
         };
 
-        // Scroll action
         const scrollCarousel = (direction) => {
             const cardWidth = carouselTrack.firstElementChild.getBoundingClientRect().width;
             const style = window.getComputedStyle(carouselTrack);
@@ -341,107 +316,30 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         };
 
-        // Autoplay Logic (Delayed step scroll every 3 seconds)
-        let autoplayInterval = null;
-        let isHovered = false;
-        let isDragging = false;
-        let isFocused = false;
-
-        const shouldAutoplay = () => !isHovered && !isDragging && !isFocused;
-
-        const startAutoplay = () => {
-            stopAutoplay();
-            if (!shouldAutoplay()) return;
-            autoplayInterval = setInterval(() => {
-                const maxScrollLeft = carouselTrack.scrollWidth - carouselTrack.clientWidth;
-                const scrollLeft = carouselTrack.scrollLeft;
-                
-                if (scrollLeft >= maxScrollLeft - 10) {
-                    // Smoothly scroll back to start
-                    carouselTrack.scrollTo({
-                        left: 0,
-                        behavior: 'smooth'
-                    });
-                } else {
-                    scrollCarousel(1);
-                }
-            }, 3000); // 3 seconds delay
-        };
-
-        const stopAutoplay = () => {
-            if (autoplayInterval) {
-                clearInterval(autoplayInterval);
-                autoplayInterval = null;
-            }
-        };
-
         if (carouselPrev) {
             carouselPrev.addEventListener('click', () => {
                 scrollCarousel(-1);
-                startAutoplay();
-            });
-            carouselPrev.addEventListener('mouseenter', () => {
-                isHovered = true;
-                stopAutoplay();
-            });
-            carouselPrev.addEventListener('mouseleave', () => {
-                isHovered = false;
-                startAutoplay();
             });
         }
         if (carouselNext) {
             carouselNext.addEventListener('click', () => {
                 scrollCarousel(1);
-                startAutoplay();
-            });
-            carouselNext.addEventListener('mouseenter', () => {
-                isHovered = true;
-                stopAutoplay();
-            });
-            carouselNext.addEventListener('mouseleave', () => {
-                isHovered = false;
-                startAutoplay();
             });
         }
 
-        // Hover & Focus events on the carousel track to pause autoplay
-        carouselTrack.addEventListener('mouseenter', () => {
-            isHovered = true;
-            stopAutoplay();
-        });
-        carouselTrack.addEventListener('mouseleave', () => {
-            isHovered = false;
-            startAutoplay();
-        });
-        carouselTrack.addEventListener('focus', () => {
-            isFocused = true;
-            stopAutoplay();
-        }, { passive: true });
-        carouselTrack.addEventListener('blur', () => {
-            isFocused = false;
-            startAutoplay();
-        }, { passive: true });
-
-        // Listen to scroll events to update progress indicator and slide counts
         carouselTrack.addEventListener('scroll', updateCarouselState, { passive: true });
-        
-        // Initial state update
         updateCarouselState();
-        
-        // Update on resize
         window.addEventListener('resize', updateCarouselState, { passive: true });
 
-        // Keyboard navigation
         carouselTrack.setAttribute('tabindex', '0');
+        carouselTrack.setAttribute('aria-label', 'Katalog produk pilihan. Gunakan panah kiri dan kanan untuk berpindah produk.');
         carouselTrack.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowLeft') {
                 e.preventDefault();
                 scrollCarousel(-1);
-                startAutoplay();
             } else if (e.key === 'ArrowRight') {
                 e.preventDefault();
                 scrollCarousel(1);
-                startAutoplay();
             }
         });
 
@@ -454,8 +352,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         carouselTrack.addEventListener('pointerdown', (e) => {
             isDown = true;
-            isDragging = true;
-            stopAutoplay();
             carouselTrack.classList.replace('cursor-grab', 'cursor-grabbing');
             startX = e.pageX - carouselTrack.offsetLeft;
             scrollLeftVal = carouselTrack.scrollLeft;
@@ -476,7 +372,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const stopDragging = (e) => {
             if (!isDown) return;
             isDown = false;
-            isDragging = false;
             carouselTrack.classList.replace('cursor-grabbing', 'cursor-grab');
             carouselTrack.releasePointerCapture(e.pointerId);
             
@@ -489,15 +384,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 };
                 carouselTrack.addEventListener('click', preventClick, true);
             }
-
-            // Resume autoplay
-            startAutoplay();
         };
 
         carouselTrack.addEventListener('pointerup', stopDragging);
         carouselTrack.addEventListener('pointercancel', stopDragging);
-
-        // Start autoplay on load
-        startAutoplay();
     }
 });

@@ -19,6 +19,6 @@ class EditStoreProfile extends EditRecord
 
     protected function getRedirectUrl(): string
     {
-        return static::getResource()::getUrl('index');
+        return static::getResource()::getUrl('edit', ['record' => $this->record]);
     }
 }

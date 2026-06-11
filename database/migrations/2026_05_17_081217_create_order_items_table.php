@@ -18,21 +18,12 @@ return new class extends Migration
                 ->nullable()
                 ->constrained()
                 ->nullOnDelete();
-            $table->foreignId('product_variant_id')
-                ->nullable()
-                ->constrained()
-                ->nullOnDelete();
-            $table->foreignId('product_finishing_id')
-                ->nullable()
-                ->constrained()
-                ->nullOnDelete();
             $table->string('product_name');
-            $table->string('variant_name')->nullable();
-            $table->string('finishing_name')->nullable();
+            $table->text('specification');
             $table->integer('quantity')->default(1);
-            $table->decimal('unit_price', 12, 2)->nullable();
-            $table->decimal('subtotal', 12, 2)->nullable();
-            $table->text('specification')->nullable();
+            $table->unsignedBigInteger('unit_price')->default(0);
+            $table->unsignedBigInteger('subtotal')->default(0);
+            $table->text('general_notes')->nullable();
             $table->timestamps();
         });
     }

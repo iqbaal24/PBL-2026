@@ -30,9 +30,10 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
+            ->brandName('Harapan Jaya Admin')
             ->brandLogo(asset('images/logo-hj.png'))
             ->brandLogoHeight('80px')
-            ->favicon(asset('favicon.ico'))
+            ->favicon(asset('images/logo-hj.png'))
             ->login(\App\Filament\Pages\Auth\Login::class)
             ->colors([
                 'primary' => Color::Indigo,

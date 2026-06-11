@@ -13,14 +13,17 @@ class CatalogController extends Controller
     public function index(Request $request): View
     {
         $selectedCategory = $request->string('kategori')->toString();
+        $searchQuery = $request->string('cari')->trim()->toString();
 
         $products = Product::query()
+            ->where('is_active', true)
             ->with([
                 'category:id,name,slug',
-                'activeVariants:id,product_id,variant_name,price,weight,stock_status',
+                'activeVariants:id,product_id,variant_name',
             ])
             ->withAvg(['reviews as visible_reviews_avg_rating' => fn (Builder $query) => $query->where('is_visible', true)], 'rating')
             ->withCount(['reviews as visible_reviews_count' => fn (Builder $query) => $query->where('is_visible', true)])
+            ->withCount('orderItems')
             ->when(
                 $selectedCategory !== '',
                 fn (Builder $query) => $query->whereHas(
@@ -28,6 +31,15 @@ class CatalogController extends Controller
                     fn (Builder $categoryQuery) => $categoryQuery->where('slug', $selectedCategory),
                 ),
             )
+            ->when(
+                $searchQuery !== '',
+                fn (Builder $query) => $query->where(function (Builder $query) use ($searchQuery) {
+                    $query->where('name', 'like', "%{$searchQuery}%")
+                        ->orWhereHas('category', fn (Builder $query) => $query->where('name', 'like', "%{$searchQuery}%"))
+                        ->orWhereHas('activeVariants', fn (Builder $query) => $query->where('variant_name', 'like', "%{$searchQuery}%"));
+                })
+            )
+            ->orderByDesc('order_items_count')
             ->latest('id')
             ->paginate(9)
             ->withQueryString();
@@ -37,14 +49,17 @@ class CatalogController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('katalog', compact('products', 'categories', 'selectedCategory'));
+        return view('katalog', compact('products', 'categories', 'selectedCategory', 'searchQuery'));
     }
 
     public function show(Product $product): View
     {
+        abort_unless($product->is_active, 404);
+
         $product->load([
             'category:id,name,slug',
-            'activeVariants:id,product_id,variant_name,price,weight,stock_status',
+            'activeVariants:id,product_id,variant_name',
+            'activeFinishings:id,product_id,name,description',
             'reviews' => fn ($query) => $query
                 ->where('is_visible', true)
                 ->latest()

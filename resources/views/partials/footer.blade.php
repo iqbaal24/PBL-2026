@@ -1,64 +1,146 @@
 @php
     $storefront = config('storefront');
-    $brandName = config('storefront.brand_name', 'Harapan Jaya Printing');
-    $brandLogoUrl = null;
+    $storefront['logo_url'] = null;
+    $storefront['about'] = null;
 
     try {
-        $storeProfile = \App\Models\StoreProfile::query()->first(['name', 'logo']);
-        if ($storeProfile?->name) {
-            $brandName = $storeProfile->name;
-        }
-        if ($storeProfile?->logo) {
-            $brandLogoUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($storeProfile->logo);
+        $storeProfile = \App\Models\StoreProfile::query()->first();
+
+        if ($storeProfile) {
+            $storefront['brand_name'] = $storeProfile->name ?: $storefront['brand_name'];
+            $storefront['about'] = $storeProfile->about;
+
+            if ($storeProfile->address) {
+                $storefront['address_lines'] = collect(preg_split('/\r\n|\r|\n/', $storeProfile->address))
+                    ->map(fn (string $line): string => trim($line))
+                    ->filter()
+                    ->values()
+                    ->all();
+            }
+
+            if ($storeProfile->maps_url) {
+                $storefront['maps_url'] = $storeProfile->maps_url;
+
+                if (!$storeProfile->maps_embed_url) {
+                    if (preg_match('/!3d([^!]+)!4d([^!]+)/', $storeProfile->maps_url, $coordinates)
+                        || preg_match('/@([^,]+),([^,]+),/', $storeProfile->maps_url, $coordinates)) {
+                        $point = $coordinates[1] . ',' . $coordinates[2];
+                        $storefront['maps_embed_url'] = 'https://www.google.com/maps?q=' . rawurlencode($point) . '&z=17&output=embed';
+                    }
+                }
+            }
+
+            if ($storeProfile->maps_embed_url) {
+                $storefront['maps_embed_url'] = $storeProfile->maps_embed_url;
+            }
+
+            if ($storeProfile->whatsapp_number) {
+                $number = preg_replace('/[^0-9]/', '', $storeProfile->whatsapp_number) ?? '';
+                $displayNumber = str_starts_with($number, '62') ? '0' . substr($number, 2) : $number;
+
+                if (str_starts_with($number, '0')) {
+                    $number = '62' . substr($number, 1);
+                }
+
+                $storefront['whatsapp_number'] = $number;
+                $storefront['whatsapp_display'] = $displayNumber;
+                $storefront['phone_display'] = $displayNumber;
+            }
+
+            if ($storeProfile->email) {
+                $storefront['email'] = $storeProfile->email;
+            }
+
+            if ($storeProfile->logo) {
+                $storefront['logo_url'] = \Illuminate\Support\Facades\Storage::disk('public')->url($storeProfile->logo);
+            }
+
+            if ($storeProfile->instagram_url) {
+                $storefront['instagram_url'] = $storeProfile->instagram_url;
+            }
         }
     } catch (\Throwable $exception) {
     }
+
+    $brandName = $storefront['brand_name'] ?? 'Harapan Jaya Printing';
+    $brandLogoUrl = $storefront['logo_url'] ?? null;
 @endphp
 
-<footer id="kontak" class="bg-[#1b120d] text-white pt-20 pb-12 border-t border-white/5">
+<footer id="kontak" class="bg-[#181715] text-white pt-20 pb-12 border-t border-white/5">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid gap-10 lg:grid-cols-4">
+        <div class="grid gap-10 lg:grid-cols-5">
             <div>
                 <div class="flex items-center gap-3">
                     @if ($brandLogoUrl)
                         <img src="{{ $brandLogoUrl }}" alt="{{ $brandName }}" class="h-10 w-10 flex-shrink-0 rounded-sm object-cover bg-white" />
                     @endif
-                    <span class="text-xl font-semibold text-white tracking-tight">
-                        Harapan Jaya <span class="text-[#ffbf5a]">Printing</span>
+                    <span class="text-lg font-semibold text-white tracking-tight">
+                        {{ $brandName }}
                     </span>
                 </div>
                 <p class="mt-5 text-sm leading-relaxed text-white/70 max-w-sm font-normal">
-                    Solusi cetak digital terpercaya untuk kebutuhan bisnis dan pribadi Anda. Berkualitas, transparan, dan responsif.
+                    Cetak digital praktis untuk kebutuhan bisnis, acara, dan pribadi.
                 </p>
+                @if ($storefront['instagram_url'] ?? null)
+                    <div class="mt-6">
+                        <a href="{{ $storefront['instagram_url'] }}" target="_blank" rel="noopener noreferrer" class="group inline-flex items-center gap-2.5 text-sm text-white/60 hover:text-[#f0c79d] transition-all duration-300">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-sm bg-white/5 border border-white/10 group-hover:border-[#f0c79d]/30 group-hover:bg-white/10 transition-all">
+                                <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                            </div>
+                            <span class="font-medium">Instagram</span>
+                        </a>
+                    </div>
+                @endif
             </div>
             <div>
-                <h3 class="text-sm font-semibold text-[#ffe1b0] mb-5 block">Navigasi</h3>
+                <h3 class="text-sm font-semibold text-[#f0c79d] mb-5 block">Navigasi</h3>
                 <ul class="space-y-3 text-sm text-white/70">
-                    <li><a href="{{ url('/') }}" class="transition-colors hover:text-[#ffbf5a]">Beranda</a></li>
-                    <li><a href="{{ url('/katalog') }}" class="transition-colors hover:text-[#ffbf5a]">Katalog</a></li>
-                    <li><a href="{{ url('/panduan') }}" class="transition-colors hover:text-[#ffbf5a]">Panduan</a></li>
-                    <li><a href="{{ route('track-order') }}" class="transition-colors hover:text-[#ffbf5a]">Lacak Pesanan</a></li>
-                    <li><a href="{{ url('/hubungi-kami') }}" class="transition-colors hover:text-[#ffbf5a]">Hubungi Kami</a></li>
+                    <li><a href="{{ url('/') }}" class="transition-colors hover:text-[#e5a35d]">Beranda</a></li>
+                    <li><a href="{{ url('/katalog') }}" class="transition-colors hover:text-[#e5a35d]">Katalog</a></li>
+                    <li><a href="{{ url('/panduan') }}" class="transition-colors hover:text-[#e5a35d]">Panduan</a></li>
+                    <li><a href="{{ route('track-order') }}" class="transition-colors hover:text-[#e5a35d]">Lacak Pesanan</a></li>
+                    <li><a href="{{ url('/hubungi-kami') }}" class="transition-colors hover:text-[#e5a35d]">Hubungi Kami</a></li>
                 </ul>
             </div>
             <div>
-                <h3 class="text-sm font-semibold text-[#ffe1b0] mb-5 block">Kontak</h3>
+                <h3 class="text-sm font-semibold text-[#f0c79d] mb-5 block">Kontak</h3>
                 <ul class="space-y-3 text-sm text-white/70 leading-relaxed">
                     @foreach ($storefront['address_lines'] as $line)
                         <li>{{ $line }}</li>
                     @endforeach
+                    <li class="pt-2">
+                        <a href="{{ $storefront['maps_url'] }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 text-xs text-[#f0c79d] hover:text-[#e5a35d] transition-colors">
+                            <svg class="h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                            Lihat di Peta
+                        </a>
+                    </li>
                     <li class="pt-3 border-t border-white/5 text-white/80">
-                        <span class="block text-xs text-[#ffe1b0]/60 mb-0.5">Telepon</span>
+                        <span class="block text-xs text-[#f0c79d]/60 mb-0.5">Telepon</span>
                         {{ $storefront['phone_display'] }}
                     </li>
                     <li class="text-white/80">
-                        <span class="block text-xs text-[#ffe1b0]/60 mb-0.5">Email</span>
+                        <span class="block text-xs text-[#f0c79d]/60 mb-0.5">Email</span>
                         {{ $storefront['email'] }}
                     </li>
                 </ul>
             </div>
             <div>
-                <h3 class="text-sm font-semibold text-[#ffe1b0] mb-5 block">Jam Operasional</h3>
+                <h3 class="text-sm font-semibold text-[#f0c79d] mb-5 block">Lokasi</h3>
+                <div class="overflow-hidden rounded-sm border border-white/10 h-40 relative">
+                    <iframe 
+                        src="{{ $storefront['maps_embed_url'] }}" 
+                        width="100%" 
+                        height="100%" 
+                        style="border:0;" 
+                        allowfullscreen="" 
+                        loading="lazy" 
+                        referrerpolicy="no-referrer-when-downgrade"
+                        class="w-full h-full"
+                    ></iframe>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-sm font-semibold text-[#f0c79d] mb-5 block">Jam Operasional</h3>
                 <ul class="space-y-3 text-sm text-white/70">
                     @foreach ($storefront['hours'] as $hour)
                         <li class="flex justify-between gap-4">
@@ -69,9 +151,10 @@
                 </ul>
             </div>
         </div>
+
         <div class="mt-16 border-t border-white/5 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-white/50">
             <div>
-                &copy; 2026 Harapan Jaya Printing. All rights reserved.
+                &copy; {{ now()->year }} {{ $brandName }}. All rights reserved.
             </div>
             <div class="flex items-center gap-2 text-xs text-white/30">
                 <span>Digital &amp; Offset Printing</span>

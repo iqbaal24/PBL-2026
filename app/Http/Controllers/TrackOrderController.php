@@ -16,10 +16,11 @@ use Illuminate\Validation\Rule;
 class TrackOrderController extends Controller
 {
     private const PUBLIC_STAGES = [
-        'pending' => ['label' => 'Pending', 'description' => 'Pesanan tercatat dan menunggu proses berikutnya.'],
-        'design' => ['label' => 'Proses Desain', 'description' => 'Tim sedang menyiapkan atau menyesuaikan desain pesanan Anda.'],
-        'printing' => ['label' => 'Dicetak', 'description' => 'Pesanan sedang diproses di tahap produksi cetak.'],
-        'completed' => ['label' => 'Selesai', 'description' => 'Pesanan selesai dan siap diambil.'],
+        'pending' => ['label' => 'Menunggu', 'description' => 'Pesanan tercatat dan menunggu konfirmasi admin.'],
+        'confirmed' => ['label' => 'Dikonfirmasi', 'description' => 'Pesanan sudah dikonfirmasi dan siap masuk proses produksi.'],
+        'production' => ['label' => 'Produksi', 'description' => 'Pesanan sedang dikerjakan oleh tim produksi.'],
+        'ready' => ['label' => 'Siap Diambil', 'description' => 'Pesanan selesai diproduksi dan siap diambil atau dikirim.'],
+        'completed' => ['label' => 'Selesai', 'description' => 'Pesanan sudah selesai. Terima kasih telah memesan.'],
     ];
 
     public function index()
@@ -39,24 +40,23 @@ class TrackOrderController extends Controller
     {
         $formData = $request->validate([
             'order_number' => ['required', 'string', 'max:255'],
-            'whatsapp_number' => ['required', 'string', 'max:30'],
         ]);
 
         $order = Order::query()
             ->with([
-                'items:id,order_id,product_id,product_name,variant_name,quantity,subtotal',
+                'items:id,order_id,product_id,product_name,variant_name,finishing_name,size,specification,quantity,unit_price,subtotal',
                 'statusHistories:id,order_id,status,note,created_at',
             ])
             ->whereRaw('LOWER(order_code) = ?', [Str::lower(trim($formData['order_number']))])
             ->first();
 
-        if (! $order || ! $this->phonesMatch($order->customer_phone, $formData['whatsapp_number'])) {
+        if (! $order) {
             return view('track-order', [
                 'formData' => $formData,
                 'lookupState' => 'error',
                 'lookupError' => [
                     'title' => 'Pesanan tidak ditemukan',
-                    'message' => 'Nomor pesanan atau nomor WhatsApp tidak cocok. Periksa kembali lalu coba lagi.',
+                    'message' => 'Nomor pesanan tidak cocok. Periksa kembali lalu coba lagi.',
                 ],
                 'result' => null,
             ]);
@@ -70,85 +70,43 @@ class TrackOrderController extends Controller
         ]);
     }
 
-    public function receipt(Request $request, Order $order): Response
+    public function receipt(Order $order)
     {
-        $validated = $request->validate([
-            'wa' => ['required', 'string', 'max:30'],
-        ]);
-
-        abort_unless($this->phonesMatch($order->customer_phone, $validated['wa']), 404);
-
         $payload = $this->buildTrackingPayload($order->loadMissing([
-            'items:id,order_id,product_id,product_name,variant_name,quantity,subtotal',
+            'items:id,order_id,product_id,product_name,variant_name,finishing_name,size,specification,quantity,unit_price,subtotal',
             'statusHistories:id,order_id,status,note,created_at',
         ]));
 
-        $lines = [
-            'Harapan Jaya Printing',
-            'Digital Receipt',
-            '',
-            'Order Number: ' . $payload['order_number'],
-            'Customer WA: ' . $payload['whatsapp'],
-            'Current Status: ' . $payload['current_status']['label'],
-            'Last Update: ' . $payload['last_updated'],
-            '',
-            'Product Summary:',
-        ];
-
-        foreach ($payload['items'] as $item) {
-            $lines[] = sprintf(
-                '- %s | %s | Qty %d',
-                $item['product_name'],
-                $item['variant_name'],
-                $item['quantity']
-            );
-        }
-
-        $lines[] = '';
-        $lines[] = 'Production Timeline:';
-
-        foreach ($payload['timeline'] as $step) {
-            $prefix = match ($step['state']) {
-                'done' => '[x]',
-                'current' => '[>]',
-                'exception' => '[!]',
-                default => '[ ]',
-            };
-
-            $lines[] = $prefix . ' ' . $step['label'] . ' - ' . $step['description'];
-        }
-
-        $pdf = $this->renderSimplePdf($lines);
-
-        return response($pdf, 200, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="receipt-' . $payload['order_number'] . '.pdf"',
-            'Content-Length' => strlen($pdf),
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('receipt', [
+            'payload' => $payload,
         ]);
+
+        return $pdf->download('receipt-' . $payload['order_number'] . '.pdf');
     }
 
     public function storeReview(Request $request, Order $order)
     {
         $order->loadMissing([
-            'items:id,order_id,product_id,product_name,variant_name,quantity,subtotal',
+            'items:id,order_id,product_id,product_name,variant_name,finishing_name,size,specification,quantity,unit_price,subtotal',
             'reviews:id,order_id,product_id',
             'statusHistories:id,order_id,status,note,created_at',
         ]);
 
         $formData = [
             'order_number' => $order->order_code,
-            'whatsapp_number' => (string) $request->input('whatsapp_number', ''),
         ];
 
-        if (! $this->phonesMatch($order->customer_phone, $formData['whatsapp_number'])) {
+        if ($this->normalizeStatus($order->status) !== 'completed') {
+            $validator = Validator::make([], []);
+            $validator->errors()->add('rating', 'Review hanya bisa diberikan setelah pesanan selesai.');
+
             return view('track-order', [
                 'formData' => $formData,
-                'lookupState' => 'error',
-                'lookupError' => [
-                    'title' => 'Akses review tidak valid',
-                    'message' => 'Nomor WhatsApp tidak cocok dengan pesanan ini. Lacak ulang pesanan sebelum mengirim review.',
-                ],
-                'result' => null,
+                'lookupState' => 'success',
+                'lookupError' => null,
+                'result' => $this->buildTrackingPayload($order),
+                'reviewInput' => $request->only(['product_id', 'rating', 'comment']),
+                'errors' => (new ViewErrorBag())->put('default', $validator->errors()),
             ]);
         }
 
@@ -162,7 +120,6 @@ class TrackOrderController extends Controller
             'product_id' => ['required', 'integer', Rule::in($reviewableProductIds->all())],
             'rating' => ['required', 'integer', 'min:1', 'max:5'],
             'comment' => ['required', 'string', 'min:10', 'max:1000'],
-            'whatsapp_number' => ['required', 'string', 'max:30'],
         ], [
             'product_id.required' => 'Pilih produk yang ingin diberi review.',
             'product_id.in' => 'Produk yang dipilih tidak ada di pesanan ini.',
@@ -214,7 +171,7 @@ class TrackOrderController extends Controller
             'lookupState' => 'success',
             'lookupError' => null,
             'result' => $this->buildTrackingPayload($order->refresh()->load([
-                'items:id,order_id,product_id,product_name,variant_name,quantity,subtotal',
+                'items:id,order_id,product_id,product_name,variant_name,finishing_name,size,specification,quantity,unit_price,subtotal',
                 'reviews:id,order_id,product_id',
                 'statusHistories:id,order_id,status,note,created_at',
             ])),
@@ -238,10 +195,19 @@ class TrackOrderController extends Controller
                 'product_id' => $item->product_id,
                 'product_name' => $item->product_name,
                 'variant_name' => $item->variant_name,
+                'finishing_name' => $item->finishing_name,
+                'size' => $item->size,
+                'specification' => $item->specification,
                 'quantity' => $item->quantity,
-                'subtotal' => (float) $item->subtotal,
+                'unit_price' => (int) $item->unit_price,
+                'subtotal' => (int) $item->subtotal,
             ];
         })->values()->all();
+        $itemSubtotal = array_sum(array_column($items, 'subtotal'));
+        $totalPrice = (float) $order->total_price;
+        $shippingFee = (int) $order->shipping_fee;
+        $designFee = (int) $order->design_fee;
+        $currentStatus = $this->normalizeStatus($order->status);
 
         $reviewedProductIds = $order->reviews
             ->pluck('product_id')
@@ -256,7 +222,6 @@ class TrackOrderController extends Controller
                 return [
                     'product_id' => (int) $productId,
                     'product_name' => $items->first()->product_name,
-                    'variants' => $items->pluck('variant_name')->filter()->unique()->values()->implode(', '),
                     'has_review' => $reviewedProductIds->contains((int) $productId),
                 ];
             })
@@ -267,13 +232,21 @@ class TrackOrderController extends Controller
             'id' => $order->id,
             'order_number' => $order->order_code,
             'whatsapp' => $order->customer_phone,
+            'pickup_method' => $order->pickup_method,
+            'design_file_status' => $order->design_file_status,
             'current_status' => [
                 'label' => $currentStep['label'],
                 'description' => $currentStep['description'],
                 'tone' => $currentStep['tone'],
             ],
             'last_updated' => $this->formatDateTime($histories->last()?->created_at ?? $order->updated_at),
+            'item_subtotal' => $itemSubtotal,
+            'shipping_fee' => $shippingFee,
+            'design_fee' => $designFee,
+            'additional_cost' => $shippingFee + $designFee,
+            'total_price' => $totalPrice,
             'items' => $items,
+            'review_enabled' => $currentStatus === 'completed',
             'reviewable_products' => $reviewableProducts,
             'timeline' => $timeline,
         ];
@@ -289,17 +262,17 @@ class TrackOrderController extends Controller
 
         $current = $this->normalizeStatus($currentStatus);
 
-        if (in_array($current, ['canceled', 'attention'], true)) {
+        if (in_array($current, ['cancelled', 'attention'], true)) {
             return [
                 ...$this->baseTimeline($normalizedHistory, null),
                 [
                     'key' => $current,
-                    'label' => $current === 'canceled' ? 'Dibatalkan' : 'Perlu Perhatian',
-                    'description' => $current === 'canceled'
+                    'label' => $current === 'cancelled' ? 'Dibatalkan' : 'Perlu Perhatian',
+                    'description' => $current === 'cancelled'
                         ? 'Pesanan dibatalkan. Silakan hubungi tim kami bila Anda membutuhkan bantuan lanjutan.'
                         : 'Pesanan memerlukan konfirmasi tambahan dari tim kami.',
                     'state' => 'exception',
-                    'tone' => $current === 'canceled' ? 'danger' : 'warning',
+                    'tone' => $current === 'cancelled' ? 'danger' : 'warning',
                 ],
             ];
         }
@@ -338,10 +311,11 @@ class TrackOrderController extends Controller
     {
         return match (Str::lower((string) $status)) {
             'pending', 'created', 'new', 'paid' => 'pending',
-            'confirmed', 'design', 'designing', 'proses desain', 'design_review' => 'design',
-            'printing', 'dicetak', 'production', 'produksi' => 'printing',
-            'ready', 'completed', 'done', 'ready_pickup', 'pickup_ready', 'selesai', 'delivered' => 'completed',
-            'cancelled', 'canceled' => 'canceled',
+            'confirmed', 'design', 'designing', 'proses desain', 'design_review' => 'confirmed',
+            'production', 'produksi', 'printing', 'dicetak' => 'production',
+            'ready', 'ready_pickup', 'pickup_ready', 'siap diambil' => 'ready',
+            'completed', 'done', 'selesai', 'delivered' => 'completed',
+            'cancelled', 'canceled' => 'cancelled',
             'attention', 'needs_attention', 'hold', 'problem' => 'attention',
             default => null,
         };
@@ -358,64 +332,5 @@ class TrackOrderController extends Controller
         }
 
         return '-';
-    }
-
-    private function phonesMatch(string $storedPhone, string $submittedPhone): bool
-    {
-        return $this->normalizePhone($storedPhone) === $this->normalizePhone($submittedPhone);
-    }
-
-    private function normalizePhone(string $value): string
-    {
-        return ltrim(preg_replace('/\D+/', '', $value) ?? '', '0');
-    }
-
-    private function renderSimplePdf(array $lines): string
-    {
-        $escapedLines = array_map(function ($line) {
-            return str_replace(['\\', '(', ')'], ['\\\\', '\\(', '\\)'], $line);
-        }, $lines);
-
-        $stream = "BT\n/F1 12 Tf\n50 790 Td\n14 TL\n";
-
-        foreach ($escapedLines as $index => $line) {
-            if ($index === 0) {
-                $stream .= '(' . $line . ") Tj\n";
-                continue;
-            }
-
-            $stream .= 'T* (' . $line . ") Tj\n";
-        }
-
-        $stream .= "ET";
-
-        $objects = [
-            "1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj",
-            "2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj",
-            "3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >> endobj",
-            "4 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj",
-            "5 0 obj << /Length " . strlen($stream) . " >> stream\n" . $stream . "\nendstream endobj",
-        ];
-
-        $pdf = "%PDF-1.4\n";
-        $offsets = [];
-
-        foreach ($objects as $object) {
-            $offsets[] = strlen($pdf);
-            $pdf .= $object . "\n";
-        }
-
-        $xrefOffset = strlen($pdf);
-        $pdf .= "xref\n0 " . (count($objects) + 1) . "\n";
-        $pdf .= "0000000000 65535 f \n";
-
-        foreach ($offsets as $offset) {
-            $pdf .= sprintf("%010d 00000 n \n", $offset);
-        }
-
-        $pdf .= "trailer << /Size " . (count($objects) + 1) . " /Root 1 0 R >>\n";
-        $pdf .= "startxref\n" . $xrefOffset . "\n%%EOF";
-
-        return $pdf;
     }
 }

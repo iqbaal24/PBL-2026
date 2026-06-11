@@ -10,20 +10,24 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        User::create([
-            'name' => 'Super Admin',
-            'email' => 'SuperAdmin@example.com',
-            'password' => bcrypt('password'),
-            'role' => 'superadmin',
-            'is_active' => true,
-        ]);
+        User::firstOrCreate(
+            ['email' => 'SuperAdmin@example.com'],
+            [
+                'name' => 'Super Admin',
+                'password' => bcrypt('password'),
+                'role' => 'superadmin',
+                'is_active' => true,
+            ]
+        );
 
-        User::create([
-            'name' => 'Admin',
-            'email' => 'admin@example.com',
-            'password' => bcrypt('password'),
-            'role' => 'admin',
-            'is_active' => true,
-        ]);
+        User::firstOrCreate(
+            ['email' => 'admin@example.com'],
+            [
+                'name' => 'Admin',
+                'password' => bcrypt('password'),
+                'role' => 'admin',
+                'is_active' => true,
+            ]
+        );
     }
 }
