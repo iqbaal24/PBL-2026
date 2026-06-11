@@ -19,6 +19,8 @@ class DatabaseSeeder extends Seeder
             ProductVariantSeeder::class,
             ProductFinishingSeeder::class,
             StoreProfileSeeder::class,
+            OrderSeeder::class,
+            ReviewSeeder::class,
         ]);
     }
 }
