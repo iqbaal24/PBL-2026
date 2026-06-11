@@ -54,6 +54,10 @@
             if ($storeProfile->logo) {
                 $storefront['logo_url'] = \Illuminate\Support\Facades\Storage::disk('public')->url($storeProfile->logo);
             }
+
+            if ($storeProfile->instagram_url) {
+                $storefront['instagram_url'] = $storeProfile->instagram_url;
+            }
         }
     } catch (\Throwable $exception) {
     }
@@ -77,6 +81,16 @@
                 <p class="mt-5 text-sm leading-relaxed text-white/70 max-w-sm font-normal">
                     Cetak digital praktis untuk kebutuhan bisnis, acara, dan pribadi.
                 </p>
+                @if ($storefront['instagram_url'] ?? null)
+                    <div class="mt-6">
+                        <a href="{{ $storefront['instagram_url'] }}" target="_blank" rel="noopener noreferrer" class="group inline-flex items-center gap-2.5 text-sm text-white/60 hover:text-[#f0c79d] transition-all duration-300">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-sm bg-white/5 border border-white/10 group-hover:border-[#f0c79d]/30 group-hover:bg-white/10 transition-all">
+                                <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                            </div>
+                            <span class="font-medium">Instagram</span>
+                        </a>
+                    </div>
+                @endif
             </div>
             <div>
                 <h3 class="text-sm font-semibold text-[#f0c79d] mb-5 block">Navigasi</h3>
