@@ -18,6 +18,22 @@
                     ->all();
             }
 
+            if ($storeProfile->maps_url) {
+                $storefront['maps_url'] = $storeProfile->maps_url;
+
+                if (!$storeProfile->maps_embed_url) {
+                    if (preg_match('/!3d([^!]+)!4d([^!]+)/', $storeProfile->maps_url, $coordinates)
+                        || preg_match('/@([^,]+),([^,]+),/', $storeProfile->maps_url, $coordinates)) {
+                        $point = $coordinates[1] . ',' . $coordinates[2];
+                        $storefront['maps_embed_url'] = 'https://www.google.com/maps?q=' . rawurlencode($point) . '&z=17&output=embed';
+                    }
+                }
+            }
+
+            if ($storeProfile->maps_embed_url) {
+                $storefront['maps_embed_url'] = $storeProfile->maps_embed_url;
+            }
+
             if ($storeProfile->whatsapp_number) {
                 $number = preg_replace('/[^0-9]/', '', $storeProfile->whatsapp_number) ?? '';
                 $displayNumber = str_starts_with($number, '62') ? '0' . substr($number, 2) : $number;

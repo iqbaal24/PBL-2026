@@ -14,6 +14,12 @@
                 ->all();
             $storefront['maps_url'] = 'https://maps.google.com/?q=' . rawurlencode(str_replace(["\r", "\n"], ' ', $storeProfile->address));
         }
+        if ($storeProfile?->maps_url) {
+            $storefront['maps_url'] = $storeProfile->maps_url;
+        }
+        if ($storeProfile?->maps_embed_url) {
+            $storefront['maps_embed_url'] = $storeProfile->maps_embed_url;
+        }
         if ($storeProfile?->whatsapp_number) {
             $number = preg_replace('/[^0-9]/', '', $storeProfile->whatsapp_number) ?? '';
             $displayNumber = str_starts_with($number, '62') ? '0' . substr($number, 2) : $number;

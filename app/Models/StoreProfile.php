@@ -15,6 +15,8 @@ class StoreProfile extends Model
         'name',
         'about',
         'address',
+        'maps_url',
+        'maps_embed_url',
         'whatsapp_number',
         'email',
         'logo',

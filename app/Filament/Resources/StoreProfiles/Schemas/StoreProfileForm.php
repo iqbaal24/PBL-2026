@@ -30,6 +30,16 @@ class StoreProfileForm
                             ->columnSpanFull(),
                         Textarea::make('about')->rows(4)->columnSpanFull(),
                         Textarea::make('address')->rows(3)->columnSpanFull(),
+                        TextInput::make('maps_url')
+                            ->label('Google Maps URL')
+                            ->helperText('Tempel link lengkap lokasi dari Google Maps.')
+                            ->url()
+                            ->columnSpanFull(),
+                        TextInput::make('maps_embed_url')
+                            ->label('Google Maps Embed URL')
+                            ->helperText('Tempel link embed (src dari iframe) dari Google Maps.')
+                            ->url()
+                            ->columnSpanFull(),
                     ]),
                 ]),
         ]);
