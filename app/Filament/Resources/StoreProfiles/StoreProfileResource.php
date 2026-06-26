@@ -14,6 +14,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class StoreProfileResource extends Resource
 {
@@ -24,6 +26,26 @@ class StoreProfileResource extends Resource
     protected static ?string $navigationLabel = 'Store Profile';
 
     protected static ?int $navigationSort = 4;
+
+    public static function canAccess(): bool
+    {
+        return Auth::user()?->role === 'superadmin';
+    }
+
+    public static function canCreate(): bool
+    {
+        return static::canAccess();
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return static::canAccess();
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return static::canAccess();
+    }
 
     public static function form(Schema $schema): Schema
     {

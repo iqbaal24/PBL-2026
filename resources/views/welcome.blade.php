@@ -37,6 +37,10 @@
         $featuredProducts = \App\Models\Product::query()
             ->where('is_active', true)
             ->with(['category', 'activeVariants'])
+            ->withSum('orderItems', 'quantity')
+            ->whereHas('orderItems')
+            ->orderByDesc('order_items_sum_quantity')
+            ->limit(5)
             ->get();
     } catch (\Throwable $e) {
         // Safe fallback

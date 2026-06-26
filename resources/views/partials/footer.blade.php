@@ -68,8 +68,8 @@
 
 <footer id="kontak" class="bg-[#181715] text-white pt-20 pb-12 border-t border-white/5">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid gap-10 lg:grid-cols-5">
-            <div>
+        <div class="grid gap-10 lg:grid-cols-6">
+            <div class="min-w-0">
                 <div class="flex items-center gap-3">
                     @if ($brandLogoUrl)
                         <img src="{{ $brandLogoUrl }}" alt="{{ $brandName }}" class="h-10 w-10 flex-shrink-0 rounded-sm object-cover bg-white" />
@@ -92,7 +92,7 @@
                     </div>
                 @endif
             </div>
-            <div>
+            <div class="min-w-0">
                 <h3 class="text-sm font-semibold text-[#f0c79d] mb-5 block">Navigasi</h3>
                 <ul class="space-y-3 text-sm text-white/70">
                     <li><a href="{{ url('/') }}" class="transition-colors hover:text-[#e5a35d]">Beranda</a></li>
@@ -102,7 +102,7 @@
                     <li><a href="{{ url('/hubungi-kami') }}" class="transition-colors hover:text-[#e5a35d]">Hubungi Kami</a></li>
                 </ul>
             </div>
-            <div>
+            <div class="min-w-0">
                 <h3 class="text-sm font-semibold text-[#f0c79d] mb-5 block">Kontak</h3>
                 <ul class="space-y-3 text-sm text-white/70 leading-relaxed">
                     @foreach ($storefront['address_lines'] as $line)
@@ -124,9 +124,9 @@
                     </li>
                 </ul>
             </div>
-            <div>
+            <div class="min-w-0 lg:col-span-2">
                 <h3 class="text-sm font-semibold text-[#f0c79d] mb-5 block">Lokasi</h3>
-                <div class="overflow-hidden rounded-sm border border-white/10 h-40 relative">
+                <div class="overflow-hidden rounded-sm border border-white/10 h-48 relative">
                     <iframe 
                         src="{{ $storefront['maps_embed_url'] }}" 
                         width="100%" 
@@ -135,11 +135,11 @@
                         allowfullscreen="" 
                         loading="lazy" 
                         referrerpolicy="no-referrer-when-downgrade"
-                        class="w-full h-full"
+                        class="block h-full w-full max-w-full"
                     ></iframe>
                 </div>
             </div>
-            <div>
+            <div class="min-w-0">
                 <h3 class="text-sm font-semibold text-[#f0c79d] mb-5 block">Jam Operasional</h3>
                 <ul class="space-y-3 text-sm text-white/70">
                     @foreach ($storefront['hours'] as $hour)
